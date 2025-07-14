@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35913.81
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Importer.Canada.Function", "Radio-Search.Importer.Canada.Function\Radio-Search.Importer.Canada.Function.csproj", "{5059C371-DC47-47D5-BA8D-87B4FF70CB74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Importer.Canada.Services", "Radio-Search.Importer.Canada.Services\Radio-Search.Importer.Canada.Services.csproj", "{B018F2DD-1B80-4B86-BAA5-F16AD0467B64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Importer.Canada.Data", "Radio-Search.Importer.Canada.Data\Radio-Search.Importer.Canada.Data.csproj", "{43FB0535-2827-4E1A-80C8-D5418B2E91EC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Importer.Canada.UnitTests", "..\Tests\Radio-Search.Importer.Canada\Radio-Search.Importer.Canada.UnitTests\Radio-Search.Importer.Canada.UnitTests.csproj", "{4C7356D8-5EA3-45DB-BC16-19B74A98DB8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Utils.BlobStorage", "..\..\..\utils\Radio-Search.Utils.BlobStorage\Radio-Search.Utils.BlobStorage\Radio-Search.Utils.BlobStorage.csproj", "{46066D57-3659-E654-B433-E1CF7349A3C6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5059C371-DC47-47D5-BA8D-87B4FF70CB74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5059C371-DC47-47D5-BA8D-87B4FF70CB74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5059C371-DC47-47D5-BA8D-87B4FF70CB74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5059C371-DC47-47D5-BA8D-87B4FF70CB74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B018F2DD-1B80-4B86-BAA5-F16AD0467B64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B018F2DD-1B80-4B86-BAA5-F16AD0467B64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B018F2DD-1B80-4B86-BAA5-F16AD0467B64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B018F2DD-1B80-4B86-BAA5-F16AD0467B64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43FB0535-2827-4E1A-80C8-D5418B2E91EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43FB0535-2827-4E1A-80C8-D5418B2E91EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43FB0535-2827-4E1A-80C8-D5418B2E91EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43FB0535-2827-4E1A-80C8-D5418B2E91EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C7356D8-5EA3-45DB-BC16-19B74A98DB8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C7356D8-5EA3-45DB-BC16-19B74A98DB8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C7356D8-5EA3-45DB-BC16-19B74A98DB8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C7356D8-5EA3-45DB-BC16-19B74A98DB8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46066D57-3659-E654-B433-E1CF7349A3C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46066D57-3659-E654-B433-E1CF7349A3C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46066D57-3659-E654-B433-E1CF7349A3C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46066D57-3659-E654-B433-E1CF7349A3C6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4C7356D8-5EA3-45DB-BC16-19B74A98DB8B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5299C3BA-8EB4-43ED-B1FC-EB12FAC41D40}
+	EndGlobalSection
+EndGlobal

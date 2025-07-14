@@ -1,0 +1,18 @@
+{
+  "profiles": {
+    "Radio_Search.Importer.Canada.Function": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7204",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "local"
+      }
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "containerRunArguments": "--init",
+      "httpPort": 34545,
+      "useSSL": false
+    }
+  }
+}
