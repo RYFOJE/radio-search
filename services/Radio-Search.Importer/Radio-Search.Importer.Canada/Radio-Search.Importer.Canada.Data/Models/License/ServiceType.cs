@@ -2,6 +2,6 @@
 {
     public class ServiceType : MultiLanguageEntry
     {
-        public int ServiceTypeID { get; set; }
+        public short ServiceTypeID { get; set; }
     }
 }

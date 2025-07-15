@@ -44,7 +44,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 taflStream = await DownloadTAFLFromSource();
                 unzippedFileStream = UnzipSingleFile(taflStream);
 
-                resp = await _blobStorageService.UploadAsync($"unprocessed/{newFileName}", unzippedFileStream);
+                resp = await _blobStorageService.UploadAsync($"csv/unprocessed/{newFileName}", unzippedFileStream);
             }
             catch (Exception ex)
             {
@@ -71,6 +71,42 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             };
         }
 
+        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFLDefinition()
+        {
+            Stream? taflStream = null;
+            var newFileName = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd") + ".pdf";
+            Uri resp;
+
+            try
+            {
+                taflStream = await DownloadTAFLDefinitionFromSource();
+                resp = await _blobStorageService.UploadAsync($"pdf/unprocessed/{newFileName}", taflStream);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during the download and unzip process.");
+
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+            finally
+            {
+                taflStream?.Dispose();
+            }
+
+            return new()
+            {
+                Success = true,
+                Message = "Successfully uploaded new TAFL Definition File",
+                FileName = newFileName,
+                FullPath = resp
+            };
+        }
+
+
         /// <summary>
         /// Downloads the file from the Canadian website
         /// </summary>
@@ -86,6 +122,21 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed while attempting to DownloadTAFLFromSource URL:{TAFL_URL}", _URLs.TAFLUrl);
+                throw;
+            }
+        }
+
+        private async Task<Stream> DownloadTAFLDefinitionFromSource()
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient(HttpClientNames.TAFL_DOWNLOADER);
+
+                return await client.GetStreamAsync(_URLs.TAFLDescriptionUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed while attempting to DownloadTAFLDefinitionFromSource URL:{TAFL_URL}", _URLs.TAFLDescriptionUrl);
                 throw;
             }
         }

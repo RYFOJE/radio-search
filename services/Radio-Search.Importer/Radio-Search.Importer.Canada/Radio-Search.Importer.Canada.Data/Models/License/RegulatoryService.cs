@@ -2,6 +2,6 @@
 {
     public class RegulatoryService : MultiLanguageEntry
     {
-        public int RegulatoryServiceID { get; set; }
+        public short RegulatoryServiceID { get; set; }
     }
 }

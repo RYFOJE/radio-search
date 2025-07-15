@@ -18,8 +18,8 @@ namespace Radio_Search.Importer.Canada.Data.Models.License
         public string? FrequencyAllocationName { get; set; }
         public string? Channel { get; set; }
         public string? InternationalCoordinationNumber { get; set; }
-        public string? AnalogDigital { get; set; }
-        public decimal? OccupiedBandwidthKHz { get; set; }      
+        public AnalogDigital? AnalogDigital { get; set; }
+        public decimal? OccupiedBandwidthKHz { get; set; }
         public string? DesignationOfEmission { get; set; }
         public ModulationType? ModulationType { get; set; }
         public FiltrationInstalledType? FiltrationInstalled { get; set; }
@@ -64,7 +64,7 @@ namespace Radio_Search.Importer.Canada.Data.Models.License
         public string? AccountNumber { get; set; }
         public string? LicenseeName { get; set; }
         public string? LicenseeAddress { get; set; }
-        public OperationStatus? OperationalStatus { get; set; }
+        public OperationalStatus? OperationalStatus { get; set; }
         public StationClass? StationClass { get; set; }
         public decimal? HorizontalPowerW { get; set; }
         public decimal? VerticalPowerW { get; set; }

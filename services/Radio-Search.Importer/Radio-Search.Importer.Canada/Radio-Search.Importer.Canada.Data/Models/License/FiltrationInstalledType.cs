@@ -2,7 +2,7 @@
 {
     public class FiltrationInstalledType : MultiLanguageEntry
     {
-        public string FiltrationInstalledTypeID { get; set; } = string.Empty;
+        public char FiltrationInstalledTypeID { get; set; }
 
     }
 }

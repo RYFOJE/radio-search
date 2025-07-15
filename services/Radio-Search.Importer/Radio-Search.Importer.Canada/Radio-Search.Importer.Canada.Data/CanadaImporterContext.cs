@@ -22,7 +22,7 @@ namespace Radio_Search.Importer.Canada.Data
         public DbSet<LicenseRecordHistory> LicenseRecordsHistory { get; set; }
         public DbSet<LicenseType> LicenseTypes { get; set; }
         public DbSet<ModulationType> ModulationTypes { get; set; }
-        public DbSet<OperationStatus> OperationStatuses { get; set; }
+        public DbSet<OperationalStatus> OperationStatuses { get; set; }
         public DbSet<PolarizationType> PolarizationTypes { get; set; }
         public DbSet<Province> Provinces { get; set; }
         public DbSet<RegulatoryService> RegulatoryServices { get; set; }
@@ -33,7 +33,7 @@ namespace Radio_Search.Importer.Canada.Data
         public DbSet<StationFunctionType> stationFunctionTypes { get; set; }
         public DbSet<StationType> stationTypes { get; set; }
         public DbSet<SubserviceType> SubserviceTypes { get; set; }
-        //public DbSet<TransmissionType> TransmissionTypes { get; set; }
+        public DbSet<AnalogDigital> AnalogDigital { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -126,6 +126,10 @@ namespace Radio_Search.Importer.Canada.Data
                 entity.HasOne(u => u.Subservice)
                     .WithMany()
                     .IsRequired(false);
+
+                entity.HasOne(u => u.AnalogDigital)
+                    .WithMany()
+                    .IsRequired(false);
             });
 
             modelBuilder.Entity<LicenseRecordHistory>(entity =>
@@ -141,5 +145,6 @@ namespace Radio_Search.Importer.Canada.Data
         }
     }
 }
-//dotnet ef migrations add "initial" -s .\Radio-Search.Importer.Canada.Function -p .\Radio-Search.Importer.Canada.Data -c CanadaImporterContext -o Migrations
+
+// dotnet ef migrations add "initial_commit" -s .\Radio-Search.Importer.Canada.Function -p .\Radio-Search.Importer.Canada.Data -c CanadaImporterContext -o Migrations
 // dotnet ef database update -s .\Radio-Search.Importer.Canada.Function -p .\Radio-Search.Importer.Canada.Data -c CanadaImporterContext

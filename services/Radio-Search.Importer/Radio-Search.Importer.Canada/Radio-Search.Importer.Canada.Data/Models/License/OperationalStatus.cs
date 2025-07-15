@@ -2,9 +2,9 @@
 
 namespace Radio_Search.Importer.Canada.Data.Models.License
 {
-    public class StationClass : MultiLanguageEntry
+    public class OperationalStatus : MultiLanguageEntry
     {
         [MaxLength(5)]
-        public string StationClassID { get; set; } = string.Empty;
+        public string OperationalStatusID { get; set; } = string.Empty;
     }
 }

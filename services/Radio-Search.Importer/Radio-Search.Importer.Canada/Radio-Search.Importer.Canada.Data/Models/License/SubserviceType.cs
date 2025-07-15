@@ -2,6 +2,6 @@
 {
     public class SubserviceType : MultiLanguageEntry
     {
-        public int SubserviceTypeID { get; set; }
+        public short SubserviceTypeID { get; set; }
     }
 }

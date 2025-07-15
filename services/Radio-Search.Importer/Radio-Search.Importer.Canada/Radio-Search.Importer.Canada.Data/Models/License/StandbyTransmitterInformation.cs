@@ -2,6 +2,6 @@
 {
     public class StandbyTransmitterInformation : MultiLanguageEntry
     {
-        public int StandbyTransmitterInformationID { get; set; }
+        public short StandbyTransmitterInformationID { get; set; }
     }
 }

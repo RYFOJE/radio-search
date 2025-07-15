@@ -18,8 +18,8 @@ namespace Radio_Search.Importer.Canada.Function.Functions
             _downloadFileService = downloadFileService;
         }
 
-        [Function(nameof(DownloadStartQueueHandler))]
-        public async Task Run(
+        [Function("DownloadStartQueueHandler_TableDownload")]
+        public async Task RunTableDownload(
             [ServiceBusTrigger("canada", Connection = "ServiceBus")]
             ServiceBusReceivedMessage message,
             ServiceBusMessageActions messageActions)
@@ -30,7 +30,29 @@ namespace Radio_Search.Importer.Canada.Function.Functions
 
             var result = await _downloadFileService.DownloadAndSaveRecentTAFL();
 
-            if(!result.Success)
+            if (!result.Success)
+            {
+                await messageActions.AbandonMessageAsync(message);
+                return;
+            }
+
+            // Complete the message
+            await messageActions.CompleteMessageAsync(message);
+        }
+
+        [Function("DownloadStartQueueHandler_DefinitionDownload")]
+        public async Task RunDefinitionDownload(
+            [ServiceBusTrigger("canada-definition", Connection = "ServiceBus")] // TODO: Change this to something better
+            ServiceBusReceivedMessage message,
+            ServiceBusMessageActions messageActions)
+        {
+            _logger.LogInformation("Message ID: {id}", message.MessageId);
+            _logger.LogInformation("Message Body: {body}", message.Body);
+            _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
+
+            var result = await _downloadFileService.DownloadAndSaveRecentTAFLDefinition();
+
+            if (!result.Success)
             {
                 await messageActions.AbandonMessageAsync(message);
                 return;

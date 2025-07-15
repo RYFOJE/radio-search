@@ -2,6 +2,6 @@
 {
     public class PolarizationType : MultiLanguageEntry
     {
-        public string PolarizationTypeID { get; set; } = string.Empty;
+        public char PolarizationTypeID { get; set; }
     }
 }

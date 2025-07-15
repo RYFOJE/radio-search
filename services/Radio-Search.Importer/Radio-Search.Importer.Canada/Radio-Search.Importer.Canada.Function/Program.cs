@@ -1,8 +1,11 @@
+using AutoMapper;
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using DnsClient.Internal;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -62,7 +65,7 @@ builder.Configuration.AddAzureAppConfiguration(options =>
 
     options.Connect(new Uri(uri), new DefaultAzureCredential());
 
-    options.Select($"{keyPrefix}:");
+    options.Select($"{keyPrefix}:", LabelFilter.Null);
     options.TrimKeyPrefix($"{keyPrefix}:");
 
     options.ConfigureRefresh(refreshOptions =>
@@ -124,9 +127,11 @@ if (isProduction)
 
 #region DEPENDENCY INJECTION
 
+// Services
 builder.Services.AddScoped<IImportService, ImportService>();
 builder.Services.AddScoped<IDownloadFileService, DownloadFileService>();
 builder.Services.AddScoped<IUpdateVerificationService, UpdateVerificationService>();
+builder.Services.ImporterCanadaAddData();
 
 builder.Services.AddBlobStorage(
         blobConnectionString: builder.Configuration.GetValue<string>("BlobStorage:URL") ?? throw new ArgumentNullException("BlobStorage:URL Cannot be null"),
@@ -146,6 +151,9 @@ builder.Services.ImporterCanadaAddHTTPClients();
 builder.Services.Configure<DownloaderURLs>(
     builder.Configuration.GetSection("DownloaderURLs"));
 
+builder.Services.Configure<TAFLDefinitionTablesOrder>(
+    builder.Configuration.GetSection("TAFLDefinitionTables"));
+
 #endregion
 
 #region DB CONTEXTS
@@ -158,6 +166,11 @@ builder.Services.AddDbContext<CanadaImporterContext>(options =>
         connectionString,
         x => x.UseNetTopologySuite()
     ));
+
+#endregion
+
+#region AUTOMAPPER
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 
 #endregion
 

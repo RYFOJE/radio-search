@@ -2,6 +2,6 @@
 {
     public class StationType : MultiLanguageEntry
     {
-        public string StationTypeID { get; set; } = string.Empty;
+        public short StationTypeID { get; set; }
     }
 }

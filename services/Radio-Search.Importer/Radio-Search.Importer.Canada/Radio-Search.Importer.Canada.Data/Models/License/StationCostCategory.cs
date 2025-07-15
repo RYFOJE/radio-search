@@ -2,7 +2,7 @@
 {
     public class StationCostCategory : MultiLanguageEntry
     {
-        public string StationCostCategoryID { get; set; } = string.Empty;
+        public short StationCostCategoryID { get; set; }
 
     }
 }

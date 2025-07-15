@@ -1,21 +1,23 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using System.IO;
+using Radio_Search.Importer.Canada.Services.Interfaces;
 
 namespace Radio_Search.Importer.Canada.Function.Functions;
 
 public class DownloadCompleteHandler
 {
     private readonly ILogger<DownloadCompleteHandler> _logger;
+    private readonly IImportService _importService;
 
-    public DownloadCompleteHandler(ILogger<DownloadCompleteHandler> logger)
+    public DownloadCompleteHandler(ILogger<DownloadCompleteHandler> logger, IImportService importService)
     {
         _logger = logger;
+        _importService = importService;
     }
 
     [Function(nameof(DownloadCompleteHandler))]
-    public async Task Run([BlobTrigger("canada/unprocessed/{name}", Connection = "canada-blob")] Stream blobData, string name)
-    {   
-        _logger.LogInformation("C# Blob trigger function Processed blob\n Name: {name}", name);
+    public async Task RunDefinitionImport([BlobTrigger("canada/pdf/unprocessed/{name}", Connection = "canada-blob")] Stream blobData, string name)
+    {
+        _importService.ProcessTAFLDefinition(blobData);
     }
 }
