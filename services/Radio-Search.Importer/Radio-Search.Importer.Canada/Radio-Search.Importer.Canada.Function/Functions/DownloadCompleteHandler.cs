@@ -18,6 +18,9 @@ public class DownloadCompleteHandler
     [Function(nameof(DownloadCompleteHandler))]
     public async Task RunDefinitionImport([BlobTrigger("canada/pdf/unprocessed/{name}", Connection = "canada-blob")] Stream blobData, string name)
     {
-        _importService.ProcessTAFLDefinition(blobData);
+        // TODO: Add Checking
+        var data = _importService.ProcessTAFLDefinition(blobData);
+
+        await _importService.SaveTAFLDefinitionToDBAsync(data.Tables);
     }
 }

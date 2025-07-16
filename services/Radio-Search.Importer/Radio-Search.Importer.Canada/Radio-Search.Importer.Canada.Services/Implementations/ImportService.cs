@@ -10,6 +10,8 @@ using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Data.Enums;
+using Radio_Search.Importer.Canada.Services.Exceptions;
+using Radio_Search.Importer.Canada.Services.Exceptions.TAFLDefinitionExceptions;
 using Radio_Search.Importer.Canada.Services.Interfaces;
 using Radio_Search.Importer.Canada.Services.Responses;
 using Spire.Pdf;
@@ -27,6 +29,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         private readonly CanadaImporterContext _context;
         private readonly ITAFLDefinitionRepo _definitionRepo;
         private readonly IMapper _mapper;
+        private readonly IPDFProcessingServices _pdfService;
 
         public ImportService(
                 ILogger<ImportService> logger,
@@ -34,7 +37,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 IOptions<TAFLDefinitionTablesOrder> taflDefinitionOrder,
                 CanadaImporterContext context,
                 ITAFLDefinitionRepo definitionRepo,
-                IMapper mapper)
+                IMapper mapper,
+                IPDFProcessingServices pdfService)
         {
             _logger = logger;
             _config = config;
@@ -42,6 +46,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             _context = context;
             _definitionRepo = definitionRepo;
             _mapper = mapper;
+            _pdfService = pdfService;
         }
 
         /// <inheritdoc/>
@@ -93,14 +98,16 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         /// <inheritdoc/>
-        public ProcessTAFLDefinitionResponse ProcessTAFLDefinition(Stream stream)
+        public ProcessTAFLDefinitionResponse ProcessTAFLDefinition(Stream multiPageStream)
         {
             Dictionary<TableDefinitions, HashSet<TableDefinitionRow>> parsedTables = new();
 
             try
             {
+                var singlePageStream = _pdfService.MergePDFToSinglePage(multiPageStream);
+
                 PdfDocument pdf = new PdfDocument();
-                pdf.LoadFromStream(stream);
+                pdf.LoadFromStream(singlePageStream);
                 var extractor = new PdfTableExtractor(pdf);
 
                 List<PdfTable> rawTables = new();
@@ -130,8 +137,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                         continue;
                     }
 
-                    if (!IsValidTable(rawTables[i]))
-                        throw new InvalidOperationException($"Table at index:{i} is invalid.");
+                    ThrowIfTableInvalid(rawTables[i]);
 
                     // Get or create that tables HashSet for the given enum
                     if (!parsedTables.TryGetValue(currTableEnum, out var tableInOutputList))
@@ -144,6 +150,15 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
                     tableInOutputList.UnionWith(rows);
                 }
+            }
+            catch (TAFLDefinitionException tfEx)
+            {
+                _logger.LogError(tfEx, "One or more tables do not match expected format.");
+                return new()
+                {
+                    Success = false,
+                    Message = tfEx.Message
+                };
             }
             catch (Exception ex)
             {
@@ -375,26 +390,21 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             return csv;
         }
 
-        private bool IsValidTable(PdfTable table)
+        private void ThrowIfTableInvalid(PdfTable table)
         {
             int rows = table.GetRowCount();
             int cols = table.GetColumnCount();
 
-            if (cols <= 2)
-                return false;
-
-            if (rows != _taflDefinitionOrder.Headers.Count)
-                return false;
+            if (cols != _taflDefinitionOrder.Headers.Count)
+                throw new TAFLDefinitionHeaderCountException(_taflDefinitionOrder.Headers.Count, cols);
 
             for (int i = 0; i < _taflDefinitionOrder.Headers.Count; i++)
             {
                 var headerColumn = table.GetText(0, i).Trim();
 
                 if (!string.Equals(headerColumn, _taflDefinitionOrder.Headers[i], StringComparison.InvariantCultureIgnoreCase))
-                    return false;
+                    throw new TAFLDefinitionHeaderMismatchException(headerColumn, _taflDefinitionOrder.Headers[i]);
             }
-
-            return true;
         }
 
         private List<TableDefinitionRow> GetAllRows(PdfTable table, bool ignoreHeader = true)

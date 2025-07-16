@@ -48,6 +48,8 @@ builder.Configuration.AddAzureAppConfiguration(options =>
 
     options.Connect(new Uri(uri), new DefaultAzureCredential());
 
+    options.Select(KeyFilter.Any, LabelFilter.Null);
+
     options.ConfigureRefresh(refreshOptions =>
     {
         refreshOptions.Register(sentinelLabel, refreshAll: true);
@@ -65,7 +67,7 @@ builder.Configuration.AddAzureAppConfiguration(options =>
 
     options.Connect(new Uri(uri), new DefaultAzureCredential());
 
-    options.Select($"{keyPrefix}:", LabelFilter.Null);
+    options.Select($"{keyPrefix}:*", LabelFilter.Null);
     options.TrimKeyPrefix($"{keyPrefix}:");
 
     options.ConfigureRefresh(refreshOptions =>
@@ -131,6 +133,7 @@ if (isProduction)
 builder.Services.AddScoped<IImportService, ImportService>();
 builder.Services.AddScoped<IDownloadFileService, DownloadFileService>();
 builder.Services.AddScoped<IUpdateVerificationService, UpdateVerificationService>();
+builder.Services.AddScoped<IPDFProcessingServices, PDFProcessingServices>();
 builder.Services.ImporterCanadaAddData();
 
 builder.Services.AddBlobStorage(
