@@ -13,8 +13,8 @@ using Radio_Search.Importer.Canada.Data;
 namespace Radio_Search.Importer.Canada.Data.Migrations
 {
     [DbContext(typeof(CanadaImporterContext))]
-    [Migration("20250715034914_initial_commit")]
-    partial class initial_commit
+    [Migration("20250717003941_changed_authstatus_to_string")]
+    partial class changed_authstatus_to_string
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,7 +60,6 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.AnalogDigital", b =>
                 {
                     b.Property<string>("AnalogDigitalID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
@@ -119,12 +118,9 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.AuthorizationStatus", b =>
                 {
-                    b.Property<int>("AuthorizationStatusID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("AuthorizationStatusID")
                         .HasMaxLength(3)
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuthorizationStatusID"));
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -212,7 +208,6 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.CongestionZoneType", b =>
                 {
                     b.Property<string>("CongestionZoneTypeID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
@@ -242,7 +237,6 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.FiltrationInstalledType", b =>
                 {
                     b.Property<string>("FiltrationInstalledTypeID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
@@ -308,13 +302,15 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("AnalogCapacityChannels")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<string>("AnalogDigitalID")
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<decimal?>("AntennaGainDbi")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<string>("AntennaManufacturer")
                         .HasColumnType("nvarchar(max)");
@@ -326,19 +322,22 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("nvarchar(15)");
 
                     b.Property<decimal?>("AntennaStructureHeightM")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<string>("AuthorizationNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("AuthorizationStatusID")
-                        .HasColumnType("int");
+                    b.Property<string>("AuthorizationStatusID")
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<decimal?>("AzimuthMainLobeDeg")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<decimal?>("BeamwidthDeg")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<string>("CallSign")
                         .HasColumnType("nvarchar(max)");
@@ -367,7 +366,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("DigitalCapacityMbps")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<string>("FiltrationInstalledTypeID")
                         .HasColumnType("nvarchar(1)");
@@ -376,19 +376,23 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("FrequencyMHz")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<decimal?>("FrontToBackRatioDb")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<int?>("GroundElevationM")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("HeightAboveGroundM")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<decimal?>("HorizontalPowerW")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<string>("ITUClassOfStationITUClassTypeID")
                         .HasColumnType("nvarchar(3)");
@@ -421,7 +425,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("OccupiedBandwidthKHz")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<string>("OperationalStatusID")
                         .HasColumnType("nvarchar(5)");
@@ -478,22 +483,27 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<decimal?>("TotalLossesDb")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<decimal?>("TxERPdBW")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<decimal?>("TxPowerW")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<DateTime>("UpdateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("VerticalElevationAngleDeg")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.Property<decimal?>("VerticalPowerW")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(12, 10)
+                        .HasColumnType("decimal(12,10)");
 
                     b.HasKey("LicenseRecordID");
 
@@ -667,7 +677,6 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.PolarizationType", b =>
                 {
                     b.Property<string>("PolarizationTypeID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
@@ -727,10 +736,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.RegulatoryService", b =>
                 {
                     b.Property<short>("RegulatoryServiceID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("RegulatoryServiceID"));
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -759,10 +765,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.ServiceType", b =>
                 {
                     b.Property<short>("ServiceTypeID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("ServiceTypeID"));
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -791,10 +794,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StandbyTransmitterInformation", b =>
                 {
                     b.Property<short>("StandbyTransmitterInformationID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("StandbyTransmitterInformationID"));
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -853,10 +853,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StationCostCategory", b =>
                 {
                     b.Property<short>("StationCostCategoryID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("StationCostCategoryID"));
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -915,10 +912,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StationType", b =>
                 {
                     b.Property<short>("StationTypeID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("StationTypeID"));
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -947,10 +941,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.SubserviceType", b =>
                 {
                     b.Property<short>("SubserviceTypeID")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("smallint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("SubserviceTypeID"));
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()

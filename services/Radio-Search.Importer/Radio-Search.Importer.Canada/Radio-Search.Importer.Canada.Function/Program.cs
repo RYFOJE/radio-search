@@ -15,8 +15,10 @@ using Radio_Search.Importer.Canada.Services;
 using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Implementations;
 using Radio_Search.Importer.Canada.Services.Interfaces;
+using Radio_Search.Importer.Canada.Services.Mappings;
 using Radio_Search.Utils.BlobStorage;
 using System.Net;
+using System.Reflection;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -173,8 +175,7 @@ builder.Services.AddDbContext<CanadaImporterContext>(options =>
 #endregion
 
 #region AUTOMAPPER
-builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
-
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<TAFLDefinitionProfile>());
 #endregion
 
 builder.Build().Run();

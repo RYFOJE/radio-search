@@ -11,6 +11,7 @@ namespace Radio_Search.Importer.Canada.Data
         }
 
         public DbSet<LicenseRecord> LicenseRecords { get; set; }
+        public DbSet<LicenseRecordHistory> LicenseRecordsHistory { get; set; }
 
         public DbSet<AntennaPattern> AntennaPatterns { get; set; }
         public DbSet<AuthorizationStatus> AuthorizationStatuses { get; set; }
@@ -19,7 +20,6 @@ namespace Radio_Search.Importer.Canada.Data
         public DbSet<CongestionZoneType> CongestionZoneTypes { get; set; }
         public DbSet<FiltrationInstalledType> FiltrationInstalledTypes { get; set; }
         public DbSet<ITUClassType> ITUClassTypes { get; set; }
-        public DbSet<LicenseRecordHistory> LicenseRecordsHistory { get; set; }
         public DbSet<LicenseType> LicenseTypes { get; set; }
         public DbSet<ModulationType> ModulationTypes { get; set; }
         public DbSet<OperationalStatus> OperationStatuses { get; set; }
@@ -41,11 +41,35 @@ namespace Radio_Search.Importer.Canada.Data
 
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<AntennaPattern>()
+                .Property(e => e.AntennaPatternID)
+                .ValueGeneratedNever();
+
+
+
             modelBuilder.Entity<LicenseRecord>(entity =>
             {
+                entity.Property(e => e.LicenseRecordID).ValueGeneratedNever();
                 entity.HasKey(u => u.LicenseRecordID);
-                //entity.HasIndex(u => u.Location);
+
                 entity.HasIndex(u => u.FrequencyMHz);
+
+                entity.Property(e => e.FrequencyMHz).HasPrecision(12, 10);
+                entity.Property(e => e.OccupiedBandwidthKHz).HasPrecision(12, 10);
+                entity.Property(e => e.TxERPdBW).HasPrecision(12, 10);
+                entity.Property(e => e.TxPowerW).HasPrecision(12, 10);
+                entity.Property(e => e.TotalLossesDb).HasPrecision(12, 10);
+                entity.Property(e => e.AnalogCapacityChannels).HasPrecision(12, 10);
+                entity.Property(e => e.DigitalCapacityMbps).HasPrecision(12, 10);
+                entity.Property(e => e.AntennaGainDbi).HasPrecision(12, 10);
+                entity.Property(e => e.BeamwidthDeg).HasPrecision(12, 10);
+                entity.Property(e => e.FrontToBackRatioDb).HasPrecision(12, 10);
+                entity.Property(e => e.HeightAboveGroundM).HasPrecision(12, 10);
+                entity.Property(e => e.AzimuthMainLobeDeg).HasPrecision(12, 10);
+                entity.Property(e => e.VerticalElevationAngleDeg).HasPrecision(12, 10);
+                entity.Property(e => e.AntennaStructureHeightM).HasPrecision(12, 10);
+                entity.Property(e => e.HorizontalPowerW).HasPrecision(12, 10);
+                entity.Property(e => e.VerticalPowerW).HasPrecision(12, 10);
 
                 entity.HasOne(u => u.AntennaPattern)
                     .WithMany()
@@ -132,6 +156,98 @@ namespace Radio_Search.Importer.Canada.Data
                     .IsRequired(false);
             });
 
+            modelBuilder.Entity<AntennaPattern>(entity => {
+                entity.Property(e => e.AntennaPatternID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<AuthorizationStatus>(entity => {
+                entity.Property(e => e.AuthorizationStatusID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<CommunicationType>(entity => {
+                entity.Property(e => e.CommunicationTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<ConformityFrequencyPlan>(entity => {
+                entity.Property(e => e.ConformityFrequencyPlanID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<CongestionZoneType>(entity => {
+                entity.Property(e => e.CongestionZoneTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<FiltrationInstalledType>(entity => {
+                entity.Property(e => e.FiltrationInstalledTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<ITUClassType>(entity => {
+                entity.Property(e => e.ITUClassTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<LicenseType>(entity => {
+                entity.Property(e => e.LicenseTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<ModulationType>(entity => {
+                entity.Property(e => e.ModulationTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<OperationalStatus>(entity => {
+                entity.Property(e => e.OperationalStatusID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<PolarizationType>(entity => {
+                entity.Property(e => e.PolarizationTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<Province>(entity => {
+                entity.Property(e => e.ProvinceID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<RegulatoryService>(entity => {
+                entity.Property(e => e.RegulatoryServiceID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<ServiceType>(entity => {
+                entity.Property(e => e.ServiceTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<StandbyTransmitterInformation>(entity => {
+                entity.Property(e => e.StandbyTransmitterInformationID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<StationClass>(entity =>
+            {
+                entity.Property(e => e.StationClassID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<StationCostCategory>(entity =>
+            {
+                entity.Property(e => e.StationCostCategoryID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<StationFunctionType>(entity =>
+            {
+                entity.Property(e => e.StationFunctionTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<StationType>(entity =>
+            {
+                entity.Property(e => e.StationTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<SubserviceType>(entity =>
+            {
+                entity.Property(e => e.SubserviceTypeID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<AnalogDigital>(entity =>
+            {
+                entity.Property(e => e.AnalogDigitalID).ValueGeneratedNever();
+            });
+
+
+
             modelBuilder.Entity<LicenseRecordHistory>(entity =>
             {
                 entity.HasOne(u => u.LicenseRecord)
@@ -146,5 +262,5 @@ namespace Radio_Search.Importer.Canada.Data
     }
 }
 
-// dotnet ef migrations add "initial_commit" -s .\Radio-Search.Importer.Canada.Function -p .\Radio-Search.Importer.Canada.Data -c CanadaImporterContext -o Migrations
+// dotnet ef migrations add "changed_authstatus_to_string" -s .\Radio-Search.Importer.Canada.Function -p .\Radio-Search.Importer.Canada.Data -c CanadaImporterContext -o Migrations
 // dotnet ef database update -s .\Radio-Search.Importer.Canada.Function -p .\Radio-Search.Importer.Canada.Data -c CanadaImporterContext

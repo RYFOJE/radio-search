@@ -2,7 +2,7 @@
 
 namespace Radio_Search.Importer.Canada.Services.Data
 {
-    public class BroadcastAuthorizationRecord
+    public class TAFLEntryRawRow
     {
         [Index(0)] public string? StationFunction { get; set; }
         [Index(1)] public decimal? FrequencyMHz { get; set; }

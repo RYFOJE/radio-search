@@ -1,7 +1,9 @@
-﻿using Radio_Search.Importer.Canada.Services.Data.Enums;
-
-namespace Radio_Search.Importer.Canada.Services.Exceptions.TAFLDefinitionExceptions
+﻿namespace Radio_Search.Importer.Canada.Services.Exceptions.TAFLDefinitionExceptions
 {
+
+    /// <summary>
+    /// Generic TAFL Definition Import exception.
+    /// </summary>
     public class TAFLDefinitionException : Exception
     {
         public TAFLDefinitionException() { }

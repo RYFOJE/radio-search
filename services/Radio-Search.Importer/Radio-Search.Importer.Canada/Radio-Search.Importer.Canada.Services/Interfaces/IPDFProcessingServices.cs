@@ -1,5 +1,8 @@
 ﻿namespace Radio_Search.Importer.Canada.Services.Interfaces
 {
+    /// <summary>
+    /// Provides services for processing PDF documents, including merging multiple pages into a single page.
+    /// </summary>
     public interface IPDFProcessingServices
     {
         /// <summary>

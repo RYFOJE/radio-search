@@ -6,6 +6,7 @@ using Radio_Search.Importer.Canada.Services.Interfaces;
 
 namespace Radio_Search.Importer.Canada.Services.Implementations
 {
+    /// <inheritdoc/>
     public class PDFProcessingServices : IPDFProcessingServices
     {
         private readonly ILogger<PDFProcessingServices> _logger;

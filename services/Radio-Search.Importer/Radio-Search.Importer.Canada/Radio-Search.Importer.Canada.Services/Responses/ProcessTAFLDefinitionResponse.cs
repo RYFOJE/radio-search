@@ -13,9 +13,9 @@ namespace Radio_Search.Importer.Canada.Services.Responses
     {
 
         /// <summary>
-        /// Gets or sets the collection of tables, where each table is defined by a <see cref="TableDefinitions"/> key
-        /// and contains a set of <see cref="TableDefinitionRow"/> entries.
+        /// Gets or sets the collection of tables, where each table is defined by a <see cref="TAFLDefinitionTableEnum"/> key
+        /// and contains a set of <see cref="TAFLDefinitionRawRow"/> entries.
         /// </summary>
-        public Dictionary<TableDefinitions, HashSet<TableDefinitionRow>> Tables { get; set; } = new();
+        public Dictionary<TAFLDefinitionTableEnum, HashSet<TAFLDefinitionRawRow>> Tables { get; set; } = new();
     }
 }

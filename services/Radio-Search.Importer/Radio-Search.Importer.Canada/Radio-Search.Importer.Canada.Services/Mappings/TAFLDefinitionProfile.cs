@@ -10,181 +10,181 @@ namespace Radio_Search.Importer.Canada.Services.Mappings
         public TAFLDefinitionProfile()
         {
             // StationFunction
-            CreateMap<TableDefinitionRow, StationFunctionType>()
+            CreateMap<TAFLDefinitionRawRow, StationFunctionType>()
                 .ForMember(dest => dest.StationFunctionTypeID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<StationFunctionType, TableDefinitionRow>()
+            CreateMap<StationFunctionType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.StationFunctionTypeID));
 
 
             // RegulatoryService
-            CreateMap<TableDefinitionRow, RegulatoryService>()
+            CreateMap<TAFLDefinitionRawRow, RegulatoryService>()
                 .ForMember(
                     dest => dest.RegulatoryServiceID, opt => 
                 opt.MapFrom(src => short.Parse(src.Code)));
 
-            CreateMap<RegulatoryService, TableDefinitionRow>()
+            CreateMap<RegulatoryService, TAFLDefinitionRawRow>()
                 .ForMember(
                     dest => dest.Code, 
                 opt => opt.MapFrom(src => src.RegulatoryServiceID.ToString()));
 
 
             // CommunicationType
-            CreateMap<TableDefinitionRow, CommunicationType>()
+            CreateMap<TAFLDefinitionRawRow, CommunicationType>()
                 .ForMember(dest => dest.CommunicationTypeID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<CommunicationType, TableDefinitionRow>()
+            CreateMap<CommunicationType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.CommunicationTypeID));
 
 
             // ConformityToFrequencyPlan
-            CreateMap<TableDefinitionRow, ConformityFrequencyPlan>()
+            CreateMap<TAFLDefinitionRawRow, ConformityFrequencyPlan>()
                 .ForMember(
                     dest => dest.ConformityFrequencyPlanID, 
                     opt => opt.MapFrom(src => src.Code[0]
                 ));
 
-            CreateMap<ConformityFrequencyPlan, TableDefinitionRow>()
+            CreateMap<ConformityFrequencyPlan, TAFLDefinitionRawRow>()
                 .ForMember(
                     dest => dest.Code, 
                 opt => opt.MapFrom(src => src.ConformityFrequencyPlanID.ToString()));
 
 
             // AnalogDigital
-            CreateMap<TableDefinitionRow, AnalogDigital>()
+            CreateMap<TAFLDefinitionRawRow, AnalogDigital>()
                 .ForMember(dest => dest.AnalogDigitalID, opt => opt.MapFrom(
                     src => src.Code[0]));
 
-            CreateMap<AnalogDigital, TableDefinitionRow>()
+            CreateMap<AnalogDigital, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(
                     src => src.AnalogDigitalID.ToString()));
 
 
             // ModulationType
-            CreateMap<TableDefinitionRow, ModulationType>()
+            CreateMap<TAFLDefinitionRawRow, ModulationType>()
                 .ForMember(dest => dest.ModulationTypeID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<ModulationType, TableDefinitionRow>()
+            CreateMap<ModulationType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ModulationTypeID));
 
 
             // FiltrationType
-            CreateMap<TableDefinitionRow, FiltrationInstalledType>()
+            CreateMap<TAFLDefinitionRawRow, FiltrationInstalledType>()
                 .ForMember(dest => dest.FiltrationInstalledTypeID, opt => opt.MapFrom(src => src.Code[0]));
 
-            CreateMap<FiltrationInstalledType, TableDefinitionRow>()
+            CreateMap<FiltrationInstalledType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.FiltrationInstalledTypeID.ToString()));
 
 
             // AntennaPattern
-            CreateMap<TableDefinitionRow, AntennaPattern>()
+            CreateMap<TAFLDefinitionRawRow, AntennaPattern>()
                 .ForMember(dest => dest.AntennaPatternID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<AntennaPattern, TableDefinitionRow>()
+            CreateMap<AntennaPattern, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.AntennaPatternID));
 
 
             // Polarization
-            CreateMap<TableDefinitionRow, PolarizationType>()
+            CreateMap<TAFLDefinitionRawRow, PolarizationType>()
                 .ForMember(dest => dest.PolarizationTypeID, opt => opt.MapFrom(src => src.Code[0]));
 
-            CreateMap<PolarizationType, TableDefinitionRow>()
+            CreateMap<PolarizationType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PolarizationTypeID.ToString()));
 
 
             // TypeOfStation
-            CreateMap<TableDefinitionRow, StationType>()
+            CreateMap<TAFLDefinitionRawRow, StationType>()
                 .ForMember(dest => dest.StationTypeID, opt => opt.MapFrom(src => short.Parse(src.Code)));
 
-            CreateMap<StationType, TableDefinitionRow>()
+            CreateMap<StationType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.StationTypeID.ToString()));
 
 
             // ITUClass
-            CreateMap<TableDefinitionRow, ITUClassType>()
+            CreateMap<TAFLDefinitionRawRow, ITUClassType>()
                 .ForMember(dest => dest.ITUClassTypeID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<ITUClassType, TableDefinitionRow>()
+            CreateMap<ITUClassType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ITUClassTypeID));
 
 
             // StationCostCategory
-            CreateMap<TableDefinitionRow, StationCostCategory>()
+            CreateMap<TAFLDefinitionRawRow, StationCostCategory>()
                 .ForMember(dest => dest.StationCostCategoryID, opt => opt.MapFrom(src => short.Parse(src.Code)));
 
-            CreateMap<StationCostCategory, TableDefinitionRow>()
+            CreateMap<StationCostCategory, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.StationCostCategoryID.ToString()));
 
 
             // Provinces
-            CreateMap<TableDefinitionRow, Province>()
+            CreateMap<TAFLDefinitionRawRow, Province>()
                 .ForMember(dest => dest.ProvinceID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<Province, TableDefinitionRow>()
+            CreateMap<Province, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ProvinceID));
 
 
             // CongestionZone
-            CreateMap<TableDefinitionRow, CongestionZoneType>()
+            CreateMap<TAFLDefinitionRawRow, CongestionZoneType>()
                 .ForMember(dest => dest.CongestionZoneTypeID, opt => opt.MapFrom(src => src.Code[0]));
 
-            CreateMap<CongestionZoneType, TableDefinitionRow>()
+            CreateMap<CongestionZoneType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.CongestionZoneTypeID.ToString()));
 
 
             // Service
-            CreateMap<TableDefinitionRow, ServiceType>()
+            CreateMap<TAFLDefinitionRawRow, ServiceType>()
                 .ForMember(dest => dest.ServiceTypeID, opt => opt.MapFrom(src => short.Parse(src.Code)));
 
-            CreateMap<ServiceType, TableDefinitionRow>()
+            CreateMap<ServiceType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ServiceTypeID.ToString()));
 
 
             // Subservice
-            CreateMap<TableDefinitionRow, SubserviceType>()
+            CreateMap<TAFLDefinitionRawRow, SubserviceType>()
                 .ForMember(dest => dest.SubserviceTypeID, opt => opt.MapFrom(src => short.Parse(src.Code)));
 
-            CreateMap<SubserviceType, TableDefinitionRow>()
+            CreateMap<SubserviceType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.SubserviceTypeID.ToString()));
 
 
             // LicenseType
-            CreateMap<TableDefinitionRow, LicenseType>()
+            CreateMap<TAFLDefinitionRawRow, LicenseType>()
                 .ForMember(dest => dest.LicenseTypeID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<LicenseType, TableDefinitionRow>()
+            CreateMap<LicenseType, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.LicenseTypeID));
 
 
             // AuthorizationStatus
-            CreateMap<TableDefinitionRow, AuthorizationStatus>()
+            CreateMap<TAFLDefinitionRawRow, AuthorizationStatus>()
                 .ForMember(dest => dest.AuthorizationStatusID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<AuthorizationStatus, TableDefinitionRow>()
+            CreateMap<AuthorizationStatus, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.AuthorizationStatusID));
 
 
             // OperationalStatus
-            CreateMap<TableDefinitionRow, OperationalStatus>()
+            CreateMap<TAFLDefinitionRawRow, OperationalStatus>()
                 .ForMember(dest => dest.OperationalStatusID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<OperationalStatus, TableDefinitionRow>()
+            CreateMap<OperationalStatus, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.OperationalStatusID));
 
 
             // StationClass
-            CreateMap<TableDefinitionRow, StationClass>()
+            CreateMap<TAFLDefinitionRawRow, StationClass>()
                 .ForMember(dest => dest.StationClassID, opt => opt.MapFrom(src => src.Code));
 
-            CreateMap<StationClass, TableDefinitionRow>()
+            CreateMap<StationClass, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.StationClassID));
 
 
             // StationClass
-            CreateMap<TableDefinitionRow, StandbyTransmitterInformation>()
+            CreateMap<TAFLDefinitionRawRow, StandbyTransmitterInformation>()
                 .ForMember(dest => dest.StandbyTransmitterInformationID, opt => opt.MapFrom(src => short.Parse(src.Code)));
 
-            CreateMap<StandbyTransmitterInformation, TableDefinitionRow>()
+            CreateMap<StandbyTransmitterInformation, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.StandbyTransmitterInformationID.ToString()));
         }
 

@@ -3,7 +3,7 @@
     /// <summary>
     /// Base of any Response. Can be successful or failed
     /// </summary>
-    public class ResponseBase
+    public abstract class ResponseBase
     {
         /// <summary>
         /// Status of the response

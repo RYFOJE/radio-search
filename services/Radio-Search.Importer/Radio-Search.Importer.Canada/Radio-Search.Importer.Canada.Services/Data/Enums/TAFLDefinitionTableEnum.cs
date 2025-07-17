@@ -1,11 +1,6 @@
-﻿using Spire.Pdf;
-using Spire.Pdf.Fields;
-using System.Drawing;
-using System.Reflection.PortableExecutable;
-
-namespace Radio_Search.Importer.Canada.Services.Data.Enums
+﻿namespace Radio_Search.Importer.Canada.Services.Data.Enums
 {
-    public enum TableDefinitions
+    public enum TAFLDefinitionTableEnum
     {
         Skip = -1,
         StationFunction = 0,

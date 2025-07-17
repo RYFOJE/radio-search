@@ -10,7 +10,6 @@ using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Data.Enums;
-using Radio_Search.Importer.Canada.Services.Exceptions;
 using Radio_Search.Importer.Canada.Services.Exceptions.TAFLDefinitionExceptions;
 using Radio_Search.Importer.Canada.Services.Interfaces;
 using Radio_Search.Importer.Canada.Services.Responses;
@@ -52,11 +51,11 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         /// <inheritdoc/>
         public ProcessTAFLCsvResponse ProcessTAFLCsv(Stream stream)
         {
-            List<BroadcastAuthorizationRecord> records = new();
+            List<TAFLEntryRawRow> records = new();
             int skippedRecords = 0;
             int columnMismatchCount = 0;
 
-            int expectedColumnCount = GetPropCount<BroadcastAuthorizationRecord>();
+            int expectedColumnCount = GetPropCount<TAFLEntryRawRow>();
 
             using (var reader = new StreamReader(stream))
             using (var csv = CreateCSVReader(reader))
@@ -74,7 +73,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                             continue;
                         }
 
-                        var currentRecord = csv.GetRecord<BroadcastAuthorizationRecord>();
+                        var currentRecord = csv.GetRecord<TAFLEntryRawRow>();
                         if (currentRecord != null)
                         {
                             records.Add(currentRecord);
@@ -100,7 +99,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         /// <inheritdoc/>
         public ProcessTAFLDefinitionResponse ProcessTAFLDefinition(Stream multiPageStream)
         {
-            Dictionary<TableDefinitions, HashSet<TableDefinitionRow>> parsedTables = new();
+            Dictionary<TAFLDefinitionTableEnum, HashSet<TAFLDefinitionRawRow>> parsedTables = new();
 
             try
             {
@@ -131,7 +130,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 {
                     var currTableEnum = _taflDefinitionOrder.TableEnumOrder[i];
 
-                    if (currTableEnum == TableDefinitions.Skip)
+                    if (currTableEnum == TAFLDefinitionTableEnum.Skip)
                     {
                         _logger.LogInformation("Skipping table at index={tableIndex}", i);
                         continue;
@@ -181,166 +180,165 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task<SaveTAFLToDBResponse> SaveTAFLToDBAsync(List<BroadcastAuthorizationRecord> records)
+        public async Task<SaveTAFLToDBResponse> SaveTAFLToDBAsync(List<TAFLEntryRawRow> records)
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc/>
-        public async Task<SaveTAFLDefinitionToDBResponse> SaveTAFLDefinitionToDBAsync(Dictionary<TableDefinitions, HashSet<TableDefinitionRow>> tables)
+        public async Task<SaveTAFLDefinitionToDBResponse> SaveTAFLDefinitionToDBAsync(Dictionary<TAFLDefinitionTableEnum, HashSet<TAFLDefinitionRawRow>> tables)
         {
-            int currIncrease = 0;
             int totalModifiedRowCount = 0;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try {
 
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, StationFunctionType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StationFunctionType>(
                     tables,
-                    TableDefinitions.StationFunction,
+                    TAFLDefinitionTableEnum.StationFunction,
                     _definitionRepo.StationFunctionAddUpdate,
-                    nameof(TableDefinitions.StationFunction)
+                    nameof(TAFLDefinitionTableEnum.StationFunction)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, RegulatoryService>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, RegulatoryService>(
                     tables,
-                    TableDefinitions.RegulatoryService,
+                    TAFLDefinitionTableEnum.RegulatoryService,
                     _definitionRepo.RegulatoryServiceAddUpdate,
-                    nameof(TableDefinitions.RegulatoryService)
+                    nameof(TAFLDefinitionTableEnum.RegulatoryService)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, CommunicationType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, CommunicationType>(
                     tables,
-                    TableDefinitions.CommunicationType,
+                    TAFLDefinitionTableEnum.CommunicationType,
                     _definitionRepo.CommunicationTypeAddUpdate,
-                    nameof(TableDefinitions.CommunicationType)
+                    nameof(TAFLDefinitionTableEnum.CommunicationType)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, ConformityFrequencyPlan>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, ConformityFrequencyPlan>(
                     tables,
-                    TableDefinitions.ConformityToFrequencyPlan,
+                    TAFLDefinitionTableEnum.ConformityToFrequencyPlan,
                     _definitionRepo.ConformityToFrequencyPlanAddUpdate,
-                    nameof(TableDefinitions.ConformityToFrequencyPlan)
+                    nameof(TAFLDefinitionTableEnum.ConformityToFrequencyPlan)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, AnalogDigital>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, AnalogDigital>(
                     tables,
-                    TableDefinitions.AnalogDigital,
+                    TAFLDefinitionTableEnum.AnalogDigital,
                     _definitionRepo.AnalogDigitalAddUpdate,
-                    nameof(TableDefinitions.AnalogDigital)
+                    nameof(TAFLDefinitionTableEnum.AnalogDigital)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, ModulationType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, ModulationType>(
                     tables,
-                    TableDefinitions.ModulationType,
+                    TAFLDefinitionTableEnum.ModulationType,
                     _definitionRepo.ModulationTypeAddUpdate,
-                    nameof(TableDefinitions.ModulationType)
+                    nameof(TAFLDefinitionTableEnum.ModulationType)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, FiltrationInstalledType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, FiltrationInstalledType>(
                     tables,
-                    TableDefinitions.FiltrationType,
+                    TAFLDefinitionTableEnum.FiltrationType,
                     _definitionRepo.FiltrationTypeAddUpdate,
-                    nameof(TableDefinitions.FiltrationType)
+                    nameof(TAFLDefinitionTableEnum.FiltrationType)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, AntennaPattern>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, AntennaPattern>(
                     tables,
-                    TableDefinitions.AntennaPattern,
+                    TAFLDefinitionTableEnum.AntennaPattern,
                     _definitionRepo.AntennaPatternAddUpdate,
-                    nameof(TableDefinitions.AntennaPattern)
+                    nameof(TAFLDefinitionTableEnum.AntennaPattern)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, PolarizationType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, PolarizationType>(
                     tables,
-                    TableDefinitions.Polarization,
+                    TAFLDefinitionTableEnum.Polarization,
                     _definitionRepo.PolarizationAddUpdate,
-                    nameof(TableDefinitions.Polarization)
+                    nameof(TAFLDefinitionTableEnum.Polarization)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, StationType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StationType>(
                     tables,
-                    TableDefinitions.TypeOfStation,
+                    TAFLDefinitionTableEnum.TypeOfStation,
                     _definitionRepo.TypeOfStationAddUpdate,
-                    nameof(TableDefinitions.TypeOfStation)
+                    nameof(TAFLDefinitionTableEnum.TypeOfStation)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, ITUClassType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, ITUClassType>(
                     tables,
-                    TableDefinitions.ITUClass,
+                    TAFLDefinitionTableEnum.ITUClass,
                     _definitionRepo.ITUClassAddUpdate,
-                    nameof(TableDefinitions.ITUClass)
+                    nameof(TAFLDefinitionTableEnum.ITUClass)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, StationCostCategory>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StationCostCategory>(
                     tables,
-                    TableDefinitions.StationCostCategory,
+                    TAFLDefinitionTableEnum.StationCostCategory,
                     _definitionRepo.StationCostCategoryAddUpdate,
-                    nameof(TableDefinitions.StationCostCategory)
+                    nameof(TAFLDefinitionTableEnum.StationCostCategory)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, Province>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, Province>(
                     tables,
-                    TableDefinitions.Provinces,
+                    TAFLDefinitionTableEnum.Provinces,
                     _definitionRepo.ProvincesAddUpdate,
-                    nameof(TableDefinitions.Provinces)
+                    nameof(TAFLDefinitionTableEnum.Provinces)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, CongestionZoneType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, CongestionZoneType>(
                     tables,
-                    TableDefinitions.CongestionZone,
+                    TAFLDefinitionTableEnum.CongestionZone,
                     _definitionRepo.CongestionZoneAddUpdate,
-                    nameof(TableDefinitions.CongestionZone)
+                    nameof(TAFLDefinitionTableEnum.CongestionZone)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, ServiceType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, ServiceType>(
                     tables,
-                    TableDefinitions.Service,
+                    TAFLDefinitionTableEnum.Service,
                     _definitionRepo.ServiceAddUpdate,
-                    nameof(TableDefinitions.Service)
+                    nameof(TAFLDefinitionTableEnum.Service)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, SubserviceType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, SubserviceType>(
                     tables,
-                    TableDefinitions.Subservice,
+                    TAFLDefinitionTableEnum.Subservice,
                     _definitionRepo.SubserviceAddUpdate,
-                    nameof(TableDefinitions.Subservice)
+                    nameof(TAFLDefinitionTableEnum.Subservice)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, LicenseType>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, LicenseType>(
                     tables,
-                    TableDefinitions.LicenseType,
+                    TAFLDefinitionTableEnum.LicenseType,
                     _definitionRepo.LicenseTypeAddUpdate,
-                    nameof(TableDefinitions.LicenseType)
+                    nameof(TAFLDefinitionTableEnum.LicenseType)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, AuthorizationStatus>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, AuthorizationStatus>(
                     tables,
-                    TableDefinitions.AuthorizationStatus,
+                    TAFLDefinitionTableEnum.AuthorizationStatus,
                     _definitionRepo.AuthorizationStatusAddUpdate,
-                    nameof(TableDefinitions.AuthorizationStatus)
+                    nameof(TAFLDefinitionTableEnum.AuthorizationStatus)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, OperationalStatus>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, OperationalStatus>(
                     tables,
-                    TableDefinitions.OperationalStatus,
+                    TAFLDefinitionTableEnum.OperationalStatus,
                     _definitionRepo.OperationalStatusAddUpdate,
-                    nameof(TableDefinitions.OperationalStatus)
+                    nameof(TAFLDefinitionTableEnum.OperationalStatus)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, StationClass>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StationClass>(
                     tables,
-                    TableDefinitions.StationClass,
+                    TAFLDefinitionTableEnum.StationClass,
                     _definitionRepo.StationClassAddUpdate,
-                    nameof(TableDefinitions.StationClass)
+                    nameof(TAFLDefinitionTableEnum.StationClass)
                 );
 
-                totalModifiedRowCount += await ProcessTableDefinitionAsync<TableDefinitions, TableDefinitionRow, StandbyTransmitterInformation>(
+                totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StandbyTransmitterInformation>(
                     tables,
-                    TableDefinitions.StandbyTransmitterInformation,
+                    TAFLDefinitionTableEnum.StandbyTransmitterInformation,
                     _definitionRepo.StandbyTransmitterInformationAddUpdate,
-                    nameof(TableDefinitions.StandbyTransmitterInformation)
+                    nameof(TAFLDefinitionTableEnum.StandbyTransmitterInformation)
                 );
 
             }
@@ -365,6 +363,12 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             };
         }
 
+
+        /// <summary>
+        /// Creates a CSV Reader Object from the given stream
+        /// </summary>
+        /// <param name="stream">Stream to parse</param>
+        /// <returns>CSVReader for the given stream</returns>
         private CsvReader CreateCSVReader(StreamReader stream)
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -390,6 +394,12 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             return csv;
         }
 
+        /// <summary>
+        /// Checks to see if the Table is valid for further processing. Throws if invalid.
+        /// </summary>
+        /// <param name="table">PDFTable to be verified</param>
+        /// <exception cref="TAFLDefinitionHeaderCountException">If the headers don't match the expected count of headers</exception>
+        /// <exception cref="TAFLDefinitionHeaderMismatchException">If the headers don't match the expected headers</exception>
         private void ThrowIfTableInvalid(PdfTable table)
         {
             int rows = table.GetRowCount();
@@ -407,12 +417,20 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             }
         }
 
-        private List<TableDefinitionRow> GetAllRows(PdfTable table, bool ignoreHeader = true)
+        /// <summary>
+        /// Gets all the rows for a given table.
+        /// <remarks>Since <seealso cref="TAFLDefinitionRawRow"/> expects 3 rows, the PdfTable must only have 3 columns otherwise this will throw</remarks>
+        /// </summary>
+        /// <param name="table">The table to parse</param>
+        /// <param name="ignoreHeader">Skips the first row.</param>
+        /// <returns>List of TAFLDefinitionRawRow's</returns>
+        /// <exception cref="InvalidDataException">If that data is empty, throw these exceptions</exception>
+        private List<TAFLDefinitionRawRow> GetAllRows(PdfTable table, bool ignoreHeader = true)
         {
             int curRow = ignoreHeader ? 1 : 0;
             int totalRows = table.GetRowCount();
 
-            List<TableDefinitionRow> parsedRows = new(totalRows - curRow);
+            List<TAFLDefinitionRawRow> parsedRows = new(totalRows - curRow);
 
             for (; curRow < totalRows; curRow++)
             {
@@ -427,7 +445,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 if (string.IsNullOrWhiteSpace(frenchDefinition))
                     throw new InvalidDataException($"FrenchDefinition column is empty at row {curRow}.");
 
-                TableDefinitionRow parseRow = new()
+                TAFLDefinitionRawRow parseRow = new()
                 {
                     Code = code,
                     DescriptionEN = englishDefinition,
@@ -439,7 +457,12 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             return parsedRows;
         }
 
-        private int GetPropCount<T>()
+        /// <summary>
+        /// Gets the total counts of properties in a given class
+        /// </summary>
+        /// <typeparam name="T">Type to check prop count</typeparam>
+        /// <returns></returns>
+        private int GetPropCount<T>() where T : class
         {
             var type = typeof(T);
 
@@ -449,6 +472,18 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             return properties.Length;
         }
 
+        /// <summary>
+        /// Calls a repo function to add/update rows and returns the total amount of modifications/inserts
+        /// </summary>
+        /// <typeparam name="TTableEnum">Enum Type for representing tables</typeparam>
+        /// <typeparam name="TRow">The data used for inserting into the table</typeparam>
+        /// <typeparam name="TEntity">The database's expected model type</typeparam>
+        /// <param name="tables">All the tables values, this is for every table</param>
+        /// <param name="tableKey">The lookup key for the table Dictionary representing which table we're inserting for</param>
+        /// <param name="repoAddUpdate">The repo method for inserting/updating records</param>
+        /// <param name="logName">The name of the table in the given logs</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         private async Task<int> ProcessTableDefinitionAsync<TTableEnum, TRow, TEntity>(
             Dictionary<TTableEnum, HashSet<TRow>> tables,
             TTableEnum tableKey,
@@ -467,7 +502,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             var modifiedCount = await repoAddUpdate(mappedRows);
             _logger.LogInformation("Ended check {LogName} repo with {ModifiedCount} modified rows", logName, modifiedCount);
 
-            return rows.Count;
+            return modifiedCount;
         }
     }
 }

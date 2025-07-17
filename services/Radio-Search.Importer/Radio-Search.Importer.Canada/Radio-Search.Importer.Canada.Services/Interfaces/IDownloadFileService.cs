@@ -2,6 +2,10 @@
 
 namespace Radio_Search.Importer.Canada.Services.Interfaces
 {
+
+    /// <summary>
+    /// File downloading services to save files to Blob storage.
+    /// </summary>
     public interface IDownloadFileService
     {
         /// <summary>
