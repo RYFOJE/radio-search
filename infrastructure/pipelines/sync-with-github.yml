@@ -1,0 +1,27 @@
+trigger:
+  branches:
+    include:
+      - '*'
+
+variables:
+  DEVOPS_REPO: 'https://$(System.AccessToken)@dev.azure.com/ryfoje2/Radio-Search/_git/Radio-Search'
+  GITHUB_REPO: 'https://$(GITHUB_PAT)@github.com/RYFOJE/radio-search.git'
+
+stages:
+- stage: MirrorRepo
+  jobs:
+  - job: GitMirror
+    steps:
+    - checkout: none
+
+    - script: |
+        git config --global user.name "DevOps Sync Bot"
+        git config --global user.email "devops-sync-bot@ryfoje.com"
+
+        git clone --mirror $(DEVOPS_REPO) repo.git
+        cd repo.git
+
+        git remote add github $(GITHUB_REPO)
+        git push --mirror github
+      env:
+        GITHUB_PAT: $(GITHUB_PAT)
