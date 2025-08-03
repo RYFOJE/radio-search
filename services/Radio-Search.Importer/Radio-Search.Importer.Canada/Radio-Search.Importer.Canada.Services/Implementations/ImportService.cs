@@ -1,10 +1,15 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Radio_Search.Importer.Canada.Data;
+using Radio_Search.Importer.Canada.Data.Enums;
+using Radio_Search.Importer.Canada.Data.Models.History;
 using Radio_Search.Importer.Canada.Data.Models.License;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Services.Configuration;
@@ -15,20 +20,30 @@ using Radio_Search.Importer.Canada.Services.Interfaces;
 using Radio_Search.Importer.Canada.Services.Responses;
 using Spire.Pdf;
 using Spire.Pdf.Utilities;
+using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using System.Security.Cryptography;
 
 namespace Radio_Search.Importer.Canada.Services.Implementations
 {
     public class ImportService : IImportService
     {
+        private const int MAX_FETCH_COUNT = 1000;
+        private const int MAX_FETCH_ITERATIONS = 1000000;
+        private const string TAFL_RAW_DATE_FORMAT = "yyyy-MM-dd";
+
         private readonly ILogger<ImportService> _logger;
         private readonly IConfiguration _config;
         private readonly TAFLDefinitionTablesOrder _taflDefinitionOrder;
         private readonly CanadaImporterContext _context;
         private readonly ITAFLDefinitionRepo _definitionRepo;
+        private readonly ITAFLRepo _taflRepo;
+        private readonly ITAFLImportHistoryRepo _historyRepo;
         private readonly IMapper _mapper;
         private readonly IPDFProcessingServices _pdfService;
+        public readonly IValidator<TAFLEntryRawRow> _taflRawRowValidator;
 
         public ImportService(
                 ILogger<ImportService> logger,
@@ -36,22 +51,107 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 IOptions<TAFLDefinitionTablesOrder> taflDefinitionOrder,
                 CanadaImporterContext context,
                 ITAFLDefinitionRepo definitionRepo,
+                ITAFLRepo taflRepo,
+                ITAFLImportHistoryRepo historyRepo,
                 IMapper mapper,
-                IPDFProcessingServices pdfService)
+                IPDFProcessingServices pdfService,
+                IValidator<TAFLEntryRawRow> taflRawRowValidator)
         {
-            _logger = logger;
-            _config = config;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger is null");
+            _config = config ?? throw new ArgumentNullException(nameof(config), "Config is null");
             _taflDefinitionOrder = taflDefinitionOrder.Value;
-            _context = context;
-            _definitionRepo = definitionRepo;
-            _mapper = mapper;
-            _pdfService = pdfService;
+            _context = context ?? throw new ArgumentNullException(nameof(context), "Context is null");
+            _definitionRepo = definitionRepo ?? throw new ArgumentNullException(nameof(definitionRepo), "definitionRepo is null");
+            _taflRepo = taflRepo ?? throw new ArgumentNullException(nameof(taflRepo), "TAFLRepo is null");
+            _historyRepo = historyRepo ?? throw new ArgumentNullException(nameof(historyRepo), "HistoryRepo is null");
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper), "Mapper is null");
+            _pdfService = pdfService ?? throw new ArgumentNullException(nameof(pdfService), "pdfService is null");
+            _taflRawRowValidator = taflRawRowValidator ?? throw new ArgumentNullException(nameof(taflRawRowValidator), "TaflRawRowValidator is null");
+        }
+
+
+        #region TAFL CSV IMPORT
+
+        #region public
+        
+        /// <inheritdoc/>
+        public async Task<BeginTAFLImportResponse> BeginTAFLImport(Stream stream)
+        {
+            ImportHistory? importRecord = null;
+            try
+            {
+                var fileHash = GetStreamHash(stream);
+                importRecord = await CreateImportHistoryRecord(fileHash);
+
+                // CSV Parsing and extracting of raw rows
+                var csvResult = ExtractTAFLRawRowsFromCSV(stream);
+                int prevCount = csvResult.Data.Count;
+
+                await stream.DisposeAsync();
+
+                //Deduplicate
+                csvResult.Data = DeduplicateRows(csvResult.Data);
+                importRecord.SkippedRowCount += prevCount - csvResult.Data.Count();
+
+                // Validate rows and skip invalid ones
+                prevCount = csvResult.Data.Count;
+                csvResult.Data = GetValidRows(csvResult.Data);
+                importRecord.SkippedRowCount += prevCount - csvResult.Data.Count();
+
+                importRecord.SkippedRowCount += csvResult.ColumnMismatchCount;
+                importRecord.SkippedRowCount += csvResult.BadDataCount;
+                
+
+                importRecord = await _historyRepo.UpdateImportHistoryRecord(importRecord);
+
+                // Check to see what to do with all records
+                var actionResponse = await GetActionsPerRawRow(csvResult.Data);
+
+                csvResult.Data = new();
+
+                GC.Collect(); // TODO REMOVE THIS
+
+                // Maybe add a sanity check for if action count total doesnt match total row count
+
+                // Save records to DB
+                var dbResponse = await SaveTAFLToDBAsync(actionResponse, importRecord.ImportHistoryID);
+                
+
+                // TODO: THROW HERE IF dbResponse fails!!!!!
+
+
+                importRecord.Status = ImportStatus.Success;
+                importRecord.TotalInsertedUpdatedRows = dbResponse.ModifiedRowCount;
+                importRecord.EndTime = DateTime.UtcNow;
+                await _historyRepo.UpdateImportHistoryRecord(importRecord);
+
+                return new()
+                {
+                    Message = "Successfully imported the TAFL DB",
+                    Success = true
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to BeginTAFLImport");
+
+                if(importRecord != null)
+                    await MarkImportAsFailed(importRecord.ImportHistoryID);
+
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
         }
 
         /// <inheritdoc/>
-        public ProcessTAFLCsvResponse ProcessTAFLCsv(Stream stream)
+        public ProcessTAFLCsvResponse ExtractTAFLRawRowsFromCSV(Stream stream)
         {
-            List<TAFLEntryRawRow> records = new();
+            var stopwatch = Stopwatch.StartNew();
+
+            List<TAFLEntryRawRow> records = [];
             int skippedRecords = 0;
             int columnMismatchCount = 0;
 
@@ -87,6 +187,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 }
             }
 
+            _logger.LogInformation("ExtractTAFLRawRowsFromCSV took {ElapsedTimeInMs} ms", stopwatch.ElapsedMilliseconds);
+
             return new ProcessTAFLCsvResponse
             {
                 Success = true,
@@ -97,19 +199,346 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         /// <inheritdoc/>
+        public async Task<GetActionsPerRawRowResponse> GetActionsPerRawRow(List<TAFLEntryRawRow> records)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            var dictionaryRecords = TAFLListToDictionary(records);
+
+            var updatedDeletedResponse = await GetUpdatedDeletedRows(dictionaryRecords);
+            var createdRows = GetCreatedRows(dictionaryRecords, updatedDeletedResponse);
+
+            _logger.LogInformation("Finished GetActionsPerRawRow in {ElapsedTimeInMS} ms.", stopwatch.ElapsedMilliseconds);
+
+            return new()
+            {
+                CreatedRawRows = createdRows,
+                DeletedDBLicense = updatedDeletedResponse.DeletedRows,
+                UpdatedRawRows = updatedDeletedResponse.UpdatedRows
+            };
+        }
+
+        /// <inheritdoc/>
+        public async Task<SaveTAFLToDBResponse> SaveTAFLToDBAsync(GetActionsPerRawRowResponse actionsPerRow, int importRecordID)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Create this here so we can collect all update records.
+                List<LicenseRecordHistory> allLicenseRecords = [];
+
+                // New Licenses
+                var dbNewLicenses = _mapper.Map<List<LicenseRecord>>(actionsPerRow.CreatedRawRows,
+                    opts => opts.Items["ImportHistoryID"] = importRecordID);
+
+                actionsPerRow.CreatedRawRows = null;
+
+                allLicenseRecords.AddRange(dbNewLicenses.Select(
+                    x => CreateLicenseRecordHistory(x.InternalLicenseRecordID, importRecordID, ChangeType.Created))
+                );
+                _logger.LogInformation("Inserting {NewLicenseCount} new Licenses into the DB.", dbNewLicenses.Count());
+
+                await _taflRepo.BulkAddLicenseRecordsAsync(dbNewLicenses);
+                dbNewLicenses = null;
+
+
+                // Updated Licenses
+                _logger.LogInformation("Invalidating {UpdateLicenseCount} outdated Licenses", actionsPerRow.UpdatedRawRows.Count());
+                await _taflRepo.BulkInvalidateRecords(actionsPerRow.UpdatedRawRows.Select(x => x.LicenseRecordID).ToList()); // This could be done better
+                
+                var dbUpdatedLicenses = _mapper.Map<List<LicenseRecord>>(actionsPerRow.UpdatedRawRows);
+                allLicenseRecords.AddRange(dbUpdatedLicenses.Select(
+                    x => CreateLicenseRecordHistory(x.InternalLicenseRecordID, importRecordID, ChangeType.Updated)));
+
+                _logger.LogInformation("Inserting {UpdateLicenseCount} Updated Licenses", actionsPerRow.UpdatedRawRows.Count());
+                await _taflRepo.BulkAddLicenseRecordsAsync(dbUpdatedLicenses);
+
+                // Deleted Licenses
+                _logger.LogInformation("Invalidating {UpdateLicenseCount} deleted Licenses", actionsPerRow.DeletedDBLicense.Count());
+
+                await _taflRepo.BulkInvalidateRecords(actionsPerRow.DeletedDBLicense.Select(x => x.CanadaLicenseRecordID).ToList());
+                allLicenseRecords.AddRange(actionsPerRow.DeletedDBLicense.Select(
+                    x => CreateLicenseRecordHistory(x.InternalLicenseRecordID, importRecordID, ChangeType.Removed)));
+
+                // License History
+                _logger.LogInformation("Inserting {LicenseHistoryCount} License History Records", allLicenseRecords.Count());
+                await _historyRepo.BulkInsertLicenseRecordHistory(allLicenseRecords);
+
+                await transaction.CommitAsync();
+
+                int modifiedCount = actionsPerRow.CreatedRawRows.Count();
+                modifiedCount += actionsPerRow.UpdatedRawRows.Count();
+                modifiedCount += actionsPerRow.DeletedDBLicense.Count();
+
+                _logger.LogInformation("SaveTAFLToDBAsync took {ElapsedTimeInMs} ms", stopwatch.ElapsedMilliseconds);
+
+                return new()
+                {
+                    Success = true,
+                    Message = "Successfully saved changes to DB.",
+                    ModifiedRowCount = modifiedCount // This wont include the LicenseRecordHistory coutn but I think this makes more sense.
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process SaveTAFLToDbAsync");
+                
+                await transaction.RollbackAsync();
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message,
+                };
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ImportHistory> CreateImportHistoryRecord(byte[] fileHash)
+        {
+            var record = new ImportHistory()
+            {
+                StartTime = DateTime.UtcNow,
+                Status = ImportStatus.Pending,
+                FileHash = fileHash
+            };
+
+            try
+            {
+                return await _historyRepo.CreateImportHistoryRecord(record);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed while CreateImportHistoryRecord");
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public Dictionary<string, TAFLEntryRawRow> TAFLListToDictionary(List<TAFLEntryRawRow> taflRows)
+        {
+            return taflRows.ToDictionary(row => row.LicenseRecordID);
+        }
+
+        /// <inheritdoc/>
+        public List<TAFLEntryRawRow> GetUpdatedRowsFromRange(Dictionary<string, TAFLEntryRawRow> inputRows, List<LicenseRecord> dbRows)
+        {
+            List<TAFLEntryRawRow> toUpdate = [];
+
+            foreach (var currDbRow in dbRows)
+            {
+                if (!inputRows.TryGetValue(currDbRow.CanadaLicenseRecordID, out var matchingRow))
+                    continue;
+
+                if (!matchingRow.Equals(currDbRow))
+                    toUpdate.Add(matchingRow);
+            }
+
+            return toUpdate;
+        }
+
+        /// <inheritdoc/>
+        public List<LicenseRecord> GetDeletedRowsFromRange(Dictionary<string, TAFLEntryRawRow> inputRows, List<LicenseRecord> dbRows)
+        {
+            List<TAFLEntryRawRow> toDelete = [];
+            return dbRows.Where(x => !inputRows.ContainsKey(x.CanadaLicenseRecordID)).ToList();
+        }
+
+        /// <inheritdoc/>
+        public HashSet<string> GetUnaffectedRowsFromRange(Dictionary<string, TAFLEntryRawRow> inputRows, List<LicenseRecord> dbRows)
+        {
+            HashSet<string> unaffectedRows = [];
+
+            foreach (var currDbRow in dbRows)
+            {
+                if (!inputRows.TryGetValue(currDbRow.CanadaLicenseRecordID, out var matchingRow))
+                    continue;
+
+                if (matchingRow.Equals(currDbRow))
+                    unaffectedRows.Add(matchingRow.LicenseRecordID);
+            }
+
+            return unaffectedRows;
+        }
+
+
+        /// <inheritdoc/>
+        public List<TAFLEntryRawRow> GetCreatedRows(Dictionary<string, TAFLEntryRawRow> rawRows, GetAffectedRowsResponse affectedRowResponse)
+        {
+            HashSet<string> allSeenIDs = [];
+            allSeenIDs.UnionWith(affectedRowResponse.UnaffectedRows);
+            allSeenIDs.UnionWith(affectedRowResponse.UpdatedRows.Select(x => x.LicenseRecordID));
+            allSeenIDs.UnionWith(affectedRowResponse.DeletedRows.Select(x => x.CanadaLicenseRecordID));
+
+            return rawRows
+                .Where(kvp => !allSeenIDs.Contains(kvp.Key))
+                .Select(kvp => kvp.Value)
+                .ToList();
+        }
+
+        /// <inheritdoc/>
+        public async Task MarkImportAsFailed(int id)
+        {
+            try
+            {
+                var record = await _historyRepo.GetImportHistoryRecord(id);
+                record.Status = ImportStatus.Failure;
+                record.EndTime = DateTime.UtcNow;
+
+                await _historyRepo.UpdateImportHistoryRecord(record);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed while trying to MarkImportAsFailed for Record id: {id}", id);
+            }
+        }
+
+        /// <summary>
+        /// Removes duplicate rows from the provided list based on the LicenseRecordID, retaining the row with the most
+        /// recent InServiceDate.
+        /// </summary>
+        /// <remarks>If the InServiceDate cannot be parsed for a row, that row is ignored unless it is the
+        /// only entry for its LicenseRecordID.</remarks>
+        /// <param name="rows">A list of <see cref="TAFLEntryRawRow"/> objects to be deduplicated.</param>
+        /// <returns>A list of <see cref="TAFLEntryRawRow"/> objects with duplicates removed, keeping the row with the latest
+        /// InServiceDate for each LicenseRecordID.</returns>
+        public List<TAFLEntryRawRow> DeduplicateRows(List<TAFLEntryRawRow> rows)
+        {
+            Dictionary<string, TAFLEntryRawRow> uniqueRawRows = new();
+
+            foreach(var row in rows)
+            {
+                if(!uniqueRawRows.ContainsKey(row.LicenseRecordID))
+                {
+                    uniqueRawRows[row.LicenseRecordID] = row;
+                    continue;
+                }
+
+                var previousRow = uniqueRawRows[row.LicenseRecordID];
+
+                if (previousRow.InServiceDate == null)
+                    uniqueRawRows[row.LicenseRecordID] = row;
+
+                if (row.InServiceDate == null)
+                    continue;
+
+                if (previousRow.InServiceDate > row.InServiceDate)
+                    continue;
+
+                uniqueRawRows[row.LicenseRecordID] = row;
+            }
+
+            return uniqueRawRows.Values.ToList();
+        }
+
+        /// <summary>
+        /// Filters and returns a list of valid TAFLEntryRawRow objects from the provided collection.
+        /// </summary>
+        /// <remarks>This method uses an internal validator to determine the validity of each row. Only
+        /// rows that pass the validation are included in the returned list.</remarks>
+        /// <param name="rows">A list of <see cref="TAFLEntryRawRow"/> objects to be validated.</param>
+        /// <returns>A list of <see cref="TAFLEntryRawRow"/> objects that are valid according to the validator.</returns>
+        public List<TAFLEntryRawRow> GetValidRows(List<TAFLEntryRawRow> rows)
+        {
+            var validRows = new List<TAFLEntryRawRow>();
+            foreach (var row in rows)
+            {
+                var result = _taflRawRowValidator.Validate(row);
+                if (result.IsValid)
+                {
+                    validRows.Add(row);
+                }
+                else
+                {
+                    var errors = string.Join("; ", result.Errors.Select(e => $"Property: {e.PropertyName}, Error: {e.ErrorMessage}"));
+                    _logger.LogDebug("TAFL row invalid. LicenseRecordID: {LicenseRecordID}, Errors: {Errors}, Row: {@Row}",
+                        row.LicenseRecordID, errors, row);
+                }
+            }
+            return validRows;
+        }
+
+        #endregion
+
+        #region private
+
+        private static byte[] GetStreamHash(Stream stream)
+        {
+            using var sha256 = SHA256.Create();
+
+            if (stream.CanSeek)
+                stream.Position = 0;
+
+            byte[] hashBytes = sha256.ComputeHash(stream);
+
+            stream.Position = 0;
+
+            return hashBytes;
+        }
+
+        private async Task<GetAffectedRowsResponse> GetUpdatedDeletedRows(Dictionary<string, TAFLEntryRawRow> newRows)
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            int currIteration = 0;
+            List<LicenseRecord> rowsFetchedFromDB;
+
+            GetAffectedRowsResponse response = new();
+
+            do
+            {
+                int fetchOffset = MAX_FETCH_COUNT * currIteration;
+                rowsFetchedFromDB = await _taflRepo.GetRecordsNoTrackingAsync(fetchOffset, MAX_FETCH_COUNT);
+
+                response.UpdatedRows.AddRange(GetUpdatedRowsFromRange(newRows, rowsFetchedFromDB));
+                response.DeletedRows.AddRange(GetDeletedRowsFromRange(newRows, rowsFetchedFromDB));
+                response.UnaffectedRows.UnionWith(GetUnaffectedRowsFromRange(newRows, rowsFetchedFromDB));
+
+                if (currIteration == MAX_FETCH_ITERATIONS)
+                {
+                    _logger.LogError("Failed on CheckUpdatedDeletedRows as the function surpassed the fetch iteration limit of {FetchIterationLimit}", MAX_FETCH_ITERATIONS);
+                    throw new InvalidOperationException("Maximum fetch iterations reached while checking for updated or deleted rows. This may indicate an unexpectedly large data set or a logic error.");
+                }
+            } while (rowsFetchedFromDB.Count == MAX_FETCH_COUNT);
+
+            stopwatch.Stop();
+            _logger.LogInformation("CheckUpdatedDeletedRows executed in {ElapsedMilliseconds} ms", stopwatch.ElapsedMilliseconds);
+
+            return response;
+        }
+
+        private static LicenseRecordHistory CreateLicenseRecordHistory(Guid InternalLicenseID, int ImportHistoryID, ChangeType changeType)
+        {
+            return new()
+            {
+                InternalLicenseRecordID = InternalLicenseID,
+                EditedByImportHistoryRecordID = ImportHistoryID,
+                ChangeType = changeType
+            };
+        }
+
+        #endregion
+
+        #endregion
+
+        #region TAFL DEFINITION IMPORT
+
+        #region public
+
+        /// <inheritdoc/>
         public ProcessTAFLDefinitionResponse ProcessTAFLDefinition(Stream multiPageStream)
         {
-            Dictionary<TAFLDefinitionTableEnum, HashSet<TAFLDefinitionRawRow>> parsedTables = new();
+            Dictionary<TAFLDefinitionTableEnum, HashSet<TAFLDefinitionRawRow>> parsedTables = [];
 
             try
             {
                 var singlePageStream = _pdfService.MergePDFToSinglePage(multiPageStream);
 
-                PdfDocument pdf = new PdfDocument();
+                PdfDocument pdf = new();
                 pdf.LoadFromStream(singlePageStream);
                 var extractor = new PdfTableExtractor(pdf);
 
-                List<PdfTable> rawTables = new();
+                List<PdfTable> rawTables = [];
 
                 // Extract all the Tables from the PDF, in correct order
                 for (int pageIndex = 0; pageIndex < pdf.Pages.Count; pageIndex++)
@@ -180,12 +609,6 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task<SaveTAFLToDBResponse> SaveTAFLToDBAsync(List<TAFLEntryRawRow> records)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
         public async Task<SaveTAFLDefinitionToDBResponse> SaveTAFLDefinitionToDBAsync(Dictionary<TAFLDefinitionTableEnum, HashSet<TAFLDefinitionRawRow>> tables)
         {
             int totalModifiedRowCount = 0;
@@ -238,9 +661,9 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, FiltrationInstalledType>(
                     tables,
-                    TAFLDefinitionTableEnum.FiltrationType,
+                    TAFLDefinitionTableEnum.FiltrationInstalledType,
                     _definitionRepo.FiltrationTypeAddUpdate,
-                    nameof(TAFLDefinitionTableEnum.FiltrationType)
+                    nameof(TAFLDefinitionTableEnum.FiltrationInstalledType)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, AntennaPattern>(
@@ -363,7 +786,9 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             };
         }
 
+        #endregion
 
+        #region private
         /// <summary>
         /// Creates a CSV Reader Object from the given stream
         /// </summary>
@@ -390,6 +815,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             csv.Context.TypeConverterCache.AddConverter<decimal?>(new NullConverter<decimal?>(csv.Context.TypeConverterCache));
             csv.Context.TypeConverterCache.AddConverter<int?>(new NullConverter<int?>(csv.Context.TypeConverterCache));
             csv.Context.TypeConverterCache.AddConverter<double?>(new NullConverter<double?>(csv.Context.TypeConverterCache));
+            csv.Context.TypeConverterCache.AddConverter<string?>(new NullConverter<string>(csv.Context.TypeConverterCache));
 
             return csv;
         }
@@ -402,7 +828,6 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         /// <exception cref="TAFLDefinitionHeaderMismatchException">If the headers don't match the expected headers</exception>
         private void ThrowIfTableInvalid(PdfTable table)
         {
-            int rows = table.GetRowCount();
             int cols = table.GetColumnCount();
 
             if (cols != _taflDefinitionOrder.Headers.Count)
@@ -425,7 +850,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         /// <param name="ignoreHeader">Skips the first row.</param>
         /// <returns>List of TAFLDefinitionRawRow's</returns>
         /// <exception cref="InvalidDataException">If that data is empty, throw these exceptions</exception>
-        private List<TAFLDefinitionRawRow> GetAllRows(PdfTable table, bool ignoreHeader = true)
+        private static List<TAFLDefinitionRawRow> GetAllRows(PdfTable table, bool ignoreHeader = true)
         {
             int curRow = ignoreHeader ? 1 : 0;
             int totalRows = table.GetRowCount();
@@ -462,7 +887,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         /// </summary>
         /// <typeparam name="T">Type to check prop count</typeparam>
         /// <returns></returns>
-        private int GetPropCount<T>() where T : class
+        private static int GetPropCount<T>() where T : class
         {
             var type = typeof(T);
 
@@ -504,5 +929,10 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
             return modifiedCount;
         }
+
+        #endregion
+
+        #endregion
+
     }
 }

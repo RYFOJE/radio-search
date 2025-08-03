@@ -2,6 +2,7 @@ using AutoMapper;
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using DnsClient.Internal;
+using FluentValidation;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,9 +14,11 @@ using OpenTelemetry.Resources;
 using Radio_Search.Importer.Canada.Data;
 using Radio_Search.Importer.Canada.Services;
 using Radio_Search.Importer.Canada.Services.Configuration;
+using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Implementations;
 using Radio_Search.Importer.Canada.Services.Interfaces;
 using Radio_Search.Importer.Canada.Services.Mappings;
+using Radio_Search.Importer.Canada.Services.Validators;
 using Radio_Search.Utils.BlobStorage;
 using System.Net;
 using System.Reflection;
@@ -138,6 +141,8 @@ builder.Services.AddScoped<IUpdateVerificationService, UpdateVerificationService
 builder.Services.AddScoped<IPDFProcessingServices, PDFProcessingServices>();
 builder.Services.ImporterCanadaAddData();
 
+builder.Services.AddScoped<IValidator<TAFLEntryRawRow>, TAFLEntryRawRowValidator>();
+
 builder.Services.AddBlobStorage(
         blobConnectionString: builder.Configuration.GetValue<string>("BlobStorage:URL") ?? throw new ArgumentNullException("BlobStorage:URL Cannot be null"),
         containerName: "canada"
@@ -176,6 +181,7 @@ builder.Services.AddDbContext<CanadaImporterContext>(options =>
 
 #region AUTOMAPPER
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<TAFLDefinitionProfile>());
+builder.Services.AddAutoMapper(cfg =>cfg.AddProfile<TAFLRowProfile>());
 #endregion
 
 builder.Build().Run();

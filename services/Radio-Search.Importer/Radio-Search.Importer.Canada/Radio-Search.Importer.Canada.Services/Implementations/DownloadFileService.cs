@@ -31,6 +31,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             _blobStorageService = blobStorageService;
         }
 
+        #region public
+
         /// <inheritdoc/>
         public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFL()
         {
@@ -107,6 +109,9 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             };
         }
 
+        #endregion
+
+        #region private
 
         /// <summary>
         /// Downloads the file from the Canadian website
@@ -193,5 +198,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 throw;
             }
         }
+
+        #endregion
     }
 }

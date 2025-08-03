@@ -7,7 +7,7 @@ using NetTopologySuite.Geometries;
 namespace Radio_Search.Importer.Canada.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class changed_authstatus_to_string : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -135,21 +135,22 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ImportHistory",
+                name: "ImportHistories",
                 schema: "Canada_Importer",
                 columns: table => new
                 {
-                    ImportHistoryID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImportHistoryID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FileHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    ImportRowCount = table.Column<int>(type: "int", nullable: true),
+                    TotalInsertedUpdatedRows = table.Column<int>(type: "int", nullable: true),
                     SkippedRowCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ImportHistory", x => x.ImportHistoryID);
+                    table.PrimaryKey("PK_ImportHistories", x => x.ImportHistoryID);
                 });
 
             migrationBuilder.CreateTable(
@@ -395,74 +396,77 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer",
                 columns: table => new
                 {
-                    LicenseRecordID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    InternalLicenseRecordID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CanadaLicenseRecordID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     IsValid = table.Column<bool>(type: "bit", nullable: false),
-                    StationFunctionTypeID = table.Column<string>(type: "nvarchar(3)", nullable: true),
-                    FrequencyMHz = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    RegulatoryServiceID = table.Column<short>(type: "smallint", nullable: true),
-                    CommunicationTypeID = table.Column<string>(type: "nvarchar(5)", nullable: true),
-                    ConformityToFrequencyPlanConformityFrequencyPlanID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    FrequencyMHz = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
                     FrequencyAllocationName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Channel = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     InternationalCoordinationNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AnalogDigitalID = table.Column<string>(type: "nvarchar(1)", nullable: true),
-                    OccupiedBandwidthKHz = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
+                    OccupiedBandwidthKHz = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
                     DesignationOfEmission = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ModulationTypeID = table.Column<string>(type: "nvarchar(25)", nullable: true),
-                    FiltrationInstalledTypeID = table.Column<string>(type: "nvarchar(1)", nullable: true),
-                    TxERPdBW = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    TxPowerW = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    TotalLossesDb = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    AnalogCapacityChannels = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    DigitalCapacityMbps = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
+                    TxERPdBW = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    TxPowerW = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    TotalLossesDb = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    AnalogCapacityChannels = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    DigitalCapacityMbps = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
                     RxUnfadedReceivedSignalLevel = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RxThresholdSignalLevel = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AntennaManufacturer = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AntennaModel = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AntennaGainDbi = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    AntennaPatternID = table.Column<string>(type: "nvarchar(15)", nullable: true),
-                    BeamwidthDeg = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    FrontToBackRatioDb = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    PolarizationTypeID = table.Column<string>(type: "nvarchar(1)", nullable: true),
-                    HeightAboveGroundM = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    AzimuthMainLobeDeg = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    VerticalElevationAngleDeg = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
+                    AntennaGainDbi = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    BeamwidthDeg = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    FrontToBackRatioDb = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    HeightAboveGroundM = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    AzimuthMainLobeDeg = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    VerticalElevationAngleDeg = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
                     StationLocation = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StationReference = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CallSign = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StationTypeID = table.Column<short>(type: "smallint", nullable: true),
-                    ITUClassOfStationITUClassTypeID = table.Column<string>(type: "nvarchar(3)", nullable: true),
-                    StationCostCategoryID = table.Column<short>(type: "smallint", nullable: true),
                     NumberOfIdenticalStations = table.Column<int>(type: "int", nullable: true),
                     ReferenceIdentifier = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProvinceID = table.Column<string>(type: "nvarchar(2)", nullable: true),
                     Location = table.Column<Point>(type: "geography", nullable: true),
                     GroundElevationM = table.Column<int>(type: "int", nullable: true),
-                    AntennaStructureHeightM = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    CongestionZoneTypeID = table.Column<string>(type: "nvarchar(1)", nullable: true),
+                    AntennaStructureHeightM = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
                     RadiusOfOperationKm = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SatelliteName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AuthorizationNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ServiceTypeID = table.Column<short>(type: "smallint", nullable: true),
-                    SubserviceTypeID = table.Column<short>(type: "smallint", nullable: true),
-                    LicenceTypeLicenseTypeID = table.Column<string>(type: "nvarchar(7)", nullable: true),
-                    AuthorizationStatusID = table.Column<string>(type: "nvarchar(3)", nullable: true),
-                    InServiceDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    InServiceDate = table.Column<DateOnly>(type: "date", nullable: true),
                     AccountNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LicenseeName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LicenseeAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HorizontalPowerW = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    VerticalPowerW = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
+                    StationFunctionID = table.Column<string>(type: "nvarchar(3)", nullable: true),
+                    RegulatoryServiceID = table.Column<short>(type: "smallint", nullable: true),
+                    CommunicationTypeID = table.Column<string>(type: "nvarchar(5)", nullable: true),
+                    ConformityFrequencyPlanID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AnalogDigitalID = table.Column<string>(type: "nvarchar(1)", nullable: true),
+                    ModulationTypeID = table.Column<string>(type: "nvarchar(25)", nullable: true),
+                    FiltrationInstalledTypeID = table.Column<string>(type: "nvarchar(1)", nullable: true),
+                    AntennaPatternID = table.Column<string>(type: "nvarchar(15)", nullable: true),
+                    PolarizationTypeID = table.Column<string>(type: "nvarchar(1)", nullable: true),
+                    StationTypeID = table.Column<short>(type: "smallint", nullable: true),
+                    ITUClassTypeID = table.Column<string>(type: "nvarchar(3)", nullable: true),
+                    StationCostCategoryID = table.Column<short>(type: "smallint", nullable: true),
+                    ProvinceID = table.Column<string>(type: "nvarchar(2)", nullable: true),
+                    CongestionZoneTypeID = table.Column<string>(type: "nvarchar(1)", nullable: true),
+                    ServiceTypeID = table.Column<short>(type: "smallint", nullable: true),
+                    SubserviceTypeID = table.Column<short>(type: "smallint", nullable: true),
+                    LicenseTypeID = table.Column<string>(type: "nvarchar(7)", nullable: true),
+                    AuthorizationStatusID = table.Column<string>(type: "nvarchar(3)", nullable: true),
                     OperationalStatusID = table.Column<string>(type: "nvarchar(5)", nullable: true),
                     StationClassID = table.Column<string>(type: "nvarchar(5)", nullable: true),
-                    HorizontalPowerW = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
-                    VerticalPowerW = table.Column<decimal>(type: "decimal(12,10)", precision: 12, scale: 10, nullable: true),
                     StandbyTransmitterInformationID = table.Column<short>(type: "smallint", nullable: true),
+                    ImportHistoryID = table.Column<int>(type: "int", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConcurrencyStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LicenseRecords", x => x.LicenseRecordID);
+                    table.PrimaryKey("PK_LicenseRecords", x => x.InternalLicenseRecordID)
+                        .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_AnalogDigital_AnalogDigitalID",
                         column: x => x.AnalogDigitalID,
@@ -488,8 +492,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         principalTable: "CommunicationTypes",
                         principalColumn: "CommunicationTypeID");
                     table.ForeignKey(
-                        name: "FK_LicenseRecords_ConformityFrequencyPlans_ConformityToFrequencyPlanConformityFrequencyPlanID",
-                        column: x => x.ConformityToFrequencyPlanConformityFrequencyPlanID,
+                        name: "FK_LicenseRecords_ConformityFrequencyPlans_ConformityFrequencyPlanID",
+                        column: x => x.ConformityFrequencyPlanID,
                         principalSchema: "Canada_Importer",
                         principalTable: "ConformityFrequencyPlans",
                         principalColumn: "ConformityFrequencyPlanID");
@@ -506,14 +510,21 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         principalTable: "FiltrationInstalledTypes",
                         principalColumn: "FiltrationInstalledTypeID");
                     table.ForeignKey(
-                        name: "FK_LicenseRecords_ITUClassTypes_ITUClassOfStationITUClassTypeID",
-                        column: x => x.ITUClassOfStationITUClassTypeID,
+                        name: "FK_LicenseRecords_ITUClassTypes_ITUClassTypeID",
+                        column: x => x.ITUClassTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "ITUClassTypes",
                         principalColumn: "ITUClassTypeID");
                     table.ForeignKey(
-                        name: "FK_LicenseRecords_LicenseTypes_LicenceTypeLicenseTypeID",
-                        column: x => x.LicenceTypeLicenseTypeID,
+                        name: "FK_LicenseRecords_ImportHistories_ImportHistoryID",
+                        column: x => x.ImportHistoryID,
+                        principalSchema: "Canada_Importer",
+                        principalTable: "ImportHistories",
+                        principalColumn: "ImportHistoryID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_LicenseRecords_LicenseTypes_LicenseTypeID",
+                        column: x => x.LicenseTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "LicenseTypes",
                         principalColumn: "LicenseTypeID");
@@ -578,8 +589,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         principalTable: "SubserviceTypes",
                         principalColumn: "SubserviceTypeID");
                     table.ForeignKey(
-                        name: "FK_LicenseRecords_stationFunctionTypes_StationFunctionTypeID",
-                        column: x => x.StationFunctionTypeID,
+                        name: "FK_LicenseRecords_stationFunctionTypes_StationFunctionID",
+                        column: x => x.StationFunctionID,
                         principalSchema: "Canada_Importer",
                         principalTable: "stationFunctionTypes",
                         principalColumn: "StationFunctionTypeID");
@@ -598,28 +609,29 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 {
                     LicenseRecordHistoryID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    LicenseRecordID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImportHistoryRecordImportHistoryID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    InternalLicenseRecordID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ChangeType = table.Column<int>(type: "int", nullable: false),
-                    JSONRepresentation = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    EditedByImportHistoryRecordID = table.Column<int>(type: "int", nullable: true),
+                    EditedByUserID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LicenseRecordsHistory", x => x.LicenseRecordHistoryID);
+                    table.PrimaryKey("PK_LicenseRecordsHistory", x => x.LicenseRecordHistoryID)
+                        .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
-                        name: "FK_LicenseRecordsHistory_ImportHistory_ImportHistoryRecordImportHistoryID",
-                        column: x => x.ImportHistoryRecordImportHistoryID,
+                        name: "FK_LicenseRecordsHistory_ImportHistories_EditedByImportHistoryRecordID",
+                        column: x => x.EditedByImportHistoryRecordID,
                         principalSchema: "Canada_Importer",
-                        principalTable: "ImportHistory",
+                        principalTable: "ImportHistories",
                         principalColumn: "ImportHistoryID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_LicenseRecordsHistory_LicenseRecords_LicenseRecordID",
-                        column: x => x.LicenseRecordID,
+                        name: "FK_LicenseRecordsHistory_LicenseRecords_InternalLicenseRecordID",
+                        column: x => x.InternalLicenseRecordID,
                         principalSchema: "Canada_Importer",
                         principalTable: "LicenseRecords",
-                        principalColumn: "LicenseRecordID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "InternalLicenseRecordID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -641,16 +653,23 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 column: "AuthorizationStatusID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecords_CanadaLicenseRecordID",
+                schema: "Canada_Importer",
+                table: "LicenseRecords",
+                column: "CanadaLicenseRecordID")
+                .Annotation("SqlServer:Clustered", true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_CommunicationTypeID",
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
                 column: "CommunicationTypeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecords_ConformityToFrequencyPlanConformityFrequencyPlanID",
+                name: "IX_LicenseRecords_ConformityFrequencyPlanID",
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
-                column: "ConformityToFrequencyPlanConformityFrequencyPlanID");
+                column: "ConformityFrequencyPlanID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_CongestionZoneTypeID",
@@ -671,16 +690,28 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 column: "FrequencyMHz");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecords_ITUClassOfStationITUClassTypeID",
+                name: "IX_LicenseRecords_ImportHistoryID",
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
-                column: "ITUClassOfStationITUClassTypeID");
+                column: "ImportHistoryID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecords_LicenceTypeLicenseTypeID",
+                name: "IX_LicenseRecords_IsValid",
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
-                column: "LicenceTypeLicenseTypeID");
+                column: "IsValid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecords_ITUClassTypeID",
+                schema: "Canada_Importer",
+                table: "LicenseRecords",
+                column: "ITUClassTypeID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecords_LicenseTypeID",
+                schema: "Canada_Importer",
+                table: "LicenseRecords",
+                column: "LicenseTypeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_ModulationTypeID",
@@ -737,10 +768,10 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 column: "StationCostCategoryID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecords_StationFunctionTypeID",
+                name: "IX_LicenseRecords_StationFunctionID",
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
-                column: "StationFunctionTypeID");
+                column: "StationFunctionID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_StationTypeID",
@@ -755,16 +786,18 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 column: "SubserviceTypeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecordsHistory_ImportHistoryRecordImportHistoryID",
+                name: "IX_LicenseRecordsHistory_EditedByImportHistoryRecordID",
                 schema: "Canada_Importer",
                 table: "LicenseRecordsHistory",
-                column: "ImportHistoryRecordImportHistoryID");
+                column: "EditedByImportHistoryRecordID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecordsHistory_LicenseRecordID",
+                name: "IX_LicenseRecordsHistory_InternalLicenseRecordID",
                 schema: "Canada_Importer",
                 table: "LicenseRecordsHistory",
-                column: "LicenseRecordID");
+                column: "InternalLicenseRecordID",
+                unique: true)
+                .Annotation("SqlServer:Clustered", true);
         }
 
         /// <inheritdoc />
@@ -772,10 +805,6 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "LicenseRecordsHistory",
-                schema: "Canada_Importer");
-
-            migrationBuilder.DropTable(
-                name: "ImportHistory",
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
@@ -812,6 +841,10 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "ITUClassTypes",
+                schema: "Canada_Importer");
+
+            migrationBuilder.DropTable(
+                name: "ImportHistories",
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(

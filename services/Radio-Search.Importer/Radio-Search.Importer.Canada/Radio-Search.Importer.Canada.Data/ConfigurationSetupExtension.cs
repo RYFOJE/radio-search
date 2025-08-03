@@ -9,6 +9,8 @@ namespace Radio_Search.Importer.Canada.Data
         public static IServiceCollection ImporterCanadaAddData(this IServiceCollection services)
         {
             services.AddScoped<ITAFLDefinitionRepo, TAFLDefinitionRepo>();
+            services.AddScoped<ITAFLImportHistoryRepo, TAFLImportHistoryRepo>();
+            services.AddScoped<ITAFLRepo, TAFLRepo>();
 
             return services;
         }

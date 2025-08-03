@@ -454,5 +454,10 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
 
             return await _context.SaveChangesAsync();
         }
+
+        public async Task<List<T>> GetAllRowsNoTracking<T>() where T : MultiLanguageEntry
+        {
+            return await _context.Set<T>().AsNoTracking().ToListAsync();
+        }
     }
 }

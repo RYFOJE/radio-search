@@ -25,5 +25,6 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
         Task<int> OperationalStatusAddUpdate(List<OperationalStatus> entries);
         Task<int> StationClassAddUpdate(List<StationClass> entries);
         Task<int> StandbyTransmitterInformationAddUpdate(List<StandbyTransmitterInformation> entries);
+        Task<List<T>> GetAllRowsNoTracking<T>() where T : MultiLanguageEntry;
     }
 }
