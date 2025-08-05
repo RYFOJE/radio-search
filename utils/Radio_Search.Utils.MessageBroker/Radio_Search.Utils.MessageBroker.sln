@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36301.6 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio_Search.Utils.MessageBroker", "Radio_Search.Utils.MessageBroker\Radio_Search.Utils.MessageBroker.csproj", "{357F214B-DF0D-46F4-A9F6-59D2C813CB54}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{357F214B-DF0D-46F4-A9F6-59D2C813CB54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{357F214B-DF0D-46F4-A9F6-59D2C813CB54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{357F214B-DF0D-46F4-A9F6-59D2C813CB54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{357F214B-DF0D-46F4-A9F6-59D2C813CB54}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0ADA430-E9AE-4AE2-8DDC-C452C4E67087}
+	EndGlobalSection
+EndGlobal
