@@ -12,7 +12,7 @@ namespace Radio_Search.Utils.MessageBroker.Factories.Azure
     /// This factory is meant to be injected only as a Singleton
     /// </note>
     /// </summary>
-    public class AzureWriterFactory : IWriterFactory, IAsyncDisposable
+    public class AzureWriterFactory : IMessageBrokerWriteFactory, IAsyncDisposable
     {
         private readonly IServiceProvider _serviceProvider;
         public record WriterKey(string? ClientName, string DestinationName);

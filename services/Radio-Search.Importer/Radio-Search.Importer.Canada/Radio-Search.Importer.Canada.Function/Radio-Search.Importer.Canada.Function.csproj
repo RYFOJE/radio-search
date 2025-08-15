@@ -41,6 +41,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\utils\Radio_Search.Utils.MessageBroker\Radio_Search.Utils.MessageBroker\Radio_Search.Utils.MessageBroker.csproj" />
+    <ProjectReference Include="..\Radio-Search.Importer.Canada.Data-Contracts\Radio-Search.Importer.Canada.Data-Contracts.csproj" />
     <ProjectReference Include="..\Radio-Search.Importer.Canada.Data\Radio-Search.Importer.Canada.Data.csproj" />
     <ProjectReference Include="..\Radio-Search.Importer.Canada.Services\Radio-Search.Importer.Canada.Services.csproj" />
   </ItemGroup>
@@ -64,5 +66,8 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Functions\" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 
 namespace Radio_Search.Utils.MessageBroker.Factories.Interfaces
 {
-    public interface IWriterFactory
+    public interface IMessageBrokerWriteFactory
     {
         /// <summary>
         /// Creates an asynchronous message broker writer for the specified destination.

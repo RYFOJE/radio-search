@@ -34,7 +34,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         #region public
 
         /// <inheritdoc/>
-        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFL()
+        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFL(string location)
         {
             Stream? taflStream = null;
             Stream? unzippedFileStream = null;
@@ -46,7 +46,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 taflStream = await DownloadTAFLFromSource();
                 unzippedFileStream = UnzipSingleFile(taflStream);
 
-                resp = await _blobStorageService.UploadAsync($"csv/unprocessed/{newFileName}", unzippedFileStream);
+                resp = await _blobStorageService.UploadAsync(location, unzippedFileStream);
             }
             catch (Exception ex)
             {
@@ -74,7 +74,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFLDefinition()
+        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFLDefinition(string location)
         {
             Stream? taflStream = null;
             var newFileName = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd") + ".pdf";
@@ -83,7 +83,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             try
             {
                 taflStream = await DownloadTAFLDefinitionFromSource();
-                resp = await _blobStorageService.UploadAsync($"pdf/unprocessed/{newFileName}", taflStream);
+                resp = await _blobStorageService.UploadAsync(location, taflStream);
             }
             catch (Exception ex)
             {

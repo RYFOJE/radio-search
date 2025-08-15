@@ -394,7 +394,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
 
         public async Task<int> StationFunctionAddUpdate(List<StationFunctionType> entries)
         {
-            var existingItems = await _context.stationFunctionTypes.ToListAsync();
+            var existingItems = await _context.StationFunctionTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.StationFunctionTypeID);
 
             foreach (var item in entries)
@@ -436,7 +436,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
 
         public async Task<int> TypeOfStationAddUpdate(List<StationType> entries)
         {
-            var existingItems = await _context.stationTypes.ToListAsync();
+            var existingItems = await _context.StationTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.StationTypeID);
 
             foreach (var item in entries)

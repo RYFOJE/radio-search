@@ -15,11 +15,7 @@ namespace Radio_Search.Importer.Canada.Services.Mappings
                         ? new Point((double)src.Longitude.Value, (double)src.Latitude.Value) { SRID = 4326 }
                         : null))
                 .ForMember(dest => dest.CanadaLicenseRecordID, opt => opt.MapFrom(src => src.LicenseRecordID))
-                .ForMember(dest => dest.IsValid, opt => opt.Ignore())
-                
-                .ForMember(dest => dest.ImportHistoryID, opt => opt.MapFrom((src, dest, destMember, context) =>
-                    context.Items.ContainsKey("ImportHistoryID") ? (int)context.Items["ImportHistoryID"] : 0
-                ));
+                .ForMember(dest => dest.IsValid, opt => opt.Ignore());
         }
     }
 }

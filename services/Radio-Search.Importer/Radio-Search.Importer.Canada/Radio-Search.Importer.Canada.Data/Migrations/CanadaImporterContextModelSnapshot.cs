@@ -26,11 +26,11 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.ImportHistory", b =>
                 {
-                    b.Property<int>("ImportHistoryID")
+                    b.Property<int>("ImportJobID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImportHistoryID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImportJobID"));
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime2");
@@ -51,9 +51,9 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<int?>("TotalInsertedUpdatedRows")
                         .HasColumnType("int");
 
-                    b.HasKey("ImportHistoryID");
+                    b.HasKey("ImportJobID");
 
-                    b.ToTable("ImportHistories", "Canada_Importer");
+                    b.ToTable("Importobs", "Canada_Importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.LicenseRecordHistory", b =>
@@ -67,7 +67,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<int>("ChangeType")
                         .HasColumnType("int");
 
-                    b.Property<int?>("EditedByImportHistoryRecordID")
+                    b.Property<int?>("EditedByImportJobID")
                         .HasColumnType("int");
 
                     b.Property<int?>("EditedByUserID")
@@ -80,7 +80,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("LicenseRecordHistoryID"), false);
 
-                    b.HasIndex("EditedByImportHistoryRecordID");
+                    b.HasIndex("EditedByImportJobID");
 
                     b.HasIndex("InternalLicenseRecordID")
                         .IsUnique();
@@ -435,7 +435,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<string>("ITUClassTypeID")
                         .HasColumnType("nvarchar(3)");
 
-                    b.Property<int>("ImportHistoryID")
+                    b.Property<int>("ImportJobID")
                         .HasColumnType("int");
 
                     b.Property<DateOnly?>("InServiceDate")
@@ -572,7 +572,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasIndex("ITUClassTypeID");
 
-                    b.HasIndex("ImportHistoryID");
+                    b.HasIndex("ImportJobID");
 
                     b.HasIndex("IsValid");
 
@@ -927,7 +927,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasKey("StationFunctionTypeID");
 
-                    b.ToTable("stationFunctionTypes", "Canada_Importer");
+                    b.ToTable("StationFunctionTypes", "Canada_Importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StationType", b =>
@@ -956,7 +956,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasKey("StationTypeID");
 
-                    b.ToTable("stationTypes", "Canada_Importer");
+                    b.ToTable("StationTypes", "Canada_Importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.SubserviceType", b =>
@@ -990,9 +990,9 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.LicenseRecordHistory", b =>
                 {
-                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.History.ImportHistory", "EditedByImportHistoryRecord")
-                        .WithMany("AssociatedRecords")
-                        .HasForeignKey("EditedByImportHistoryRecordID")
+                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.History.ImportHistory", "EditedByImportJob")
+                        .WithMany("AssociatedLicenseRecordHistories")
+                        .HasForeignKey("EditedByImportJobID")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecord", "LicenseRecord")
@@ -1001,7 +1001,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("EditedByImportHistoryRecord");
+                    b.Navigation("EditedByImportJob");
 
                     b.Navigation("LicenseRecord");
                 });
@@ -1042,11 +1042,11 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.History.ImportHistory", "ImportHistory")
                         .WithMany()
-                        .HasForeignKey("ImportHistoryID")
+                        .HasForeignKey("ImportJobID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.LicenseType", "LicenceType")
+                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.LicenseType", "LicenseType")
                         .WithMany()
                         .HasForeignKey("LicenseTypeID");
 
@@ -1116,7 +1116,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.Navigation("ImportHistory");
 
-                    b.Navigation("LicenceType");
+                    b.Navigation("LicenseType");
 
                     b.Navigation("ModulationType");
 
@@ -1145,7 +1145,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.ImportHistory", b =>
                 {
-                    b.Navigation("AssociatedRecords");
+                    b.Navigation("AssociatedLicenseRecordHistories");
                 });
 #pragma warning restore 612, 618
         }

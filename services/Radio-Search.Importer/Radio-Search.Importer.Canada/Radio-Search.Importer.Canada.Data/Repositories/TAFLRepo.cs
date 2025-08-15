@@ -73,6 +73,30 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await query.ToListAsync();
         }
 
+        /// <inheritdoc/>
+        public async Task<List<LicenseRecord>> BulkFetchLicenseRecordsNoTrackingAsync(List<string> licenseIDs)
+        {
+            int fetchLimit;
+            var configValue = _config[RECORD_FETCH_LIMIT_CONFIG_KEY];
+            if (string.IsNullOrWhiteSpace(configValue) || !int.TryParse(configValue, out fetchLimit))
+                throw new ArgumentException($"{RECORD_FETCH_LIMIT_CONFIG_KEY} must be a valid integer.");
+
+            var allRecords = new List<LicenseRecord>();
+
+            for (int i = 0; i < licenseIDs.Count; i += fetchLimit)
+            {
+                var batchKeys = licenseIDs.Skip(i).Take(fetchLimit).ToList();
+
+                var batchRecords = await _context.LicenseRecords
+                    .AsNoTracking()
+                    .Where(e => batchKeys.Contains(e.CanadaLicenseRecordID) && e.IsValid)
+                    .ToListAsync();
+
+                allRecords.AddRange(batchRecords);
+            }
+
+            return allRecords;
+        }
 
     }
 }

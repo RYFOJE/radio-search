@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Radio_Search.Importer.Canada.Data.Models.History;
+using Radio_Search.Importer.Canada.Data.Models.ImportInfo;
 using Radio_Search.Importer.Canada.Data.Models.License;
 
 namespace Radio_Search.Importer.Canada.Data
@@ -12,7 +13,9 @@ namespace Radio_Search.Importer.Canada.Data
         }
 
         public DbSet<LicenseRecord> LicenseRecords { get; set; }
-        public DbSet<ImportHistory> ImportHistories { get; set; }
+        public DbSet<ImportJob> Importobs { get; set; }
+        public DbSet<ImportJobChunkFile> ImportJobChunkFiles { get; set; }
+        public DbSet<ImportJobStats> ImportJobStats { get; set; }
         public DbSet<LicenseRecordHistory> LicenseRecordsHistory { get; set; }
 
         public DbSet<AntennaPattern> AntennaPatterns { get; set; }
@@ -32,8 +35,8 @@ namespace Radio_Search.Importer.Canada.Data
         public DbSet<StandbyTransmitterInformation> StandbyTransmitterInformation { get; set; }
         public DbSet<StationClass> StationClasses { get; set; }
         public DbSet<StationCostCategory> StationCostCategories { get; set; }
-        public DbSet<StationFunctionType> stationFunctionTypes { get; set; }
-        public DbSet<StationType> stationTypes { get; set; }
+        public DbSet<StationFunctionType> StationFunctionTypes { get; set; }
+        public DbSet<StationType> StationTypes { get; set; }
         public DbSet<SubserviceType> SubserviceTypes { get; set; }
         public DbSet<AnalogDigital> AnalogDigital { get; set; }
 
@@ -47,27 +50,88 @@ namespace Radio_Search.Importer.Canada.Data
                 .Property(e => e.AntennaPatternID)
                 .ValueGeneratedNever();
 
-            modelBuilder.Entity<LicenseRecord>(entity =>
+            modelBuilder.Entity<LicenseRecordHistory>(entity =>
             {
-                entity.Property(e => e.CanadaLicenseRecordID).ValueGeneratedNever();
-
-                entity.HasKey(e => e.InternalLicenseRecordID)
+                entity.HasKey(u => u.LicenseRecordHistoryID)
                     .IsClustered(false);
 
-                entity.Property(e => e.InternalLicenseRecordID)
+                entity.Property(u => u.LicenseRecordHistoryID)
                     .ValueGeneratedOnAdd();
 
+                entity.HasIndex(u => u.EditedByImportJobID)
+                    .IsUnique(false);
+
                 entity.HasIndex(u => u.CanadaLicenseRecordID)
-                    .IsUnique(false)
-                    .IsClustered();
+                    .IsClustered(true);
 
-                entity.HasOne(e => e.ImportHistory)
-                    .WithMany()
-                    .HasForeignKey(e => e.ImportHistoryID)
-                    .IsRequired();
+                entity.HasOne(e => e.LicenseRecord)
+                    .WithOne()
+                    .HasForeignKey<LicenseRecordHistory>(e => new { e.CanadaLicenseRecordID, e.Version })
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasIndex(u => u.IsValid);
+                entity.HasOne(u => u.EditedByImportJob)
+                    .WithMany(u => u.AssociatedLicenseRecordHistories)
+                    .HasForeignKey(u => u.EditedByImportJobID)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<ImportJob>(entity =>
+            {
+                entity.HasKey(e => e.ImportJobID);
+                entity.HasIndex(e => e.Status);
+
+                entity.HasMany(e => e.AssociatedLicenseRecordHistories)
+                    .WithOne(h => h.EditedByImportJob)
+                    .HasForeignKey(h => h.EditedByImportJobID)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasMany(e => e.ImportJobChunkFiles)
+                    .WithOne(u => u.ImportJob)
+                    .HasForeignKey(u => u.ImportJobID)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(e => e.CurrentStep)
+                    .HasMaxLength(15)
+                    .HasConversion<string>();
+            });
+
+            modelBuilder.Entity<ImportJobStats>(entity =>
+            {
+                entity.HasKey(e => e.ImportJobID);
+
+                entity.HasOne<ImportJob>()
+                    .WithOne(j => j.Stats)
+                    .HasForeignKey<ImportJobStats>(e => e.ImportJobID)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<ImportJobChunkFile>(entity =>
+            {
+                entity.HasKey(e => new { e.ImportJobID, e.FileID });
+
+                entity.HasOne(e => e.ImportJob)
+                    .WithMany(j => j.ImportJobChunkFiles)
+                    .HasForeignKey(e => e.ImportJobID)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Cascade);
+
+            });
+
+            modelBuilder.Entity<LicenseRecord>(entity =>
+            {
+                // Composite Key
+                entity.HasKey(e => new { e.CanadaLicenseRecordID, e.Version }).IsClustered(false);
+
+                // Indexes
+                entity.HasIndex(e => e.CanadaLicenseRecordID).IsClustered(true);
                 entity.HasIndex(u => u.FrequencyMHz);
+                entity.HasIndex(e => e.IsValid)
+                    .HasFilter("IsValid = 1"); // SQL Server specific :(
+
+                entity.Property(e => e.CanadaLicenseRecordID).ValueGeneratedNever();
 
                 entity.Property(e => e.FrequencyMHz).HasPrecision(24, 12);
                 entity.Property(e => e.OccupiedBandwidthKHz).HasPrecision(24, 12);
@@ -89,107 +153,128 @@ namespace Radio_Search.Importer.Canada.Data
                 entity.HasOne(u => u.AntennaPattern)
                     .WithMany()
                     .HasForeignKey(u => u.AntennaPatternID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.AuthorizationStatus)
                     .WithMany()
                     .HasForeignKey(u => u.AuthorizationStatusID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.CommunicationType)
                     .WithMany()
                     .HasForeignKey(u => u.CommunicationTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.ConformityToFrequencyPlan)
                     .WithMany()
                     .HasForeignKey(u => u.ConformityFrequencyPlanID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.CongestionZone)
                     .WithMany()
                     .HasForeignKey(u => u.CongestionZoneTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.FiltrationInstalledType)
                     .WithMany()
                     .HasForeignKey(u => u.FiltrationInstalledTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.ITUClassOfStation)
                     .WithMany()
                     .HasForeignKey(u => u.ITUClassTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(u => u.LicenceType)
+                entity.HasOne(u => u.LicenseType)
                     .WithMany()
                     .HasForeignKey(u => u.LicenseTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.ModulationType)
                     .WithMany()
                     .HasForeignKey(u => u.ModulationTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.OperationalStatus)
                     .WithMany()
                     .HasForeignKey(u => u.OperationalStatusID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.Polarization)
                     .WithMany()
                     .HasForeignKey(u => u.PolarizationTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.Province)
                     .WithMany()
                     .HasForeignKey(u => u.ProvinceID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.RegulatoryService)
                     .WithMany()
                     .HasForeignKey(u => u.RegulatoryServiceID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.Service)
                     .WithMany()
                     .HasForeignKey(u => u.ServiceTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.StandbyTransmitterInfo)
                     .WithMany()
                     .HasForeignKey(u => u.StandbyTransmitterInformationID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.StationClass)
                     .WithMany()
                     .HasForeignKey(u => u.StationClassID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.StationCostCategory)
                     .WithMany()
                     .HasForeignKey(u => u.StationCostCategoryID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.StationFunction)
                     .WithMany()
                     .HasForeignKey(u => u.StationFunctionID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.StationType)
                     .WithMany()
                     .HasForeignKey(u => u.StationTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.Subservice)
                     .WithMany()
                     .HasForeignKey(u => u.SubserviceTypeID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(u => u.AnalogDigital)
                     .WithMany()
                     .HasForeignKey(u => u.AnalogDigitalID)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<AntennaPattern>(entity =>
@@ -295,33 +380,6 @@ namespace Radio_Search.Importer.Canada.Data
             modelBuilder.Entity<AnalogDigital>(entity =>
             {
                 entity.Property(e => e.AnalogDigitalID).ValueGeneratedNever();
-            });
-
-            modelBuilder.Entity<LicenseRecordHistory>(entity =>
-            {
-                entity.HasKey(u => u.LicenseRecordHistoryID)
-                    .IsClustered(false);
-
-                entity.Property(u => u.LicenseRecordHistoryID)
-                    .ValueGeneratedOnAdd();
-
-                entity.HasIndex(u => u.EditedByImportHistoryRecordID)
-                    .IsUnique(false);
-
-                entity.HasIndex(u => u.InternalLicenseRecordID)
-                    .IsClustered(true);
-
-                entity.HasOne(e => e.LicenseRecord)
-                    .WithOne()
-                    .HasForeignKey<LicenseRecordHistory>(e => e.InternalLicenseRecordID)
-                    .IsRequired()
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(u => u.EditedByImportHistoryRecord)
-                    .WithMany(u => u.AssociatedRecords)
-                    .HasForeignKey(u => u.EditedByImportHistoryRecordID)
-                    .IsRequired(false)
-                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }

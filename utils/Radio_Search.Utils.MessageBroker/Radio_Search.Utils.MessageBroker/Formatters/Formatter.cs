@@ -10,7 +10,7 @@ namespace Radio_Search.Utils.MessageBroker.Formatters
     /// <remarks>This class supports retrieving formatters for predefined format types, such as JSON and
     /// Protobuf. It is intended for internal use and ensures that the appropriate formatter is returned based on the
     /// specified <see cref="FormatTypes"/> value.</remarks>
-    internal static class Formatter
+    public static class Formatter
     {
         private static readonly JSONFormatter _jsonFormatter = new();
         private static readonly ProtobufFormatter _protobufFormatter = new();
@@ -21,7 +21,7 @@ namespace Radio_Search.Utils.MessageBroker.Formatters
         /// <param name="formatterType">The type of formatter to retrieve. Must be a valid <see cref="FormatTypes"/> value.</param>
         /// <returns>An <see cref="IFormatter"/> instance corresponding to the specified <paramref name="formatterType"/>.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="formatterType"/> is not a supported <see cref="FormatTypes"/> value.</exception>
-        internal static IFormatter GetFormatter(FormatTypes formatterType)
+        public static IFormatter GetFormatter(FormatTypes formatterType)
         {
 
             return formatterType switch

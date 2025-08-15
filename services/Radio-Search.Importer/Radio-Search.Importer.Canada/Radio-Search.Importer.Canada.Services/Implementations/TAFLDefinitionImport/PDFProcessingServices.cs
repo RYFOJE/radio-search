@@ -2,9 +2,9 @@
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
-using Radio_Search.Importer.Canada.Services.Interfaces;
+using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
 
-namespace Radio_Search.Importer.Canada.Services.Implementations
+namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionImport
 {
     /// <inheritdoc/>
     public class PDFProcessingServices : IPDFProcessingServices

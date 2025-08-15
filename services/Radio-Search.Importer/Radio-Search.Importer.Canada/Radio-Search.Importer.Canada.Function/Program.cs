@@ -1,7 +1,5 @@
-using AutoMapper;
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using DnsClient.Internal;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +14,16 @@ using Radio_Search.Importer.Canada.Services;
 using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Implementations;
+using Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionImport;
 using Radio_Search.Importer.Canada.Services.Interfaces;
+using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
 using Radio_Search.Importer.Canada.Services.Mappings;
 using Radio_Search.Importer.Canada.Services.Validators;
 using Radio_Search.Utils.BlobStorage;
+using Radio_Search.Utils.MessageBroker.ConfigurationSetupExtensions;
+using Radio_Search.Utils.MessageBroker.Implementations.Azure;
+using Radio_Search.Utils.MessageBroker.Interfaces;
 using System.Net;
-using System.Reflection;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -135,13 +137,16 @@ if (isProduction)
 #region DEPENDENCY INJECTION
 
 // Services
-builder.Services.AddScoped<IImportService, ImportService>();
+builder.Services.AddScoped<IImportManagerService, ImportManagerService>();
 builder.Services.AddScoped<IDownloadFileService, DownloadFileService>();
-builder.Services.AddScoped<IUpdateVerificationService, UpdateVerificationService>();
 builder.Services.AddScoped<IPDFProcessingServices, PDFProcessingServices>();
 builder.Services.ImporterCanadaAddData();
-
 builder.Services.AddScoped<IValidator<TAFLEntryRawRow>, TAFLEntryRawRowValidator>();
+
+builder.Services.AddAzureServiceBusClient(new() { 
+    ServiceBusUrl = config.GetConnectionString("CanadaImporterServiceBus") ?? throw new ArgumentNullException()
+});
+builder.Services.AddAzureWriterFactory();
 
 builder.Services.AddBlobStorage(
         blobConnectionString: builder.Configuration.GetValue<string>("BlobStorage:URL") ?? throw new ArgumentNullException("BlobStorage:URL Cannot be null"),
@@ -163,6 +168,9 @@ builder.Services.Configure<DownloaderURLs>(
 
 builder.Services.Configure<TAFLDefinitionTablesOrder>(
     builder.Configuration.GetSection("TAFLDefinitionTables"));
+
+builder.Services.Configure<FileLocations>(
+    builder.Configuration.GetSection("FileLocations"));
 
 #endregion
 

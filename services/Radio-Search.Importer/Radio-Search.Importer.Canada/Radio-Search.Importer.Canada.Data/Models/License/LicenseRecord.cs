@@ -1,12 +1,11 @@
 ﻿using NetTopologySuite.Geometries;
-using Radio_Search.Importer.Canada.Data.Models.History;
 
 namespace Radio_Search.Importer.Canada.Data.Models.License
 {
     public class LicenseRecord : DatabaseEntry
     {
-        public Guid InternalLicenseRecordID { get; set; } = Guid.NewGuid();
         public string CanadaLicenseRecordID { get; set; } = string.Empty;
+        public int Version { get; set; } = 1;
 
         /// <summary>
         /// Can be Invalid due to it being removed / updated
@@ -61,7 +60,7 @@ namespace Radio_Search.Importer.Canada.Data.Models.License
         public StationClass? StationClass { get; set; }
         public ServiceType? Service { get; set; }
         public SubserviceType? Subservice { get; set; }
-        public LicenseType? LicenceType { get; set; }
+        public LicenseType? LicenseType { get; set; }
         public AuthorizationStatus? AuthorizationStatus { get; set; }
         public CongestionZoneType? CongestionZone { get; set; }
         public StationType? StationType { get; set; }
@@ -97,10 +96,6 @@ namespace Radio_Search.Importer.Canada.Data.Models.License
         public string? OperationalStatusID { get; set; }
         public string? StationClassID { get; set; }
         public short? StandbyTransmitterInformationID { get; set; }
-
-        // History
-        public int ImportHistoryID { get; set; }
-        public ImportHistory ImportHistory { get; set; } = new ImportHistory();
 
         public override int GetHashCode()
         {

@@ -135,7 +135,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ImportHistories",
+                name: "Importobs",
                 schema: "Canada_Importer",
                 columns: table => new
                 {
@@ -341,7 +341,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "stationFunctionTypes",
+                name: "StationFunctionTypes",
                 schema: "Canada_Importer",
                 columns: table => new
                 {
@@ -358,7 +358,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "stationTypes",
+                name: "StationTypes",
                 schema: "Canada_Importer",
                 columns: table => new
                 {
@@ -519,8 +519,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         name: "FK_LicenseRecords_ImportHistories_ImportHistoryID",
                         column: x => x.ImportHistoryID,
                         principalSchema: "Canada_Importer",
-                        principalTable: "ImportHistories",
-                        principalColumn: "ImportHistoryID",
+                        principalTable: "Importobs",
+                        principalColumn: "ImportJobID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_LicenseTypes_LicenseTypeID",
@@ -592,13 +592,13 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         name: "FK_LicenseRecords_stationFunctionTypes_StationFunctionID",
                         column: x => x.StationFunctionID,
                         principalSchema: "Canada_Importer",
-                        principalTable: "stationFunctionTypes",
+                        principalTable: "StationFunctionTypes",
                         principalColumn: "StationFunctionTypeID");
                     table.ForeignKey(
                         name: "FK_LicenseRecords_stationTypes_StationTypeID",
                         column: x => x.StationTypeID,
                         principalSchema: "Canada_Importer",
-                        principalTable: "stationTypes",
+                        principalTable: "StationTypes",
                         principalColumn: "StationTypeID");
                 });
 
@@ -622,8 +622,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         name: "FK_LicenseRecordsHistory_ImportHistories_EditedByImportHistoryRecordID",
                         column: x => x.EditedByImportHistoryRecordID,
                         principalSchema: "Canada_Importer",
-                        principalTable: "ImportHistories",
-                        principalColumn: "ImportHistoryID",
+                        principalTable: "Importobs",
+                        principalColumn: "ImportJobID",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_LicenseRecordsHistory_LicenseRecords_InternalLicenseRecordID",
@@ -693,7 +693,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 name: "IX_LicenseRecords_ImportHistoryID",
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
-                column: "ImportHistoryID");
+                column: "ImportJobID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_IsValid",
@@ -789,7 +789,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 name: "IX_LicenseRecordsHistory_EditedByImportHistoryRecordID",
                 schema: "Canada_Importer",
                 table: "LicenseRecordsHistory",
-                column: "EditedByImportHistoryRecordID");
+                column: "EditedByImportJobID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecordsHistory_InternalLicenseRecordID",
@@ -844,7 +844,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
-                name: "ImportHistories",
+                name: "Importobs",
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
@@ -892,11 +892,11 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
-                name: "stationFunctionTypes",
+                name: "StationFunctionTypes",
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
-                name: "stationTypes",
+                name: "StationTypes",
                 schema: "Canada_Importer");
         }
     }

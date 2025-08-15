@@ -10,13 +10,13 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Radio_Search.Importer.Canada.Data;
 using Radio_Search.Importer.Canada.Data.Enums;
-using Radio_Search.Importer.Canada.Data.Models.History;
+using Radio_Search.Importer.Canada.Data.Models.ImportInfo;
 using Radio_Search.Importer.Canada.Data.Models.License;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Implementations;
-using Radio_Search.Importer.Canada.Services.Interfaces;
+using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinition;
 using Radio_Search.Importer.Canada.Services.Responses;
 using Radio_Search.Importer.Canada.Services.Validators;
 using Xunit.Sdk;
@@ -32,7 +32,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         private readonly Mock<CanadaImporterContext> _context;
         private readonly Mock<ITAFLDefinitionRepo> _definitionRepo = new();
         private readonly Mock<ITAFLRepo> _taflRepo = new();
-        private readonly Mock<ITAFLImportHistoryRepo> _historyRepo = new();
+        private readonly Mock<IImportJobRepo> _historyRepo = new();
         private readonly Mock<IMapper> _mapper = new();
         private readonly Mock<IPDFProcessingServices> _pdfService = new();
 
@@ -78,13 +78,13 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         {
             // Arrange
             byte[] data = new byte[] { 1, 2, 3 };
-            _historyRepo.Setup(x => x.CreateImportHistoryRecord(It.IsAny<ImportHistory>())).ReturnsAsync((ImportHistory history) => { return history; }); // Return the object passed in
+            _historyRepo.Setup(x => x.CreateImportHistoryRecord(It.IsAny<ImportJob>())).ReturnsAsync((ImportJob history) => { return history; }); // Return the object passed in
 
             // Act
             var response = await _service.CreateImportHistoryRecord(data);
 
             // Assert
-            _historyRepo.Verify(x => x.CreateImportHistoryRecord(It.IsAny<ImportHistory>()), Times.Once);
+            _historyRepo.Verify(x => x.CreateImportHistoryRecord(It.IsAny<ImportJob>()), Times.Once);
             Assert.NotEqual(Guid.Empty, response.ImportHistoryID);
             Assert.Equal(data, response.FileHash);
             Assert.Equal(ImportStatus.Pending, response.Status);
@@ -95,7 +95,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         {
             // Arrange
             byte[] data = new byte[] { 1, 2, 3 };
-            _historyRepo.Setup(x => x.CreateImportHistoryRecord(It.IsAny<ImportHistory>())).Throws<InvalidOperationException>();
+            _historyRepo.Setup(x => x.CreateImportHistoryRecord(It.IsAny<ImportJob>())).Throws<InvalidOperationException>();
 
             // Act & Assert
             await Assert.ThrowsAsync<InvalidOperationException>(() => _service.CreateImportHistoryRecord(data));
@@ -473,23 +473,23 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         {
             // Arrange
             var guid = Guid.NewGuid();
-            var importHistory = new ImportHistory
+            var importHistory = new ImportJob
             {
-                ImportHistoryID = guid,
+                ImportJobID = guid,
                 Status = ImportStatus.Pending,
                 EndTime = null
             };
 
             _historyRepo.Setup(x => x.GetImportHistoryRecord(guid)).ReturnsAsync(importHistory);
-            _historyRepo.Setup(x => x.UpdateImportHistoryRecord(It.IsAny<ImportHistory>()))
-                .ReturnsAsync((ImportHistory h) => h);
+            _historyRepo.Setup(x => x.UpdateImportHistoryRecord(It.IsAny<ImportJob>()))
+                .ReturnsAsync((ImportJob h) => h);
 
             // Act
             await _service.MarkImportAsFailed(guid);
 
             // Assert
             _historyRepo.Verify(x => x.GetImportHistoryRecord(guid), Times.Once);
-            _historyRepo.Verify(x => x.UpdateImportHistoryRecord(It.Is<ImportHistory>(
+            _historyRepo.Verify(x => x.UpdateImportHistoryRecord(It.Is<ImportJob>(
                 h => h.Status == ImportStatus.Failure && h.EndTime != null)), Times.Once);
         }
 

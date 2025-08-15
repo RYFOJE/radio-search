@@ -15,7 +15,7 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces
         /// <returns>A task that represents the asynchronous operation. The task result contains a <see
         /// cref="DownloadFileResponse"/> object, which includes details about the download operation, such as the file
         /// path and status.</returns>
-        public Task<DownloadFileResponse> DownloadAndSaveRecentTAFL();
+        public Task<DownloadFileResponse> DownloadAndSaveRecentTAFL(string location);
 
         /// <summary>
         /// Downloads the most recent TAFL definition file and saves it to a predefined location.
@@ -25,6 +25,6 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces
         /// the download process.</remarks>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see
         /// cref="DownloadFileResponse"/>  indicating the outcome of the download and save operation.</returns>
-        public Task<DownloadFileResponse> DownloadAndSaveRecentTAFLDefinition();
+        public Task<DownloadFileResponse> DownloadAndSaveRecentTAFLDefinition(string location);
     }
 }

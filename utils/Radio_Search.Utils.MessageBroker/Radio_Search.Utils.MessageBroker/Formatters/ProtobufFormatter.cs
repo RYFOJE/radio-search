@@ -26,7 +26,7 @@ namespace Radio_Search.Utils.MessageBroker.Formatters
         }
 
         /// <inheritdoc/>
-        public byte[] Serialize(object value)
+        public byte[] Serialize(object? value)
         {
             if (value is not IMessage)
                 throw new SerializationException("Failed to serialize message as it was not a Protobuf IMessage.");

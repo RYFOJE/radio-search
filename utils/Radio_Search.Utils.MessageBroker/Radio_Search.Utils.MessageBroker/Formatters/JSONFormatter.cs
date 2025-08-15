@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Radio_Search.Utils.MessageBroker.Formatters
 {
-    internal class JSONFormatter : IFormatter
+    public class JSONFormatter : IFormatter
     {
         /// <inheritdoc/>
         public T Deserialize<T>(byte[] value)
@@ -26,7 +26,7 @@ namespace Radio_Search.Utils.MessageBroker.Formatters
         }
 
         /// <inheritdoc/>
-        public byte[] Serialize(object value)
+        public byte[] Serialize(object? value)
         {
             if (value == null)
                 return [];

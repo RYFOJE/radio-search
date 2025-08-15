@@ -1,4 +1,4 @@
-﻿namespace Radio_Search.Importer.Canada.Services.Interfaces
+﻿namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport
 {
     /// <summary>
     /// Provides services for processing PDF documents, including merging multiple pages into a single page.

@@ -21,6 +21,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\utils\Radio-Search.Utils.BlobStorage\Radio-Search.Utils.BlobStorage\Radio-Search.Utils.BlobStorage.csproj" />
+    <ProjectReference Include="..\..\..\..\utils\Radio_Search.Utils.MessageBroker\Radio_Search.Utils.MessageBroker\Radio_Search.Utils.MessageBroker.csproj" />
+    <ProjectReference Include="..\Radio-Search.Importer.Canada.Data-Contracts\Radio-Search.Importer.Canada.Data-Contracts.csproj" />
     <ProjectReference Include="..\Radio-Search.Importer.Canada.Data\Radio-Search.Importer.Canada.Data.csproj" />
   </ItemGroup>
 
