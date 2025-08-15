@@ -1,11 +1,12 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Blob as Blob Storage
+    participant SB as Service Bus
     participant Importer as Canada Importer
+    participant Blob as Blob Storage
     participant DB as Importer DB
 
-    Blob ->> Importer: Trigger on new CSV chunk
+    SB ->> Importer: Trigger on new MESSAGE
     activate Importer
 
         Importer ->> Blob: Download Existing IDs CSV

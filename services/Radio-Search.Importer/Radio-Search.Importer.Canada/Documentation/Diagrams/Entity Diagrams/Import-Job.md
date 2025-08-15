@@ -6,11 +6,12 @@ erDiagram
     ImportJob {
         int ImportJobID
         enum Status
+        enum CurrentStep
         DateTime StartTime
         DateTime EndTime
     }
 
-    UnprocessedChunkFile {
+    ImportJobChunkFile {
         int ImportJobID PK, FK
         int FileID PK
         enum Status
@@ -35,7 +36,7 @@ erDiagram
         int ImportJobID
     }
 
-    ImportJob ||--o{ UnprocessedChunkFile : "Has Many Files"
+    ImportJob ||--o{ ImportJobChunkFile : "Has Many Files"
     ImportJob ||--o{ LicenseRecordHistory : "Has Many Record Histories"
     ImportJob ||--|| ImportJobStats : "Has One Stats Record"
     LicenseRecord ||--|| LicenseRecordHistory : "Has one Record"

@@ -1,12 +1,12 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Queue as ServiceBus Queue
+    participant SB as ServiceBus Queue
     participant Importer as Canada Importer
     participant Storage as Blob Storage
     participant DB as Importer DB
 
-    Queue ->> Importer: Receive DownloadComplete Message
+    SB ->> Importer: Receive DownloadComplete Message
     activate Importer
 
         Importer ->> Storage: Request TAFL Definition file
@@ -15,7 +15,7 @@ sequenceDiagram
         Importer ->> DB: Query all TAFL Definition rows
         DB -->> Importer: Return TAFL Definition rows
 
-        Importer ->> Importer: Calculate new, updated, and deleted entries
+        Importer ->> Importer: Calculate new, updated, and deleted definition entries
         Importer ->> DB: Persist changes
 
         Importer ->> Storage: Request full TAFL CSV
