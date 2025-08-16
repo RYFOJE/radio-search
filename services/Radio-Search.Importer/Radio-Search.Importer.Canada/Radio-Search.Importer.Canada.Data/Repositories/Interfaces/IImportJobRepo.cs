@@ -80,5 +80,24 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
         /// <returns>A task that represents the asynchronous operation. The task result contains an enumerable collection of
         /// license IDs. If no license IDs are found, the collection will be empty.</returns>
         Task<IEnumerable<string>> GetAllLicenseIDsFromImport(int importJobID);
+
+        /// <summary>
+        /// Retrieves a collection of active license identifiers that are not associated with the specified import job.
+        /// </summary>
+        /// <remarks>This method is useful for scenarios where active licenses need to be filtered based
+        /// on their association with a specific import job.</remarks>
+        /// <param name="importJobID">The unique identifier of the import job. Licenses associated with this import job will be excluded from the
+        /// results.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IEnumerable{T}"/>
+        /// of strings, where each string is an identifier of an active license not linked to the specified import job.
+        /// If no such licenses exist, the result will be an empty collection.</returns>
+        Task<IEnumerable<string>> GetActiveLicensesNotFromImport(int importJobID);
+
+        /// <summary>
+        /// Checks to see if chunk processing is done for a given job
+        /// </summary>
+        /// <param name="importJobID"></param>
+        /// <returns></returns>
+        Task<bool> IsChunkProcessingDone(int importJobID);
     }
 }

@@ -15,8 +15,10 @@ using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Implementations;
 using Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionImport;
+using Radio_Search.Importer.Canada.Services.Implementations.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Interfaces;
 using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
+using Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Mappings;
 using Radio_Search.Importer.Canada.Services.Validators;
 using Radio_Search.Utils.BlobStorage;
@@ -140,6 +142,9 @@ if (isProduction)
 builder.Services.AddScoped<IImportManagerService, ImportManagerService>();
 builder.Services.AddScoped<IDownloadFileService, DownloadFileService>();
 builder.Services.AddScoped<IPDFProcessingServices, PDFProcessingServices>();
+builder.Services.AddScoped<ITAFLDefinitionImportService, TAFLDefinitionImportService>();
+builder.Services.AddScoped<IPreprocessingService, PreprocessingService>();
+builder.Services.AddScoped<IProcessingService, ProcessingService>();
 builder.Services.ImporterCanadaAddData();
 builder.Services.AddScoped<IValidator<TAFLEntryRawRow>, TAFLEntryRawRowValidator>();
 
@@ -172,6 +177,9 @@ builder.Services.Configure<TAFLDefinitionTablesOrder>(
 builder.Services.Configure<FileLocations>(
     builder.Configuration.GetSection("FileLocations"));
 
+builder.Services.Configure<ServiceBusDefinitions>(
+    builder.Configuration.GetSection("ServiceBusDefinitions"));
+
 #endregion
 
 #region DB CONTEXTS
@@ -182,8 +190,17 @@ var connectionString = builder.Configuration.GetConnectionString("CanadaImporter
 builder.Services.AddDbContext<CanadaImporterContext>(options =>
     options.UseSqlServer(
         connectionString,
-        x => x.UseNetTopologySuite()
-    ));
+        sqlOptions =>
+        {
+            sqlOptions.UseNetTopologySuite();
+            sqlOptions.MigrationsHistoryTable(
+                tableName: "EFMigrationsHistory",
+                schema: "Canada_Importer"
+            );
+        }
+    )
+);
+
 
 #endregion
 
@@ -191,5 +208,7 @@ builder.Services.AddDbContext<CanadaImporterContext>(options =>
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<TAFLDefinitionProfile>());
 builder.Services.AddAutoMapper(cfg =>cfg.AddProfile<TAFLRowProfile>());
 #endregion
+
+builder.Services.AddHostedService<RunAtStart>();
 
 builder.Build().Run();

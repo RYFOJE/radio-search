@@ -20,10 +20,17 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport
         /// and constraints to avoid errors during processing.</remarks>
         /// <param name="rows">A list of raw data rows to be processed and inserted. Each row must contain valid data required for
         /// insertion. The list cannot be null or empty.</param>
+        /// <param name="importID">The import job associated to the Import</param>
         /// <returns>A task that represents the asynchronous operation. The task completes when all valid rows have been
         /// processed and inserted.</returns>
-        Task InsertNewFromRawRecords(List<TAFLEntryRawRow> rows);
+        Task InsertNewFromRawRecords(List<TAFLEntryRawRow> rows, int importID);
 
+        /// <summary>
+        /// Runs once Inserts and updates have been performed. Use this to see all IDs that are no longer in the Import File
+        /// </summary>
+        /// <param name="importID">The import Job ID</param>
+        /// <returns>List of License Record IDs that are not in the Import</returns>
+        Task<List<string>> GetDeletedRecords(int importID);
 
         /// <summary>
         /// Inserts or updates records in the database based on the provided raw data rows.
@@ -32,8 +39,12 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport
         /// should be inserted as new or updated if it already exists. Ensure that the input list is not null and
         /// contains valid data rows.</remarks>
         /// <param name="rows">A list of raw data rows to be processed. Each row represents a record to be inserted or updated.</param>
+        /// <param name="importID">The import job associated to the Import</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task InsertUpdatedFromRawRecords(List<TAFLEntryRawRow> rows);
+        Task InsertUpdatedFromRawRecords(List<(int version, TAFLEntryRawRow row)> rows, int importID);
+
+        Task InvalidateRecordsFromDB(List<string> recordIDs, int importId);
+
 
     }
 }

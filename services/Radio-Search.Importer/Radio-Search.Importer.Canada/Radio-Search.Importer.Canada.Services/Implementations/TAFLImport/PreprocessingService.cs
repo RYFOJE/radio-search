@@ -9,6 +9,7 @@ using Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Responses;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 
 namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
@@ -29,34 +30,37 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             _definitionRepo = definitionRepo;
         }
 
-        /// <inheritdoc/>
-        public Stream GenerateChunkFile(StreamReader streamReader, int countPerFile)
+        public List<TAFLEntryRawRow> DeduplicateFullFile(Stream fullTAFLStream)
         {
-            if (countPerFile <= 0)
-                throw new ArgumentException("CountPerFile must be larger than 0");
+            int initialCount = 0;
 
-            try
-            {
-                var response = new MemoryStream();
-                using (var writer = new StreamWriter(response, leaveOpen: true))
-                {
-                    int currLine = 0;
-                    string? line;
-                    while (currLine < countPerFile && (line = streamReader.ReadLine()) != null)
-                    {
-                        writer.WriteLine(line);
-                        currLine++;
-                    }
-                    writer.Flush();
-                }
-                response.Position = 0;
-                return response;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to generate chunk file with count of {countPerFile}", countPerFile);
-                throw;
-            }
+            var timer = Stopwatch.StartNew();
+            _logger.LogInformation("Starting deduplicate full tafl full file");
+            var unprocessedRows = ExtractTAFLRawRowsFromCSV(fullTAFLStream);
+
+            initialCount = unprocessedRows.Count;
+            _logger.LogInformation("Finished extracting TAFL Raw Rows. There were {rowCount} rows. Processed in {elapsedMs} ms.", initialCount, timer.ElapsedMilliseconds);
+            timer.Restart();
+
+            unprocessedRows = DeduplicateRows(unprocessedRows);
+            _logger.LogInformation("Finished deduplicating TAFL Raw Rows. There were {duplicateRowCount} duplicate rows. Processed in {elapsedMs} ms.", initialCount - unprocessedRows.Count, timer.ElapsedMilliseconds);
+
+            return unprocessedRows;
+        }
+
+
+        /// <inheritdoc/>
+        public Stream GenerateChunkFile(List<TAFLEntryRawRow> rows)
+        {
+            var ms = new MemoryStream();
+            var sw = new StreamWriter(ms);
+            var csv = new CsvWriter(sw, CultureInfo.InvariantCulture);
+
+            csv.WriteRecords(rows);
+            sw.Flush();
+            ms.Position = 0;
+
+            return ms;
         }
 
         public async Task<GetValidRawRowsResponse> GetValidRawRows(Stream fileStream)
@@ -170,15 +174,15 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
                             records.Add(currentRecord);
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         skippedRecords++;
-                        _logger.LogError(ex, "Error on row {row}", csv.Context.Parser?.Row);
+                        _logger.LogError("Error on row {row}", csv.Context.Parser?.Row);
                     }
                 }
             }
 
-            _logger.LogInformation("ExtractTAFLRawRowsFromCSV took {ElapsedTimeInMs} ms", stopwatch.ElapsedMilliseconds);
+             _logger.LogInformation("ExtractTAFLRawRowsFromCSV took {ElapsedTimeInMs} ms", stopwatch.ElapsedMilliseconds);
 
             return records;
         }
@@ -237,14 +241,14 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                HasHeaderRecord = false,
+                HasHeaderRecord = true,
                 BadDataFound = context =>
                 {
                     _logger.LogWarning("Bad data found while processing CSV Entry={entry}", context.RawRecord);
                 },
                 ReadingExceptionOccurred = context =>
                 {
-                    _logger.LogError(context.Exception, "Error on row {rowNumber}", context.Exception.Data["CsvHelper.RowNumber"]);
+                    _logger.LogError("Error on row {rowNumber}", context.Exception.Data["CsvHelper.RowNumber"]);
                     return true;
                 }
             };
@@ -303,6 +307,5 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             };
             return definitions;
         }
-
     }
 }

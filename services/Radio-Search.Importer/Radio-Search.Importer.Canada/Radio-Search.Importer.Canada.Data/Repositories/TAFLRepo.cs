@@ -98,5 +98,15 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return allRecords;
         }
 
+        public async Task<Dictionary<string, int>> GetVersionsForLicenseRecords(List<string> recordIds)
+        {
+            return await _context.LicenseRecords
+                .Where(x => x.IsValid && recordIds.Contains(x.CanadaLicenseRecordID))
+                .ToDictionaryAsync(
+                    x => x.CanadaLicenseRecordID,
+                    x => x.Version
+                );
+        }
+
     }
 }

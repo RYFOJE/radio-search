@@ -51,5 +51,16 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
         /// result will be an empty collection.</returns>
         Task<List<LicenseRecord>> BulkFetchLicenseRecordsNoTrackingAsync(List<string> licenseIDs);
 
+
+        /// <summary>
+        /// Retrieves the version numbers associated with the specified license records.
+        /// </summary>
+        /// <remarks>The returned dictionary will only include entries for license records that exist and
+        /// have associated version numbers. If a record ID does not exist or has no version, it will not appear in the
+        /// dictionary.</remarks>
+        /// <param name="recordIds">A list of license record identifiers for which to retrieve version numbers. Cannot be null or empty.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a dictionary where the keys are
+        /// license record identifiers and the values are their corresponding version numbers.</returns>
+        Task<Dictionary<string, int>> GetVersionsForLicenseRecords(List<string> recordIds);
     }
 }

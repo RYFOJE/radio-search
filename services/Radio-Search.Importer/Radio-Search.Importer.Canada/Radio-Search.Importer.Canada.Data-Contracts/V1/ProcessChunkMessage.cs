@@ -18,6 +18,6 @@
         /// <summary>
         /// The location of the file chunk.
         /// </summary>
-        public required Uri FileLocation { get; set; }
+        public required string FileLocation { get; set; }
     }
 }

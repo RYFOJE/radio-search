@@ -4,7 +4,7 @@ title: Full Import Job Tracking
 ---
 erDiagram
     ImportJob {
-        int ImportJobID
+        int ImportJobID PK
         enum Status
         enum CurrentStep
         DateTime StartTime
@@ -31,13 +31,14 @@ erDiagram
     }
 
     LicenseRecordHistory {
-        string CanadaLicenseRecordID PK, FK
-        int Version PK
+        int LicenseRecordHistoryId PK
+        string CanadaLicenseRecordID FK
+        int Version FK
         int ImportJobID
     }
 
     ImportJob ||--o{ ImportJobChunkFile : "Has Many Files"
     ImportJob ||--o{ LicenseRecordHistory : "Has Many Record Histories"
     ImportJob ||--|| ImportJobStats : "Has One Stats Record"
-    LicenseRecord ||--|| LicenseRecordHistory : "Has one Record"
+    LicenseRecord ||--|{ LicenseRecordHistory : "Has one or many Records"
 ```

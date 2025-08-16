@@ -29,16 +29,20 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
         }
 
         /// <inheritdoc/>
-        public async Task WriteMessageAsync(object message, string? subject = null, FormatTypes type = FormatTypes.JSON)
+        public async Task WriteMessageAsync(object message, string? target = null, FormatTypes type = FormatTypes.JSON)
         {
             var formatter = Formatter.GetFormatter(type);
             var messageToBeSent = formatter.Serialize(message);
 
             ServiceBusMessage sbMessage = new()
             {
-                Subject = subject,
                 Body = new BinaryData(messageToBeSent ?? [])
             };
+
+            if (target != null)
+            {
+                sbMessage.ApplicationProperties["Target"] = target;
+            }
 
             try
             {

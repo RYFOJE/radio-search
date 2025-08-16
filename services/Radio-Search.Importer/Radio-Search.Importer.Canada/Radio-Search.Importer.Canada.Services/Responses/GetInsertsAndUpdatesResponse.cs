@@ -6,7 +6,7 @@ namespace Radio_Search.Importer.Canada.Services.Responses
     {
 
         public List<TAFLEntryRawRow> InsertRows { get; set; } = [];
-        public List<TAFLEntryRawRow> UpdateRows { get; set; } = [];
+        public List<(int NewVersionNumber, TAFLEntryRawRow Row)> UpdateRows { get; set; } = [];
 
     }
 }

@@ -38,7 +38,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         {
             Stream? taflStream = null;
             Stream? unzippedFileStream = null;
-            var newFileName = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd") + ".csv";
+
             Uri resp;
 
             try
@@ -51,12 +51,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the download and unzip process.");
-
-                return new()
-                {
-                    Success = false,
-                    Message = ex.Message
-                };
+                throw;
             }
             finally
             {
@@ -68,7 +63,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             {
                 Success = true,
                 Message = "Successfully uploaded new TAFL File",
-                FileName = newFileName,
+                FileName = location,
                 FullPath = resp
             };
         }
@@ -77,7 +72,6 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFLDefinition(string location)
         {
             Stream? taflStream = null;
-            var newFileName = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd") + ".pdf";
             Uri resp;
 
             try
@@ -88,12 +82,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the download and unzip process.");
-
-                return new()
-                {
-                    Success = false,
-                    Message = ex.Message
-                };
+                throw;
             }
             finally
             {
@@ -104,7 +93,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             {
                 Success = true,
                 Message = "Successfully uploaded new TAFL Definition File",
-                FileName = newFileName,
+                FileName = location,
                 FullPath = resp
             };
         }

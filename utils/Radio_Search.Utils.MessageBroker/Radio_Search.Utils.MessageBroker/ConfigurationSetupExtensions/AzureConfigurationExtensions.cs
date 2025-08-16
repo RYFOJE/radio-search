@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Radio_Search.Utils.MessageBroker.Configurations;
 using Radio_Search.Utils.MessageBroker.Factories.Azure;
 using Radio_Search.Utils.MessageBroker.Factories.Interfaces;
+using Radio_Search.Utils.MessageBroker.Implementations;
 using Radio_Search.Utils.MessageBroker.Implementations.Azure;
 using Radio_Search.Utils.MessageBroker.Interfaces;
 

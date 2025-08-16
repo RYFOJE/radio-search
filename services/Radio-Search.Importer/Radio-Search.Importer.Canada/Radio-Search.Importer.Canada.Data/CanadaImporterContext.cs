@@ -52,21 +52,21 @@ namespace Radio_Search.Importer.Canada.Data
 
             modelBuilder.Entity<LicenseRecordHistory>(entity =>
             {
-                entity.HasKey(u => u.LicenseRecordHistoryID)
+                entity.HasKey(e => e.LicenseRecordHistoryId)
                     .IsClustered(false);
 
-                entity.Property(u => u.LicenseRecordHistoryID)
+                entity.Property(e => e.LicenseRecordHistoryId)
                     .ValueGeneratedOnAdd();
 
                 entity.HasIndex(u => u.EditedByImportJobID)
                     .IsUnique(false);
 
-                entity.HasIndex(u => u.CanadaLicenseRecordID)
+                entity.HasIndex(e => e.CanadaLicenseRecordID)
                     .IsClustered(true);
 
                 entity.HasOne(e => e.LicenseRecord)
-                    .WithOne()
-                    .HasForeignKey<LicenseRecordHistory>(e => new { e.CanadaLicenseRecordID, e.Version })
+                    .WithMany(x => x.HistoryRecords)
+                    .HasForeignKey(x => new { x.CanadaLicenseRecordID, x.Version })
                     .IsRequired()
                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -93,7 +93,7 @@ namespace Radio_Search.Importer.Canada.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(e => e.CurrentStep)
-                    .HasMaxLength(15)
+                    .HasMaxLength(25)
                     .HasConversion<string>();
             });
 
@@ -385,5 +385,3 @@ namespace Radio_Search.Importer.Canada.Data
     }
 }
 
-// dotnet ef migrations add "autogenerate" -s .\Radio-Search.Importer.Canada.Function -p .\Radio-Search.Importer.Canada.Data -c CanadaImporterContext -o Migrations
-// dotnet ef database update -s .\Radio-Search.Importer.Canada.Function -p .\Radio-Search.Importer.Canada.Data -c CanadaImporterContext

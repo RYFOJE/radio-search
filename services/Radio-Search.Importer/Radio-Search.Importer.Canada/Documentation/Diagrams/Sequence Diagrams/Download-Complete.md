@@ -21,8 +21,7 @@ sequenceDiagram
         Importer ->> Storage: Request full TAFL CSV
         Storage -->> Importer: Return full TAFL CSV
 
-        Importer ->> Importer: Generate list of all license IDs
-        Importer ->> Storage: Save license ID list
+        Importer ->> Importer: Deduplicate all CSV Records
 
         loop Segment CSV records
             Importer ->> Importer: Segment CSV into smaller chunks

@@ -24,7 +24,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
 {
 
 
-    public class TAFLDefinitionImportService
+    public class TAFLDefinitionImportService : ITAFLDefinitionImportService
     {
         private readonly ILogger<TAFLDefinitionImportService> _logger;
         private readonly IConfiguration _config;

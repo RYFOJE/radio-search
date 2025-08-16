@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.Geometries;
+using Radio_Search.Importer.Canada.Data.Models.History;
 
 namespace Radio_Search.Importer.Canada.Data.Models.License
 {
@@ -96,6 +97,9 @@ namespace Radio_Search.Importer.Canada.Data.Models.License
         public string? OperationalStatusID { get; set; }
         public string? StationClassID { get; set; }
         public short? StandbyTransmitterInformationID { get; set; }
+
+
+        public List<LicenseRecordHistory> HistoryRecords { get; set; } = new();
 
         public override int GetHashCode()
         {

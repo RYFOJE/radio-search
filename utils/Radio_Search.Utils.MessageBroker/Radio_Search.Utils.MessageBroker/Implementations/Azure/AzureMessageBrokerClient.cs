@@ -1,5 +1,6 @@
 ﻿using Azure.Identity;
 using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 using Radio_Search.Utils.MessageBroker.Configurations;
 using Radio_Search.Utils.MessageBroker.Exceptions;
 using Radio_Search.Utils.MessageBroker.Interfaces;
@@ -10,6 +11,7 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
     {
         private readonly AzureServiceBusClientConfig _config;
         private readonly ServiceBusClient _client;
+        private readonly ServiceBusAdministrationClient _adminClient;
 
         public AzureMessageBrokerClient(AzureServiceBusClientConfig config) 
         {
@@ -27,6 +29,8 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
                     _config.ServiceBusUrl,
                     new DefaultAzureCredential(),
                     _config.ClientOptions);
+
+                _adminClient = new ServiceBusAdministrationClient(_config.ServiceBusUrl, new DefaultAzureCredential());
             }
             catch (Exception ex)
             {
@@ -38,6 +42,33 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
         public IMessageBrokerWriter GetMessageWriter(string destinationName)
         {
             return new AzureServiceBusWriter(destinationName, _client);
+        }
+
+        public async Task<IMessageBrokerClient> AddMessageFilter(string destinationName, MessageFilter filter)
+        {
+            if (!await _adminClient.SubscriptionExistsAsync(destinationName, filter.FilterName))
+            {
+                var options = new CreateSubscriptionOptions(destinationName, filter.FilterName);
+
+                options.LockDuration = TimeSpan.FromMinutes(5);
+                options.MaxDeliveryCount = 5;
+
+                // Add a rule that filters for messages with the subscription name
+                var ruleOptions = new CreateRuleOptions(
+                    filter.FilterName,
+                    new SqlRuleFilter($"Target = '{filter.FilterOnName}'")
+                );
+
+                await _adminClient.CreateSubscriptionAsync(options, ruleOptions);
+
+                try
+                {
+                    await _adminClient.DeleteRuleAsync(destinationName, filter.FilterName, "$Default");
+                }
+                catch { }
+            }
+
+            return this;
         }
     }
 }

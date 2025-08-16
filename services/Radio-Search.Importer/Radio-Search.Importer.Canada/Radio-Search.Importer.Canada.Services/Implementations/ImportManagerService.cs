@@ -6,9 +6,11 @@ using Radio_Search.Importer.Canada.Data.Models.ImportInfo;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Data_Contracts.V1;
 using Radio_Search.Importer.Canada.Services.Configuration;
+using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Interfaces;
 using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
 using Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport;
+using Radio_Search.Importer.Canada.Services.Responses;
 using Radio_Search.Utils.BlobStorage.Interfaces;
 using Radio_Search.Utils.MessageBroker.Factories.Interfaces;
 using System.Diagnostics;
@@ -17,9 +19,6 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 {
     public class ImportManagerService : IImportManagerService
     {
-        private const int MAX_CHUNK_ITERATIONS = 1_000_000;
-
-
         private readonly IImportJobRepo _importJobRepo;
         private readonly ILogger<ImportManagerService> _logger;
         private readonly IBlobStorageService _blobService;
@@ -30,6 +29,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         private readonly IMessageBrokerWriteFactory _sbWriteFactory;
         private readonly IDownloadFileService _downloadFileService;
         private readonly IProcessingService _processingService;
+        private readonly ServiceBusDefinitions _sbDefinitions;
 
         public ImportManagerService(
             IImportJobRepo importJobRepo,
@@ -41,7 +41,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             IConfiguration config,
             IMessageBrokerWriteFactory sbWriterFactory,
             IDownloadFileService downloadService,
-            IProcessingService processingService) 
+            IProcessingService processingService,
+            IOptions<ServiceBusDefinitions> sbDefinitions) 
         { 
             _importJobRepo = importJobRepo;
             _logger = logger;
@@ -53,6 +54,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             _sbWriteFactory = sbWriterFactory;
             _downloadFileService = downloadService;
             _processingService = processingService;
+            _sbDefinitions = sbDefinitions.Value;
         }
 
         /// <inheritdoc/>
@@ -83,7 +85,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
                 timer.Restart();
 
-                await WriteMessageToSB(new DownloadCompleteMessage { ImportJobID = job.ImportJobID }, "ServiceBus:Names:DownloadComplete");
+                await WriteMessageToSB(new DownloadCompleteMessage { ImportJobID = job.ImportJobID }, _sbDefinitions.TopicName, _sbDefinitions.DownloadComplete_SubscriptionName);
 
                 _logger.LogInformation("Download complete message sent in {elapsedMs} ms.", timer.ElapsedMilliseconds);
             }
@@ -117,7 +119,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
                 // DEFINITION STEP
                 _logger.LogInformation("Starting to process the TAFL Definition File.");
-                var definitionFileStream = await _blobService.DownloadAsync(_fileLocations.UnprocessedTAFLDefinition);
+                var definitionFileStream = await _blobService.DownloadAsync(string.Format(_fileLocations.UnprocessedTAFLDefinition, importJobID));
                 var definitionRows = _definitionImportService.ProcessTAFLDefinition(definitionFileStream);
                 await _definitionImportService.SaveTAFLDefinitionToDBAsync(definitionRows.Tables);
                 _logger.LogInformation("Finished processing the TAFL Definition File within {elapsedMs} ms.", timer.ElapsedMilliseconds);
@@ -125,35 +127,43 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 timer.Restart();
 
                 // TAFL CSV STEP
-                var taflCSVFileStream = await _blobService.DownloadAsync(_fileLocations.UnprocessedTAFLRows);
-                using var taflCSVReader = new StreamReader(taflCSVFileStream);
+                List<TAFLEntryRawRow> rows;
 
+                using(Stream rawFullStream = await _blobService.DownloadAsync(string.Format(_fileLocations.UnprocessedTAFLRows, importJobID)))
+                {
+                    rows = _preprocessingService.DeduplicateFullFile(rawFullStream);
+                }
+
+#warning ADD APP CONFIG VALUE
                 int chunkSize = _config.GetValue<int>("ChunkSize", 10_000); // TODO: Add the actual size in appconfig and remove default
-                int chunkIndex = 0;
+
+                var chunkedRows = rows
+                    .Chunk(chunkSize)
+                    .Select(c => c.ToList())
+                    .ToList();
+
 
                 var chunkTimer = Stopwatch.StartNew();
-
-                while (chunkSize <= MAX_CHUNK_ITERATIONS) // I was going to make this a while true. But I pay for compute and want to be extra sure LOL 
+                var chunkIndex = 0;
+                foreach (var rowsChunk in chunkedRows) 
                 {
-                    using var chunkStream = _preprocessingService.GenerateChunkFile(taflCSVReader, chunkSize);
-
-                    // If the chunk is empty, break the loop
-                    if (chunkStream.Length == 0)
-                        break;
-
                     string fileLocation = string.Format(_fileLocations.ChunkFile, importJobID, chunkIndex);
 
-                    if(!await _blobService.ExistsAsync(fileLocation))
+                    if (!await _blobService.ExistsAsync(fileLocation))
                     {
-                        await _blobService.UploadAsync(fileLocation, chunkStream);
-                        await CreateAndUploadChunkRecord(importJobID, chunkIndex);
+                        using (Stream chunkStream = _preprocessingService.GenerateChunkFile(rowsChunk))
+                        {
+                            await _blobService.UploadAsync(fileLocation, chunkStream);
+                        }
+
+                        await CreateAndUploadChunkRecord(importJobID, chunkIndex); // DANGLING RECORD IF SB WRITE FAILS
                         await WriteMessageToSB(
                             new ProcessChunkMessage
                             {
                                 ImportJobID = importJobID,
                                 FileID = chunkIndex,
-                                FileLocation = new Uri(fileLocation)
-                            }, "ServiceBus:Names:ChunkReady");
+                                FileLocation = fileLocation
+                            }, _sbDefinitions.TopicName, _sbDefinitions.ChunkReady_SubscriptionName);
 
                         _logger.LogInformation("Finished creating chunk file at location: {location} within {timeInMS} ms.", fileLocation, chunkTimer.ElapsedMilliseconds);
                     }
@@ -162,9 +172,13 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                         _logger.LogWarning("Chunk file already existed. This is probably due to an Handle Downloaded that failed mid download. File: {file}", fileLocation);
                     }
 
+
                     chunkIndex++;
                     chunkTimer.Restart();
                 }
+
+                job.CurrentStep = ImportStep.ProcessingChunks;
+                await _importJobRepo.UpsertImportJobRecord(job);
             }
             catch (Exception ex)
             {
@@ -184,8 +198,9 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 job.Status = ImportStatus.Failure;
 
                 await _importJobRepo.UpsertImportJobRecord(job);
-            
-                await WriteMessageToSB(new ImportJobFailedMessage { ImportJobID = importJobID }, "ServiceBus:Names:ImportFailed"); // TODO: Switch to strongly typed
+
+#warning NOT VALID
+                await WriteMessageToSB(new ImportJobFailedMessage { ImportJobID = importJobID }, "ServiceBus:Names:ImportFailed", ""); // TODO: Switch to strongly typed
             }
             catch(Exception ex)
             {
@@ -217,20 +232,33 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 chunkRecord.Status = FileStatus.Processing;
                 chunkRecord.StartTime = DateTime.UtcNow;
                 await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
-                var chunkStream = await _blobService.DownloadAsync(string.Format(_fileLocations.ChunkFile, importJobID, chunkID));
 
-                var preprocessResponse = await _preprocessingService.GetValidRawRows(chunkStream);
+                GetValidRawRowsResponse preprocessResponse;
+
+                using (Stream chunkStream = await _blobService.DownloadAsync(string.Format(_fileLocations.ChunkFile, importJobID, chunkID)))
+                    preprocessResponse = await _preprocessingService.GetValidRawRows(chunkStream);
+
                 _logger.LogInformation("Finished getting valid rows. {invalidRecords} invalid records.", preprocessResponse.InvalidRowCount);
-                chunkStream.Dispose();
 
 #warning ADD STATS TRACKING HERE
+#warning ADD SAVING CHUNK FINISHED PROCESSING STATUS
 
                 var insertAndUpdated = await _processingService.GetInsertsAndUpdates(preprocessResponse.ValidRows);
+
+                await _processingService.InsertNewFromRawRecords(insertAndUpdated.InsertRows, importJobID);
+                await _processingService.InsertUpdatedFromRawRecords(insertAndUpdated.UpdateRows, importJobID);
                 
+
+                chunkRecord.Status = FileStatus.Processed;
+                chunkRecord.EndTime = DateTime.UtcNow;
+                await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to process chunk for JobID: {JobID} ChunkID: {ChunkID}", importJobID, chunkID);
+                chunkRecord.StartTime = null;
+                await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
+
                 throw;
             }
         }
@@ -252,14 +280,13 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
         }
 
-        private async Task WriteMessageToSB(object message, string SBNameKey)
+        private async Task WriteMessageToSB(object message, string topicName, string targetName)
         {
             try
             {
-                string topicName = _config.GetValue<string>(SBNameKey) ?? throw new ArgumentException($"{SBNameKey} is missing."); // TODO: Shift this to strongly typed keys or config
                 var writer = _sbWriteFactory.GetMessageBrokerWriter(topicName);
 
-                await writer.WriteMessageAsync(message);
+                await writer.WriteMessageAsync(message, targetName);
             }
             catch (Exception ex)
             {
@@ -272,5 +299,26 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         {
             return job.CurrentStep > beforeStep;
         }
+
+        public async Task HandleChunkDone(int chunkID, int importJobID)
+        {
+            var chunkRecord = await _importJobRepo.GetImportJobChunkFile(importJobID, chunkID);
+            chunkRecord.Status = FileStatus.Processed;
+            chunkRecord.EndTime = DateTime.UtcNow;
+            await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
+
+
+            if (!await _importJobRepo.IsChunkProcessingDone(chunkID))
+                return;
+
+            _logger.LogInformation("Chunk processing is done. Inserting Fan In message to service bus.");
+            var writer = _sbWriteFactory.GetMessageBrokerWriter(_sbDefinitions.TopicName);
+
+            //writer.WriteMessageAsync("");
+#warning NOT DONE
+
+        }
+
+
     }
 }

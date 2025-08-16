@@ -8,6 +8,25 @@
         "excludedTypes": "Request"
       },
       "enableLiveMetricsFilters": true
+    },
+    "logLevel": {
+      "Default": "Warning",
+      "Function": "Information",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Warning",
+      "Microsoft.EntityFrameworkCore.Database.Connection": "Warning",
+      "Azure.Messaging.ServiceBus": "Warning",
+      "Azure.Storage": "Warning",
+      "Microsoft.Azure.WebJobs": "Information",
+      "Microsoft.Azure.Functions.Worker": "Warning",
+      "Microsoft.Azure.Functions.Worker.Http": "Warning"
+    }
+  },
+  "extensions": {
+    "serviceBus": {
+      "prefetchCount": 0,
+      "messageHandlerOptions": {
+        "maxConcurrentCalls": 1
+      }
     }
   }
 }

@@ -139,18 +139,19 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer",
                 columns: table => new
                 {
-                    ImportHistoryID = table.Column<int>(type: "int", nullable: false)
+                    ImportJobID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    FileHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    TotalInsertedUpdatedRows = table.Column<int>(type: "int", nullable: true),
-                    SkippedRowCount = table.Column<int>(type: "int", nullable: false)
+                    CurrentStep = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ConcurrencyStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ImportHistories", x => x.ImportHistoryID);
+                    table.PrimaryKey("PK_Importobs", x => x.ImportJobID);
                 });
 
             migrationBuilder.CreateTable(
@@ -354,7 +355,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_stationFunctionTypes", x => x.StationFunctionTypeID);
+                    table.PrimaryKey("PK_StationFunctionTypes", x => x.StationFunctionTypeID);
                 });
 
             migrationBuilder.CreateTable(
@@ -371,7 +372,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_stationTypes", x => x.StationTypeID);
+                    table.PrimaryKey("PK_StationTypes", x => x.StationTypeID);
                 });
 
             migrationBuilder.CreateTable(
@@ -392,12 +393,64 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ImportJobChunkFiles",
+                schema: "Canada_Importer",
+                columns: table => new
+                {
+                    ImportJobID = table.Column<int>(type: "int", nullable: false),
+                    FileID = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ConcurrencyStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImportJobChunkFiles", x => new { x.ImportJobID, x.FileID });
+                    table.ForeignKey(
+                        name: "FK_ImportJobChunkFiles_Importobs_ImportJobID",
+                        column: x => x.ImportJobID,
+                        principalSchema: "Canada_Importer",
+                        principalTable: "Importobs",
+                        principalColumn: "ImportJobID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImportJobStats",
+                schema: "Canada_Importer",
+                columns: table => new
+                {
+                    ImportJobID = table.Column<int>(type: "int", nullable: false),
+                    PreprocessingSkippedRows = table.Column<int>(type: "int", nullable: false),
+                    NewRecordCount = table.Column<int>(type: "int", nullable: false),
+                    UpdatedRecordCount = table.Column<int>(type: "int", nullable: false),
+                    DeletedRecordCount = table.Column<int>(type: "int", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ConcurrencyStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImportJobStats", x => x.ImportJobID);
+                    table.ForeignKey(
+                        name: "FK_ImportJobStats_Importobs_ImportJobID",
+                        column: x => x.ImportJobID,
+                        principalSchema: "Canada_Importer",
+                        principalTable: "Importobs",
+                        principalColumn: "ImportJobID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LicenseRecords",
                 schema: "Canada_Importer",
                 columns: table => new
                 {
-                    InternalLicenseRecordID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CanadaLicenseRecordID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false),
                     IsValid = table.Column<bool>(type: "bit", nullable: false),
                     FrequencyMHz = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
                     FrequencyAllocationName = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -458,148 +511,161 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     OperationalStatusID = table.Column<string>(type: "nvarchar(5)", nullable: true),
                     StationClassID = table.Column<string>(type: "nvarchar(5)", nullable: true),
                     StandbyTransmitterInformationID = table.Column<short>(type: "smallint", nullable: true),
-                    ImportHistoryID = table.Column<int>(type: "int", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConcurrencyStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LicenseRecords", x => x.InternalLicenseRecordID)
+                    table.PrimaryKey("PK_LicenseRecords", x => new { x.CanadaLicenseRecordID, x.Version })
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_AnalogDigital_AnalogDigitalID",
                         column: x => x.AnalogDigitalID,
                         principalSchema: "Canada_Importer",
                         principalTable: "AnalogDigital",
-                        principalColumn: "AnalogDigitalID");
+                        principalColumn: "AnalogDigitalID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_AntennaPatterns_AntennaPatternID",
                         column: x => x.AntennaPatternID,
                         principalSchema: "Canada_Importer",
                         principalTable: "AntennaPatterns",
-                        principalColumn: "AntennaPatternID");
+                        principalColumn: "AntennaPatternID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_AuthorizationStatuses_AuthorizationStatusID",
                         column: x => x.AuthorizationStatusID,
                         principalSchema: "Canada_Importer",
                         principalTable: "AuthorizationStatuses",
-                        principalColumn: "AuthorizationStatusID");
+                        principalColumn: "AuthorizationStatusID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_CommunicationTypes_CommunicationTypeID",
                         column: x => x.CommunicationTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "CommunicationTypes",
-                        principalColumn: "CommunicationTypeID");
+                        principalColumn: "CommunicationTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_ConformityFrequencyPlans_ConformityFrequencyPlanID",
                         column: x => x.ConformityFrequencyPlanID,
                         principalSchema: "Canada_Importer",
                         principalTable: "ConformityFrequencyPlans",
-                        principalColumn: "ConformityFrequencyPlanID");
+                        principalColumn: "ConformityFrequencyPlanID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_CongestionZoneTypes_CongestionZoneTypeID",
                         column: x => x.CongestionZoneTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "CongestionZoneTypes",
-                        principalColumn: "CongestionZoneTypeID");
+                        principalColumn: "CongestionZoneTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_FiltrationInstalledTypes_FiltrationInstalledTypeID",
                         column: x => x.FiltrationInstalledTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "FiltrationInstalledTypes",
-                        principalColumn: "FiltrationInstalledTypeID");
+                        principalColumn: "FiltrationInstalledTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_ITUClassTypes_ITUClassTypeID",
                         column: x => x.ITUClassTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "ITUClassTypes",
-                        principalColumn: "ITUClassTypeID");
-                    table.ForeignKey(
-                        name: "FK_LicenseRecords_ImportHistories_ImportHistoryID",
-                        column: x => x.ImportHistoryID,
-                        principalSchema: "Canada_Importer",
-                        principalTable: "Importobs",
-                        principalColumn: "ImportJobID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ITUClassTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_LicenseTypes_LicenseTypeID",
                         column: x => x.LicenseTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "LicenseTypes",
-                        principalColumn: "LicenseTypeID");
+                        principalColumn: "LicenseTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_ModulationTypes_ModulationTypeID",
                         column: x => x.ModulationTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "ModulationTypes",
-                        principalColumn: "ModulationTypeID");
+                        principalColumn: "ModulationTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_OperationStatuses_OperationalStatusID",
                         column: x => x.OperationalStatusID,
                         principalSchema: "Canada_Importer",
                         principalTable: "OperationStatuses",
-                        principalColumn: "OperationalStatusID");
+                        principalColumn: "OperationalStatusID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_PolarizationTypes_PolarizationTypeID",
                         column: x => x.PolarizationTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "PolarizationTypes",
-                        principalColumn: "PolarizationTypeID");
+                        principalColumn: "PolarizationTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_Provinces_ProvinceID",
                         column: x => x.ProvinceID,
                         principalSchema: "Canada_Importer",
                         principalTable: "Provinces",
-                        principalColumn: "ProvinceID");
+                        principalColumn: "ProvinceID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_RegulatoryServices_RegulatoryServiceID",
                         column: x => x.RegulatoryServiceID,
                         principalSchema: "Canada_Importer",
                         principalTable: "RegulatoryServices",
-                        principalColumn: "RegulatoryServiceID");
+                        principalColumn: "RegulatoryServiceID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_ServiceTypes_ServiceTypeID",
                         column: x => x.ServiceTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "ServiceTypes",
-                        principalColumn: "ServiceTypeID");
+                        principalColumn: "ServiceTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_StandbyTransmitterInformation_StandbyTransmitterInformationID",
                         column: x => x.StandbyTransmitterInformationID,
                         principalSchema: "Canada_Importer",
                         principalTable: "StandbyTransmitterInformation",
-                        principalColumn: "StandbyTransmitterInformationID");
+                        principalColumn: "StandbyTransmitterInformationID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_StationClasses_StationClassID",
                         column: x => x.StationClassID,
                         principalSchema: "Canada_Importer",
                         principalTable: "StationClasses",
-                        principalColumn: "StationClassID");
+                        principalColumn: "StationClassID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_StationCostCategories_StationCostCategoryID",
                         column: x => x.StationCostCategoryID,
                         principalSchema: "Canada_Importer",
                         principalTable: "StationCostCategories",
-                        principalColumn: "StationCostCategoryID");
+                        principalColumn: "StationCostCategoryID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_LicenseRecords_StationFunctionTypes_StationFunctionID",
+                        column: x => x.StationFunctionID,
+                        principalSchema: "Canada_Importer",
+                        principalTable: "StationFunctionTypes",
+                        principalColumn: "StationFunctionTypeID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_LicenseRecords_StationTypes_StationTypeID",
+                        column: x => x.StationTypeID,
+                        principalSchema: "Canada_Importer",
+                        principalTable: "StationTypes",
+                        principalColumn: "StationTypeID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_SubserviceTypes_SubserviceTypeID",
                         column: x => x.SubserviceTypeID,
                         principalSchema: "Canada_Importer",
                         principalTable: "SubserviceTypes",
-                        principalColumn: "SubserviceTypeID");
-                    table.ForeignKey(
-                        name: "FK_LicenseRecords_stationFunctionTypes_StationFunctionID",
-                        column: x => x.StationFunctionID,
-                        principalSchema: "Canada_Importer",
-                        principalTable: "StationFunctionTypes",
-                        principalColumn: "StationFunctionTypeID");
-                    table.ForeignKey(
-                        name: "FK_LicenseRecords_stationTypes_StationTypeID",
-                        column: x => x.StationTypeID,
-                        principalSchema: "Canada_Importer",
-                        principalTable: "StationTypes",
-                        principalColumn: "StationTypeID");
+                        principalColumn: "SubserviceTypeID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -607,32 +673,42 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer",
                 columns: table => new
                 {
-                    LicenseRecordHistoryID = table.Column<int>(type: "int", nullable: false)
+                    LicenseRecordHistoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    InternalLicenseRecordID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CanadaLicenseRecordID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false),
                     ChangeType = table.Column<int>(type: "int", nullable: false),
-                    EditedByImportHistoryRecordID = table.Column<int>(type: "int", nullable: true),
-                    EditedByUserID = table.Column<int>(type: "int", nullable: true)
+                    EditedByImportJobID = table.Column<int>(type: "int", nullable: true),
+                    EditedByUserID = table.Column<int>(type: "int", nullable: true),
+                    CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ConcurrencyStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LicenseRecordsHistory", x => x.LicenseRecordHistoryID)
+                    table.PrimaryKey("PK_LicenseRecordsHistory", x => x.LicenseRecordHistoryId)
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
-                        name: "FK_LicenseRecordsHistory_ImportHistories_EditedByImportHistoryRecordID",
-                        column: x => x.EditedByImportHistoryRecordID,
+                        name: "FK_LicenseRecordsHistory_Importobs_EditedByImportJobID",
+                        column: x => x.EditedByImportJobID,
                         principalSchema: "Canada_Importer",
                         principalTable: "Importobs",
                         principalColumn: "ImportJobID",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_LicenseRecordsHistory_LicenseRecords_InternalLicenseRecordID",
-                        column: x => x.InternalLicenseRecordID,
+                        name: "FK_LicenseRecordsHistory_LicenseRecords_CanadaLicenseRecordID_Version",
+                        columns: x => new { x.CanadaLicenseRecordID, x.Version },
                         principalSchema: "Canada_Importer",
                         principalTable: "LicenseRecords",
-                        principalColumn: "InternalLicenseRecordID",
+                        principalColumns: new[] { "CanadaLicenseRecordID", "Version" },
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Importobs_Status",
+                schema: "Canada_Importer",
+                table: "Importobs",
+                column: "Status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_AnalogDigitalID",
@@ -690,16 +766,11 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 column: "FrequencyMHz");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecords_ImportHistoryID",
-                schema: "Canada_Importer",
-                table: "LicenseRecords",
-                column: "ImportJobID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_IsValid",
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
-                column: "IsValid");
+                column: "IsValid",
+                filter: "IsValid = 1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_ITUClassTypeID",
@@ -786,25 +857,42 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 column: "SubserviceTypeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecordsHistory_EditedByImportHistoryRecordID",
+                name: "IX_LicenseRecordsHistory_CanadaLicenseRecordID",
+                schema: "Canada_Importer",
+                table: "LicenseRecordsHistory",
+                column: "CanadaLicenseRecordID")
+                .Annotation("SqlServer:Clustered", true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecordsHistory_CanadaLicenseRecordID_Version",
+                schema: "Canada_Importer",
+                table: "LicenseRecordsHistory",
+                columns: new[] { "CanadaLicenseRecordID", "Version" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecordsHistory_EditedByImportJobID",
                 schema: "Canada_Importer",
                 table: "LicenseRecordsHistory",
                 column: "EditedByImportJobID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecordsHistory_InternalLicenseRecordID",
-                schema: "Canada_Importer",
-                table: "LicenseRecordsHistory",
-                column: "InternalLicenseRecordID",
-                unique: true)
-                .Annotation("SqlServer:Clustered", true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ImportJobChunkFiles",
+                schema: "Canada_Importer");
+
+            migrationBuilder.DropTable(
+                name: "ImportJobStats",
+                schema: "Canada_Importer");
+
+            migrationBuilder.DropTable(
                 name: "LicenseRecordsHistory",
+                schema: "Canada_Importer");
+
+            migrationBuilder.DropTable(
+                name: "Importobs",
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
@@ -841,10 +929,6 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "ITUClassTypes",
-                schema: "Canada_Importer");
-
-            migrationBuilder.DropTable(
-                name: "Importobs",
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
@@ -888,15 +972,15 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
-                name: "SubserviceTypes",
-                schema: "Canada_Importer");
-
-            migrationBuilder.DropTable(
                 name: "StationFunctionTypes",
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
                 name: "StationTypes",
+                schema: "Canada_Importer");
+
+            migrationBuilder.DropTable(
+                name: "SubserviceTypes",
                 schema: "Canada_Importer");
         }
     }

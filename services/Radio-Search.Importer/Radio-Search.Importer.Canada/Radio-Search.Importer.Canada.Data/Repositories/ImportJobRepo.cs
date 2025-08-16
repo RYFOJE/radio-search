@@ -45,7 +45,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         {
             var record = await _context.Importobs.FirstOrDefaultAsync(x => x.ImportJobID == id);
 
-            if(record is null)
+            if (record is null)
             {
                 _logger.LogError("Failed to find a ImportHistoryRecord for Guid: {id}", id);
                 throw new KeyNotFoundException($"No ImportHistory record found for id: {id}");
@@ -131,6 +131,21 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
                 .Where(x => x.EditedByImportJobID == importJobID)
                 .Select(x => x.CanadaLicenseRecordID)
                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<string>> GetActiveLicensesNotFromImport(int importJobID)
+        {
+            return await _context.LicenseRecords
+                .Where(x => x.IsValid && !x.HistoryRecords.Any(y => y.EditedByImportJobID == importJobID))
+                .Select(x => x.CanadaLicenseRecordID)
+                .ToListAsync();
+        }
+
+        public async Task<bool> IsChunkProcessingDone(int importJobID)
+        {
+            return !await _context.ImportJobChunkFiles
+                .Where(x => x.ImportJobID == importJobID && x.Status != Enums.FileStatus.Processed)
+                .AnyAsync();
         }
     }
 }
