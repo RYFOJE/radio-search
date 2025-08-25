@@ -17,12 +17,12 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
     public class PreprocessingService : IPreprocessingService
     {
         private readonly ILogger<PreprocessingService> _logger;
-        private readonly IValidator<TAFLEntryRawRow> _taflRawRowValidator;
+        private readonly IValidator<TaflEntryRawRow> _taflRawRowValidator;
         private readonly ITAFLDefinitionRepo _definitionRepo;
 
         public PreprocessingService(
             ILogger<PreprocessingService> logger,
-            IValidator<TAFLEntryRawRow> taflRawRowValidator,
+            IValidator<TaflEntryRawRow> taflRawRowValidator,
             ITAFLDefinitionRepo definitionRepo) 
         { 
             _logger = logger;
@@ -30,7 +30,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             _definitionRepo = definitionRepo;
         }
 
-        public List<TAFLEntryRawRow> DeduplicateFullFile(Stream fullTAFLStream)
+        public List<TaflEntryRawRow> DeduplicateFullFile(Stream fullTAFLStream)
         {
             int initialCount = 0;
 
@@ -39,18 +39,18 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             var unprocessedRows = ExtractTAFLRawRowsFromCSV(fullTAFLStream);
 
             initialCount = unprocessedRows.Count;
-            _logger.LogInformation("Finished extracting TAFL Raw Rows. There were {rowCount} rows. Processed in {elapsedMs} ms.", initialCount, timer.ElapsedMilliseconds);
+            _logger.LogInformation("Finished extracting TAFL Raw Rows. There were {RowCount} rows. Processed in {ElapsedMs} ms.", initialCount, timer.ElapsedMilliseconds);
             timer.Restart();
 
             unprocessedRows = DeduplicateRows(unprocessedRows);
-            _logger.LogInformation("Finished deduplicating TAFL Raw Rows. There were {duplicateRowCount} duplicate rows. Processed in {elapsedMs} ms.", initialCount - unprocessedRows.Count, timer.ElapsedMilliseconds);
+            _logger.LogInformation("Finished deduplicating TAFL Raw Rows. There were {DuplicateRowCount} duplicate rows. Processed in {ElapsedMs} ms.", initialCount - unprocessedRows.Count, timer.ElapsedMilliseconds);
 
             return unprocessedRows;
         }
 
 
         /// <inheritdoc/>
-        public Stream GenerateChunkFile(List<TAFLEntryRawRow> rows)
+        public Stream GenerateChunkFile(List<TaflEntryRawRow> rows)
         {
             var ms = new MemoryStream();
             var sw = new StreamWriter(ms);
@@ -72,19 +72,19 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             var unprocessedRows = ExtractTAFLRawRowsFromCSV(fileStream);
             initialCount = unprocessedRows.Count;
 
-            _logger.LogInformation("Finished ExtractTAFLRawRowsFromCSV with a RAW count of {rawRowCount}. Processed in {elapsedTimeMs} ms.", initialCount, timer.ElapsedMilliseconds);
+            _logger.LogInformation("Finished ExtractTAFLRawRowsFromCSV with a RAW count of {RawRowCount}. Processed in {ElapsedMs} ms.", initialCount, timer.ElapsedMilliseconds);
             timer.Restart();
 
             _logger.LogInformation("Starting to deduplicate records.");
             unprocessedRows = DeduplicateRows(unprocessedRows);
-            _logger.LogInformation("Finished deduplicating record. There are currently {rowCount} records after deduplicating. With {duplicateCount} duplicates."
+            _logger.LogInformation("Finished deduplicating record. There are currently {RowCount} records after deduplicating. With {DuplicateCount} duplicates."
                 , unprocessedRows.Count, initialCount - unprocessedRows.Count);
 
-            // ADD A STEP THAT GETS ALL TABLE DEFINITION RECORDS
+            int beforeValidationCount = unprocessedRows.Count;
             var validRows = await FluentValidateRecords(unprocessedRows);
             
-            _logger.LogInformation("Finished validation. Valid rows: {validRowCount}, Invalid rows: {invalidRowCount}",
-                validRows.Count, unprocessedRows.Count - validRows.Count);
+            _logger.LogInformation("Finished validation. Valid row count: {ValidRowCount}, Invalid row count: {InvalidRowCount}",
+                validRows.Count, beforeValidationCount - validRows.Count);
 
             return new GetValidRawRowsResponse
             {
@@ -99,12 +99,12 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
         /// </summary>
         /// <remarks>If the InServiceDate cannot be parsed for a row, that row is ignored unless it is the
         /// only entry for its LicenseRecordID.</remarks>
-        /// <param name="rows">A list of <see cref="TAFLEntryRawRow"/> objects to be deduplicated.</param>
-        /// <returns>A list of <see cref="TAFLEntryRawRow"/> objects with duplicates removed, keeping the row with the latest
+        /// <param name="rows">A list of <see cref="TaflEntryRawRow"/> objects to be deduplicated.</param>
+        /// <returns>A list of <see cref="TaflEntryRawRow"/> objects with duplicates removed, keeping the row with the latest
         /// InServiceDate for each LicenseRecordID.</returns>
-        public List<TAFLEntryRawRow> DeduplicateRows(List<TAFLEntryRawRow> rows)
+        public static List<TaflEntryRawRow> DeduplicateRows(List<TaflEntryRawRow> rows)
         {
-            Dictionary<string, TAFLEntryRawRow> uniqueRawRows = new();
+            Dictionary<int, TaflEntryRawRow> uniqueRawRows = new();
 
             foreach (var row in rows)
             {
@@ -135,22 +135,22 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
         /// Extracts a list of raw TAFL entry rows from a CSV stream.
         /// </summary>
         /// <remarks>This method reads the CSV data from the provided stream and attempts to parse each
-        /// row into a <see cref="TAFLEntryRawRow"/> object. Rows with a column count that does not match the expected
-        /// number of columns for <see cref="TAFLEntryRawRow"/> are skipped. If an error occurs while processing a row,
+        /// row into a <see cref="TaflEntryRawRow"/> object. Rows with a column count that does not match the expected
+        /// number of columns for <see cref="TaflEntryRawRow"/> are skipped. If an error occurs while processing a row,
         /// the row is skipped, and the error is logged.</remarks>
         /// <param name="stream">The input stream containing the CSV data. The stream must be readable and positioned at the beginning of the
         /// CSV content.</param>
-        /// <returns>A list of <see cref="TAFLEntryRawRow"/> objects parsed from the CSV data.  The list will be empty if no
+        /// <returns>A list of <see cref="TaflEntryRawRow"/> objects parsed from the CSV data.  The list will be empty if no
         /// valid rows are found.</returns>
-        public List<TAFLEntryRawRow> ExtractTAFLRawRowsFromCSV(Stream stream)
+        public List<TaflEntryRawRow> ExtractTAFLRawRowsFromCSV(Stream stream)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            List<TAFLEntryRawRow> records = [];
+            List<TaflEntryRawRow> records = [];
             int skippedRecords = 0;
             int columnMismatchCount = 0;
 
-            int expectedColumnCount = GetPropCount<TAFLEntryRawRow>();
+            int expectedColumnCount = GetPropCount<TaflEntryRawRow>();
 
             using (var reader = new StreamReader(stream))
             using (var csv = CreateCSVReader(reader))
@@ -168,7 +168,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
                             continue;
                         }
 
-                        var currentRecord = csv.GetRecord<TAFLEntryRawRow>();
+                        var currentRecord = csv.GetRecord<TaflEntryRawRow>();
                         if (currentRecord != null)
                         {
                             records.Add(currentRecord);
@@ -177,12 +177,12 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
                     catch
                     {
                         skippedRecords++;
-                        _logger.LogError("Error on row {row}", csv.Context.Parser?.Row);
+                        _logger.LogDebug("Error on row {Row}", csv.Context.Parser?.Row);
                     }
                 }
             }
 
-             _logger.LogInformation("ExtractTAFLRawRowsFromCSV took {ElapsedTimeInMs} ms", stopwatch.ElapsedMilliseconds);
+             _logger.LogInformation("ExtractTAFLRawRowsFromCSV took {ElapsedMs} ms", stopwatch.ElapsedMilliseconds);
 
             return records;
         }
@@ -197,19 +197,19 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
         /// purposes.</description></item> </list> Note that additional validation logic, such as checking against
         /// database definitions, may be implemented in the future.</remarks>
         /// <param name="rows">The list of raw TAFL entry rows to validate.</param>
-        /// <returns>A list of <see cref="TAFLEntryRawRow"/> objects that have passed all validation checks.</returns>
-        public async Task<List<TAFLEntryRawRow>> FluentValidateRecords(List<TAFLEntryRawRow> rows)
+        /// <returns>A list of <see cref="TaflEntryRawRow"/> objects that have passed all validation checks.</returns>
+        public async Task<List<TaflEntryRawRow>> FluentValidateRecords(List<TaflEntryRawRow> rows)
         {
             var timer = Stopwatch.StartNew();
             _logger.LogInformation("Starting to fetch all TAFL Definition Rows");
             var allDefinitions = await GetAllDefinitionRows();
-            _logger.LogInformation("Finished fetching all TAFL Definition Rows writing {elapsedMs} ms.", timer.ElapsedMilliseconds);
+            _logger.LogInformation("Finished fetching all TAFL Definition Rows in {ElapsedMs} ms.", timer.ElapsedMilliseconds);
 
 
             // Check with FluentValidation
             for (int i = 0; i < rows.Count; i++)
             {
-                var context = new ValidationContext<TAFLEntryRawRow>(rows[i]);
+                var context = new ValidationContext<TaflEntryRawRow>(rows[i]);
                 context.RootContextData["AllDefinitions"] = allDefinitions;
                 var result = _taflRawRowValidator.Validate(context);
 
@@ -244,11 +244,11 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
                 HasHeaderRecord = true,
                 BadDataFound = context =>
                 {
-                    _logger.LogWarning("Bad data found while processing CSV Entry={entry}", context.RawRecord);
+                    _logger.LogWarning("Bad data found while processing CSV Entry={Entry}", context.RawRecord);
                 },
                 ReadingExceptionOccurred = context =>
                 {
-                    _logger.LogError("Error on row {rowNumber}", context.Exception.Data["CsvHelper.RowNumber"]);
+                    _logger.LogDebug("Error on row {RowNumber}", context.Exception.Data["CsvHelper.RowNumber"]);
                     return true;
                 }
             };

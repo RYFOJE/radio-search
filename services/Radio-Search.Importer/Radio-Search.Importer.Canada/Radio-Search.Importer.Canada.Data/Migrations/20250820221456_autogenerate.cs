@@ -7,7 +7,7 @@ using NetTopologySuite.Geometries;
 namespace Radio_Search.Importer.Canada.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class autogenerate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -135,14 +135,14 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Importobs",
+                name: "ImportJobs",
                 schema: "Canada_Importer",
                 columns: table => new
                 {
                     ImportJobID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    CurrentStep = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
+                    CurrentStep = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConcurrencyStamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
@@ -151,7 +151,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Importobs", x => x.ImportJobID);
+                    table.PrimaryKey("PK_ImportJobs", x => x.ImportJobID);
                 });
 
             migrationBuilder.CreateTable(
@@ -410,10 +410,10 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 {
                     table.PrimaryKey("PK_ImportJobChunkFiles", x => new { x.ImportJobID, x.FileID });
                     table.ForeignKey(
-                        name: "FK_ImportJobChunkFiles_Importobs_ImportJobID",
+                        name: "FK_ImportJobChunkFiles_ImportJobs_ImportJobID",
                         column: x => x.ImportJobID,
                         principalSchema: "Canada_Importer",
-                        principalTable: "Importobs",
+                        principalTable: "ImportJobs",
                         principalColumn: "ImportJobID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -436,10 +436,10 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 {
                     table.PrimaryKey("PK_ImportJobStats", x => x.ImportJobID);
                     table.ForeignKey(
-                        name: "FK_ImportJobStats_Importobs_ImportJobID",
+                        name: "FK_ImportJobStats_ImportJobs_ImportJobID",
                         column: x => x.ImportJobID,
                         principalSchema: "Canada_Importer",
-                        principalTable: "Importobs",
+                        principalTable: "ImportJobs",
                         principalColumn: "ImportJobID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -449,7 +449,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer",
                 columns: table => new
                 {
-                    CanadaLicenseRecordID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CanadaLicenseRecordID = table.Column<int>(type: "int", maxLength: 30, nullable: false),
                     Version = table.Column<int>(type: "int", nullable: false),
                     IsValid = table.Column<bool>(type: "bit", nullable: false),
                     FrequencyMHz = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
@@ -475,7 +475,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     VerticalElevationAngleDeg = table.Column<decimal>(type: "decimal(24,12)", precision: 24, scale: 12, nullable: true),
                     StationLocation = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StationReference = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CallSign = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CallSign = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
                     NumberOfIdenticalStations = table.Column<int>(type: "int", nullable: true),
                     ReferenceIdentifier = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Location = table.Column<Point>(type: "geography", nullable: true),
@@ -518,7 +518,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LicenseRecords", x => new { x.CanadaLicenseRecordID, x.Version })
-                        .Annotation("SqlServer:Clustered", false);
+                        .Annotation("SqlServer:Clustered", true);
                     table.ForeignKey(
                         name: "FK_LicenseRecords_AnalogDigital_AnalogDigitalID",
                         column: x => x.AnalogDigitalID,
@@ -675,7 +675,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 {
                     LicenseRecordHistoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CanadaLicenseRecordID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CanadaLicenseRecordID = table.Column<int>(type: "int", nullable: false),
                     Version = table.Column<int>(type: "int", nullable: false),
                     ChangeType = table.Column<int>(type: "int", nullable: false),
                     EditedByImportJobID = table.Column<int>(type: "int", nullable: true),
@@ -689,10 +689,10 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     table.PrimaryKey("PK_LicenseRecordsHistory", x => x.LicenseRecordHistoryId)
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
-                        name: "FK_LicenseRecordsHistory_Importobs_EditedByImportJobID",
+                        name: "FK_LicenseRecordsHistory_ImportJobs_EditedByImportJobID",
                         column: x => x.EditedByImportJobID,
                         principalSchema: "Canada_Importer",
-                        principalTable: "Importobs",
+                        principalTable: "ImportJobs",
                         principalColumn: "ImportJobID",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
@@ -705,9 +705,9 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Importobs_Status",
+                name: "IX_ImportJobs_Status",
                 schema: "Canada_Importer",
-                table: "Importobs",
+                table: "ImportJobs",
                 column: "Status");
 
             migrationBuilder.CreateIndex(
@@ -727,13 +727,6 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
                 column: "AuthorizationStatusID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LicenseRecords_CanadaLicenseRecordID",
-                schema: "Canada_Importer",
-                table: "LicenseRecords",
-                column: "CanadaLicenseRecordID")
-                .Annotation("SqlServer:Clustered", true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_CommunicationTypeID",
@@ -769,8 +762,25 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 name: "IX_LicenseRecords_IsValid",
                 schema: "Canada_Importer",
                 table: "LicenseRecords",
-                column: "IsValid",
-                filter: "IsValid = 1");
+                column: "IsValid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecords_IsValid_CallSign",
+                schema: "Canada_Importer",
+                table: "LicenseRecords",
+                columns: new[] { "IsValid", "CallSign" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecords_IsValid_CanadaLicenseRecordID",
+                schema: "Canada_Importer",
+                table: "LicenseRecords",
+                columns: new[] { "IsValid", "CanadaLicenseRecordID" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecords_IsValid_FrequencyMHz",
+                schema: "Canada_Importer",
+                table: "LicenseRecords",
+                columns: new[] { "IsValid", "FrequencyMHz" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_LicenseRecords_ITUClassTypeID",
@@ -874,6 +884,12 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer",
                 table: "LicenseRecordsHistory",
                 column: "EditedByImportJobID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LicenseRecordsHistory_EditedByImportJobID_ChangeType",
+                schema: "Canada_Importer",
+                table: "LicenseRecordsHistory",
+                columns: new[] { "EditedByImportJobID", "ChangeType" });
         }
 
         /// <inheritdoc />
@@ -892,7 +908,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(
-                name: "Importobs",
+                name: "ImportJobs",
                 schema: "Canada_Importer");
 
             migrationBuilder.DropTable(

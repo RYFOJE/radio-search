@@ -10,7 +10,7 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport
         /// Returns the rows from the TAFL Raw file that need to be inserted and updated
         /// </summary>
         /// <returns>A task containing which rows from the CSV will need to be inserted and updated into the DB.</returns>
-        Task<GetInsertsAndUpdatesResponse> GetInsertsAndUpdates(List<TAFLEntryRawRow> rows);
+        Task<GetInsertsAndUpdatesResponse> GetInsertsAndUpdates(List<TaflEntryRawRow> rows);
 
         /// <summary>
         /// Inserts new records into the database based on the provided raw data rows.
@@ -23,14 +23,14 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport
         /// <param name="importID">The import job associated to the Import</param>
         /// <returns>A task that represents the asynchronous operation. The task completes when all valid rows have been
         /// processed and inserted.</returns>
-        Task InsertNewFromRawRecords(List<TAFLEntryRawRow> rows, int importID);
+        Task InsertNewFromRawRecords(List<TaflEntryRawRow> rows, int importID);
 
         /// <summary>
         /// Runs once Inserts and updates have been performed. Use this to see all IDs that are no longer in the Import File
         /// </summary>
         /// <param name="importID">The import Job ID</param>
         /// <returns>List of License Record IDs that are not in the Import</returns>
-        Task<List<string>> GetDeletedRecords(int importID);
+        Task<List<int>> GetDeletedRecords(int importID);
 
         /// <summary>
         /// Inserts or updates records in the database based on the provided raw data rows.
@@ -41,9 +41,9 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport
         /// <param name="rows">A list of raw data rows to be processed. Each row represents a record to be inserted or updated.</param>
         /// <param name="importID">The import job associated to the Import</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        Task InsertUpdatedFromRawRecords(List<(int version, TAFLEntryRawRow row)> rows, int importID);
+        Task InsertUpdatedFromRawRecords(List<(int version, TaflEntryRawRow row)> rows, int importID);
 
-        Task InvalidateRecordsFromDB(List<string> recordIDs, int importId);
+        Task InvalidateRecordsFromDB(List<int> recordIDs, int importId);
 
 
     }

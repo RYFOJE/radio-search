@@ -9,7 +9,7 @@ namespace Radio_Search.Importer.Canada.Data.Models.History
         public int LicenseRecordHistoryId { get; set; }
 
         // FK, Composite
-        public string CanadaLicenseRecordID { get; set; } = string.Empty;
+        public int CanadaLicenseRecordID { get; set; }
         public int Version { get; set; } = 1;
 
 

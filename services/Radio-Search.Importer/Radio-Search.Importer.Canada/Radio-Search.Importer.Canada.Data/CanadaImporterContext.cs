@@ -13,7 +13,7 @@ namespace Radio_Search.Importer.Canada.Data
         }
 
         public DbSet<LicenseRecord> LicenseRecords { get; set; }
-        public DbSet<ImportJob> Importobs { get; set; }
+        public DbSet<ImportJob> ImportJobs { get; set; }
         public DbSet<ImportJobChunkFile> ImportJobChunkFiles { get; set; }
         public DbSet<ImportJobStats> ImportJobStats { get; set; }
         public DbSet<LicenseRecordHistory> LicenseRecordsHistory { get; set; }
@@ -54,6 +54,8 @@ namespace Radio_Search.Importer.Canada.Data
             {
                 entity.HasKey(e => e.LicenseRecordHistoryId)
                     .IsClustered(false);
+
+                entity.HasIndex(e => new { e.EditedByImportJobID, e.ChangeType }); // For import tracking
 
                 entity.Property(e => e.LicenseRecordHistoryId)
                     .ValueGeneratedOnAdd();
@@ -122,17 +124,23 @@ namespace Radio_Search.Importer.Canada.Data
 
             modelBuilder.Entity<LicenseRecord>(entity =>
             {
-                // Composite Key
-                entity.HasKey(e => new { e.CanadaLicenseRecordID, e.Version }).IsClustered(false);
+                // Make the composite primary key clustered for optimal insert performance
+                entity.HasKey(e => new { e.CanadaLicenseRecordID, e.Version }).IsClustered(true);
 
                 // Indexes
-                entity.HasIndex(e => e.CanadaLicenseRecordID).IsClustered(true);
                 entity.HasIndex(u => u.FrequencyMHz);
-                entity.HasIndex(e => e.IsValid)
-                    .HasFilter("IsValid = 1"); // SQL Server specific :(
+                entity.HasIndex(e => e.IsValid);
+                entity.HasIndex(e => new { e.IsValid, e.CanadaLicenseRecordID });
+                entity.HasIndex(e => new { e.IsValid, e.CallSign });
+                entity.HasIndex(e => new { e.IsValid, e.FrequencyMHz });
 
-                entity.Property(e => e.CanadaLicenseRecordID).ValueGeneratedNever();
 
+                entity.Property(e => e.CanadaLicenseRecordID)
+                .HasMaxLength(30)
+                .ValueGeneratedNever();
+
+
+                
                 entity.Property(e => e.FrequencyMHz).HasPrecision(24, 12);
                 entity.Property(e => e.OccupiedBandwidthKHz).HasPrecision(24, 12);
                 entity.Property(e => e.TxERPdBW).HasPrecision(24, 12);
@@ -149,7 +157,10 @@ namespace Radio_Search.Importer.Canada.Data
                 entity.Property(e => e.AntennaStructureHeightM).HasPrecision(24, 12);
                 entity.Property(e => e.HorizontalPowerW).HasPrecision(24, 12);
                 entity.Property(e => e.VerticalPowerW).HasPrecision(24, 12);
+                entity.Property(e => e.CallSign).HasMaxLength(40);
 
+
+                // Relations
                 entity.HasOne(u => u.AntennaPattern)
                     .WithMany()
                     .HasForeignKey(u => u.AntennaPatternID)

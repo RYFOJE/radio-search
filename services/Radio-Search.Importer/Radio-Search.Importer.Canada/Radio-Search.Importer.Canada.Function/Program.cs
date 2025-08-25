@@ -116,22 +116,20 @@ var resourceAttributes = new Dictionary<string, object> {
             ?? throw new ArgumentNullException("Could not find instance ID") }
     };
 
-if (isProduction)
-{
-    builder.Services.AddOpenTelemetry().UseAzureMonitor(
-        options =>
-        {
-            options.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsightsConnectionString");
-        }).ConfigureResource(resourceBuilder =>
-        {
-            resourceBuilder.AddAttributes(resourceAttributes);
-        });
 
-    builder.Services.AddLogging(loggingBuilder =>
+builder.Services.AddOpenTelemetry().UseAzureMonitor(
+    options =>
     {
-        loggingBuilder.AddConsole();
+        options.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsightsConnectionString");
+    }).ConfigureResource(resourceBuilder =>
+    {
+        resourceBuilder.AddAttributes(resourceAttributes);
     });
-}
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole();
+});
 
 
 #endregion
@@ -141,12 +139,12 @@ if (isProduction)
 // Services
 builder.Services.AddScoped<IImportManagerService, ImportManagerService>();
 builder.Services.AddScoped<IDownloadFileService, DownloadFileService>();
-builder.Services.AddScoped<IPDFProcessingServices, PDFProcessingServices>();
-builder.Services.AddScoped<ITAFLDefinitionImportService, TAFLDefinitionImportService>();
+builder.Services.AddScoped<IPDFProcessingServices, PdfProcessingServices>();
+builder.Services.AddScoped<ITAFLDefinitionImportService, TaflDefinitionImportService>();
 builder.Services.AddScoped<IPreprocessingService, PreprocessingService>();
 builder.Services.AddScoped<IProcessingService, ProcessingService>();
 builder.Services.ImporterCanadaAddData();
-builder.Services.AddScoped<IValidator<TAFLEntryRawRow>, TAFLEntryRawRowValidator>();
+builder.Services.AddScoped<IValidator<TaflEntryRawRow>, TAFLEntryRawRowValidator>();
 
 builder.Services.AddAzureServiceBusClient(new() { 
     ServiceBusUrl = config.GetConnectionString("CanadaImporterServiceBus") ?? throw new ArgumentNullException()
@@ -199,6 +197,7 @@ builder.Services.AddDbContext<CanadaImporterContext>(options =>
             );
         }
     )
+    .EnableSensitiveDataLogging(false)
 );
 
 

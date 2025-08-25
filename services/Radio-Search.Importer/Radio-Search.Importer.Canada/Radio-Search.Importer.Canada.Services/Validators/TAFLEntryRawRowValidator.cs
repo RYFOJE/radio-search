@@ -4,7 +4,7 @@ using Radio_Search.Importer.Canada.Services.Data;
 
 namespace Radio_Search.Importer.Canada.Services.Validators
 {
-    public class TAFLEntryRawRowValidator : AbstractValidator<TAFLEntryRawRow>
+    public class TAFLEntryRawRowValidator : AbstractValidator<TaflEntryRawRow>
     {
         public TAFLEntryRawRowValidator()
         {
@@ -31,10 +31,8 @@ namespace Radio_Search.Importer.Canada.Services.Validators
 
             // Index 2 - LicenseRecordID
             RuleFor(x => x.LicenseRecordID)
-                .NotNull()
-                .WithMessage("LicenseRecordID Cannot be null.")
-                .MinimumLength(1) // Maybe set to exact length
-                .WithMessage("LicenseRecordID must be longer than 1.");
+                .GreaterThan(0)
+                .WithMessage("LicenseRecordID must be a positive integer.");
 
             // Index 3 - RegulatoryServiceID
             RuleFor(x => x.RegulatoryServiceID)

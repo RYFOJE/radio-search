@@ -27,12 +27,13 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         public async Task BulkAddLicenseRecordsAsync(List<LicenseRecord> records)
         {
             await _context.BulkInsertAsync(records, opt =>{
-                
+                opt.BulkCopyTimeout = 400; // Extract this to a config
+                opt.BatchSize = 200;
             });
         }
 
         /// <inheritdoc/>
-        public async Task BulkInvalidateRecords(List<string> licenseIDs)
+        public async Task BulkInvalidateRecords(List<int> licenseIDs)
         {
             int batchSize;
             var configValue = _config[BULK_UPDATE_BATCH_SIZE_CONFIG_KEY];
@@ -44,7 +45,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             foreach (var batch in idBatches)
             {
                 await _context.LicenseRecords
-                    .Where(b => batch.Contains(b.CanadaLicenseRecordID) && b.IsValid == true)
+                    .Where(b => batch.Contains(b.CanadaLicenseRecordID) && b.IsValid)
                     .ExecuteUpdateAsync(setters =>
                         setters.SetProperty(b => b.IsValid, false));
             }
@@ -74,7 +75,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<List<LicenseRecord>> BulkFetchLicenseRecordsNoTrackingAsync(List<string> licenseIDs)
+        public async Task<List<LicenseRecord>> BulkFetchLicenseRecordsNoTrackingAsync(List<int> licenseIDs)
         {
             int fetchLimit;
             var configValue = _config[RECORD_FETCH_LIMIT_CONFIG_KEY];
@@ -98,7 +99,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return allRecords;
         }
 
-        public async Task<Dictionary<string, int>> GetVersionsForLicenseRecords(List<string> recordIds)
+        public async Task<Dictionary<int, int>> GetVersionsForLicenseRecords(List<int> recordIds)
         {
             return await _context.LicenseRecords
                 .Where(x => x.IsValid && recordIds.Contains(x.CanadaLicenseRecordID))

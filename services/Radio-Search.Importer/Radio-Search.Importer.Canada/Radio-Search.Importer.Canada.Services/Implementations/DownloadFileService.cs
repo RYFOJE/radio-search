@@ -55,8 +55,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             }
             finally
             {
-                taflStream?.Dispose();
-                unzippedFileStream?.Dispose();
+                taflStream?.DisposeAsync();
+                unzippedFileStream?.DisposeAsync();
             }
 
             return new()
@@ -86,7 +86,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             }
             finally
             {
-                taflStream?.Dispose();
+                taflStream?.DisposeAsync();
             }
 
             return new()
@@ -189,5 +189,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         #endregion
+
+
     }
 }

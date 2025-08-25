@@ -35,39 +35,37 @@ public class ChunkProcessingFunction
             JSONFormatter formatter = new JSONFormatter();
             var deserializedMessage = formatter.Deserialize<ProcessChunkMessage>(message.Body.ToArray());
 
-            _logger.LogInformation("Starting to process ChunkID: {chunkID} for ImportJobID: {importID}. Lock expires: {lockExpiry}, Delivery count: {deliveryCount}",
+            _logger.LogInformation("Starting to process ChunkID: {ChunkID} for ImportJobID: {ImportID}. Lock expires: {LockExpiry}, Delivery count: {DeliveryCount}",
                 deserializedMessage.FileID, deserializedMessage.ImportJobID, message.LockedUntil, message.DeliveryCount);
 
             await _importManager.ProcessChunk(deserializedMessage.ImportJobID, deserializedMessage.FileID);
 
-            _logger.LogInformation("Finished processing the ChunkID: {chunkID} for ImportJobID: {importID} in {elapsedMs} ms.",
+            _logger.LogInformation("Finished processing the ChunkID: {ChunkID} for ImportJobID: {ImportID} in {ElapsedMs} ms.",
                 deserializedMessage.FileID, deserializedMessage.ImportJobID, timer.ElapsedMilliseconds);
 
             // Complete the message only on successful processing
             await messageActions.CompleteMessageAsync(message);
             messageHandled = true;
 
-            _logger.LogInformation("Successfully completed message for ChunkID: {chunkID}", deserializedMessage.FileID);
+            _logger.LogInformation("Successfully completed message for ChunkID: {ChunkID}", deserializedMessage.FileID);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process Chunk Ready message. ChunkID: Unknown, Attempt: {attemptNumber}, Elapsed: {elapsedMs} ms",
+            _logger.LogError(ex, "Failed to process Chunk Ready message. ChunkID: Unknown, Attempt: {AttemptNumber}, Elapsed: {ElapsedMs} ms",
                 message.DeliveryCount, timer.ElapsedMilliseconds);
 
             try
             {
                 await messageActions.AbandonMessageAsync(message);
                 messageHandled = true;
-                _logger.LogInformation("Successfully abandoned message after error. Delivery count: {deliveryCount}", message.DeliveryCount);
+                _logger.LogInformation("Successfully abandoned message after error. Delivery count: {DeliveryCount}", message.DeliveryCount);
             }
             catch (Exception abandonEx)
             {
                 _logger.LogError(abandonEx, "Failed to abandon message after processing error. This may indicate a lock timeout.");
-                // Don't rethrow - let the function complete so Azure Functions can handle it
             }
         }
 
-        // Safety check - this should never execute if everything above worked correctly
         if (!messageHandled)
         {
             _logger.LogWarning("Message was not handled (neither completed nor abandoned). This indicates a code logic error.");

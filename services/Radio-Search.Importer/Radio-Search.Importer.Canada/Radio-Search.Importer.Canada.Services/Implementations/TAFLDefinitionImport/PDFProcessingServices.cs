@@ -7,11 +7,11 @@ using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
 namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionImport
 {
     /// <inheritdoc/>
-    public class PDFProcessingServices : IPDFProcessingServices
+    public class PdfProcessingServices : IPDFProcessingServices
     {
-        private readonly ILogger<PDFProcessingServices> _logger;
+        private readonly ILogger<PdfProcessingServices> _logger;
 
-        public PDFProcessingServices(ILogger<PDFProcessingServices> logger)
+        public PdfProcessingServices(ILogger<PdfProcessingServices> logger)
         {
             _logger = logger;
         }
@@ -86,7 +86,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to merge the PDF");
-                throw new Exception($"Error combining PDF pages: {ex.Message}", ex);
+                throw;
             }
         }
     }

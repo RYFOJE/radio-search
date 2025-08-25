@@ -5,7 +5,7 @@ namespace Radio_Search.Importer.Canada.Data.Models.License
 {
     public class LicenseRecord : DatabaseEntry
     {
-        public string CanadaLicenseRecordID { get; set; } = string.Empty;
+        public int CanadaLicenseRecordID { get; set; }
         public int Version { get; set; } = 1;
 
         /// <summary>

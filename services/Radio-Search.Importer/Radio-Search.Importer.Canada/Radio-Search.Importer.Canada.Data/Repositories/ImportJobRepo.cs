@@ -24,16 +24,20 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         /// <inheritdoc/>
         public async Task BulkInsertLicenseRecordHistory(List<LicenseRecordHistory> licenseRecordHistories)
         {
-            await _context.BulkInsertAsync(licenseRecordHistories);
+            await _context.BulkInsertAsync(licenseRecordHistories, opt => {
+                opt.BulkCopyTimeout = 250; // Extract this to a config
+                opt.BatchSize = 200;
+            });
         }
 
+        ///<inheritdoc/>
         public async Task<ImportJobChunkFile> GetImportJobChunkFile(int importJobID, int fileID)
         {
             var record = await _context.ImportJobChunkFiles.FirstOrDefaultAsync(x => x.ImportJobID == importJobID && x.FileID == fileID);
 
             if (record is null)
             {
-                _logger.LogError("Failed to find a ImportJobChunkFile for ImportJobID: {jobId} and FileID {fileID}", importJobID, fileID);
+                _logger.LogError("Failed to find a ImportJobChunkFile for ImportJobID: {JobId} and FileID {FileID}", importJobID, fileID);
                 throw new KeyNotFoundException($"No ImportJobChunkFile record found for id: {importJobID},{fileID}");
             }
 
@@ -43,30 +47,32 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         /// <inheritdoc/>
         public async Task<ImportJob> GetImportJobRecord(int id)
         {
-            var record = await _context.Importobs.FirstOrDefaultAsync(x => x.ImportJobID == id);
+            var record = await _context.ImportJobs.FirstOrDefaultAsync(x => x.ImportJobID == id);
 
             if (record is null)
             {
-                _logger.LogError("Failed to find a ImportHistoryRecord for Guid: {id}", id);
+                _logger.LogError("Failed to find a ImportHistoryRecord for Guid: {Id}", id);
                 throw new KeyNotFoundException($"No ImportHistory record found for id: {id}");
             }
 
             return record;
         }
 
+        ///<inheritdoc/>
         public async Task<ImportJobStats> GetImportJobStats(int importJobID)
         {
             var record = await _context.ImportJobStats.FirstOrDefaultAsync(x => x.ImportJobID == importJobID);
 
             if (record is null)
             {
-                _logger.LogError("Failed to find a ImportJobStats for Guid: {id}", importJobID);
+                _logger.LogError("Failed to find a ImportJobStats for Guid: {Id}", importJobID);
                 throw new KeyNotFoundException($"No ImportJobStats record found for id: {importJobID}");
             }
 
             return record;
         }
 
+        ///<inheritdoc/>
         public async Task<ImportJobChunkFile> UpsertImportJobChunkFileRecord(ImportJobChunkFile fileRecord)
         {
             var exists = await _context.ImportJobChunkFiles.AnyAsync(x => x.ImportJobID == fileRecord.ImportJobID && x.FileID == fileRecord.FileID);
@@ -88,15 +94,15 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         /// <inheritdoc/>
         public async Task<ImportJob> UpsertImportJobRecord(ImportJob importHistory)
         {
-            var exists = await _context.Importobs.AnyAsync(x => x.ImportJobID == importHistory.ImportJobID);
+            var exists = await _context.ImportJobs.AnyAsync(x => x.ImportJobID == importHistory.ImportJobID);
 
             if (exists)
             {
-                _context.Importobs.Update(importHistory);
+                _context.ImportJobs.Update(importHistory);
             }
             else
             {
-                await _context.Importobs.AddAsync(importHistory);
+                await _context.ImportJobs.AddAsync(importHistory);
             }
 
             await _context.SaveChangesAsync();
@@ -104,6 +110,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return importHistory;
         }
 
+        ///<inheritdoc/>
         public async Task<ImportJobStats> CreateImportJobStats(int importJobID)
         {
             var importStats = new ImportJobStats { ImportJobID = importJobID };
@@ -119,13 +126,25 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             }
         }
 
-        public Task IncrementStatsField(int importJobID, Expression<Func<ImportJobStats, int>> fieldSelector, int increaseAmount)
+        ///<inheritdoc/>
+        public async Task IncrementStatsField(int importJobID, Expression<Func<ImportJobStats, int>> selector, int increaseAmount)
         {
-            throw new NotImplementedException();
+            var stats = await _context.ImportJobStats.FirstOrDefaultAsync(x => x.ImportJobID == importJobID);
+            if (stats == null)
+                throw new KeyNotFoundException($"No ImportJobStats record found for id: {importJobID}");
+
+            var memberExpr = selector.Body as MemberExpression;
+            if (memberExpr?.Member is not System.Reflection.PropertyInfo propInfo)
+                throw new ArgumentException("Selector must be a property access");
+
+            var currentValue = (int)propInfo.GetValue(stats)!;
+            propInfo.SetValue(stats, currentValue + increaseAmount);
+
+            await _context.SaveChangesAsync();
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<string>> GetAllLicenseIDsFromImport(int importJobID)
+        public async Task<IEnumerable<int>> GetAllLicenseIDsFromImport(int importJobID)
         {
             return await _context.LicenseRecordsHistory
                 .Where(x => x.EditedByImportJobID == importJobID)
@@ -133,7 +152,8 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<string>> GetActiveLicensesNotFromImport(int importJobID)
+        ///<inheritdoc/>
+        public async Task<IEnumerable<int>> GetActiveLicensesNotFromImport(int importJobID)
         {
             return await _context.LicenseRecords
                 .Where(x => x.IsValid && !x.HistoryRecords.Any(y => y.EditedByImportJobID == importJobID))
@@ -141,6 +161,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
                 .ToListAsync();
         }
 
+        ///<inheritdoc/>
         public async Task<bool> IsChunkProcessingDone(int importJobID)
         {
             return !await _context.ImportJobChunkFiles

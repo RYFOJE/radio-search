@@ -16,28 +16,24 @@ using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
 using Radio_Search.Importer.Canada.Services.Responses;
 using Spire.Pdf;
 using Spire.Pdf.Utilities;
-using System.Diagnostics;
-using System.Globalization;
 using System.Reflection;
 
 namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionImport
 {
 
 
-    public class TAFLDefinitionImportService : ITAFLDefinitionImportService
+    public class TaflDefinitionImportService : ITAFLDefinitionImportService
     {
-        private readonly ILogger<TAFLDefinitionImportService> _logger;
-        private readonly IConfiguration _config;
+        private readonly ILogger<TaflDefinitionImportService> _logger;
         private readonly TAFLDefinitionTablesOrder _taflDefinitionOrder;
         private readonly CanadaImporterContext _context;
         private readonly ITAFLDefinitionRepo _definitionRepo;
         private readonly IMapper _mapper;
         private readonly IPDFProcessingServices _pdfService;
-        public readonly IValidator<TAFLEntryRawRow> _taflRawRowValidator;
+        public readonly IValidator<TaflEntryRawRow> _taflRawRowValidator;
 
-        public TAFLDefinitionImportService(
-                ILogger<TAFLDefinitionImportService> logger,
-                IConfiguration config,
+        public TaflDefinitionImportService(
+                ILogger<TaflDefinitionImportService> logger,
                 IOptions<TAFLDefinitionTablesOrder> taflDefinitionOrder,
                 CanadaImporterContext context,
                 ITAFLDefinitionRepo definitionRepo,
@@ -45,71 +41,18 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
                 IImportJobRepo historyRepo,
                 IMapper mapper,
                 IPDFProcessingServices pdfService,
-                IValidator<TAFLEntryRawRow> taflRawRowValidator)
+                IValidator<TaflEntryRawRow> taflRawRowValidator)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger), "Logger is null");
-            _config = config ?? throw new ArgumentNullException(nameof(config), "Config is null");
+            _logger = logger;
             _taflDefinitionOrder = taflDefinitionOrder.Value;
-            _context = context ?? throw new ArgumentNullException(nameof(context), "Context is null");
-            _definitionRepo = definitionRepo ?? throw new ArgumentNullException(nameof(definitionRepo), "definitionRepo is null");
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper), "Mapper is null");
-            _pdfService = pdfService ?? throw new ArgumentNullException(nameof(pdfService), "pdfService is null");
-            _taflRawRowValidator = taflRawRowValidator ?? throw new ArgumentNullException(nameof(taflRawRowValidator), "TaflRawRowValidator is null");
+            _context = context;
+            _definitionRepo = definitionRepo;
+            _mapper = mapper;
+            _pdfService = pdfService;
+            _taflRawRowValidator = taflRawRowValidator;
         }
 
         #region public
-
-        /// <inheritdoc/>
-        public ProcessTAFLCsvResponse ExtractTAFLRawRowsFromCSV(Stream stream)
-        {
-            var stopwatch = Stopwatch.StartNew();
-
-            List<TAFLEntryRawRow> records = [];
-            int skippedRecords = 0;
-            int columnMismatchCount = 0;
-
-            int expectedColumnCount = GetPropCount<TAFLEntryRawRow>();
-
-            using (var reader = new StreamReader(stream))
-            using (var csv = CreateCSVReader(reader))
-            {
-                while (csv.Read())
-                {
-                    try
-                    {
-                        int fieldCount = csv.Parser.Count;
-                        if (fieldCount != expectedColumnCount)
-                        {
-                            columnMismatchCount++;
-                            _logger.LogWarning("Skipping row number {RowNumber}: Expected {ExpectedColumnCount} columns, found {ActualColumnCount}",
-                                csv.Context.Parser?.Row, expectedColumnCount, fieldCount);
-                            continue;
-                        }
-
-                        var currentRecord = csv.GetRecord<TAFLEntryRawRow>();
-                        if (currentRecord != null)
-                        {
-                            records.Add(currentRecord);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        skippedRecords++;
-                        _logger.LogError(ex, "Error on row {row}", csv.Context.Parser?.Row);
-                    }
-                }
-            }
-
-            _logger.LogInformation("ExtractTAFLRawRowsFromCSV took {ElapsedTimeInMs} ms", stopwatch.ElapsedMilliseconds);
-
-            return new ProcessTAFLCsvResponse
-            {
-                Success = true,
-                ColumnMismatchCount = columnMismatchCount,
-                BadDataCount = skippedRecords,
-                Data = records
-            };
-        }
 
         /// <inheritdoc/>
         public ProcessTAFLDefinitionResponse ProcessTAFLDefinition(Stream multiPageStream)
@@ -366,36 +309,6 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
         #endregion
 
         #region private
-        /// <summary>
-        /// Creates a CSV Reader Object from the given stream
-        /// </summary>
-        /// <param name="stream">Stream to parse</param>
-        /// <returns>CSVReader for the given stream</returns>
-        private CsvReader CreateCSVReader(StreamReader stream)
-        {
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                HasHeaderRecord = false,
-                BadDataFound = context =>
-                {
-                    _logger.LogWarning("Bad data found while processing CSV Entry={entry}", context.RawRecord);
-                },
-                ReadingExceptionOccurred = context =>
-                {
-                    _logger.LogError(context.Exception, "Error on row {rowNumber}", context.Exception.Data["CsvHelper.RowNumber"]);
-                    return true;
-                }
-            };
-
-
-            var csv = new CsvReader(stream, config);
-            csv.Context.TypeConverterCache.AddConverter<decimal?>(new NullConverter<decimal?>(csv.Context.TypeConverterCache));
-            csv.Context.TypeConverterCache.AddConverter<int?>(new NullConverter<int?>(csv.Context.TypeConverterCache));
-            csv.Context.TypeConverterCache.AddConverter<double?>(new NullConverter<double?>(csv.Context.TypeConverterCache));
-            csv.Context.TypeConverterCache.AddConverter<string?>(new NullConverter<string>(csv.Context.TypeConverterCache));
-
-            return csv;
-        }
 
         /// <summary>
         /// Checks to see if the Table is valid for further processing. Throws if invalid.
@@ -457,21 +370,6 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
             }
 
             return parsedRows;
-        }
-
-        /// <summary>
-        /// Gets the total counts of properties in a given class
-        /// </summary>
-        /// <typeparam name="T">Type to check prop count</typeparam>
-        /// <returns></returns>
-        private static int GetPropCount<T>() where T : class
-        {
-            var type = typeof(T);
-
-            // Get all public instance properties
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            return properties.Length;
         }
 
         /// <summary>

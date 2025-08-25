@@ -26,7 +26,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
         /// </summary>
         /// <param name="licenseIDs">A list of Canadian Licenses to invalidate.</param>
         /// <returns></returns>
-        Task BulkInvalidateRecords(List<string> licenseIDs);
+        Task BulkInvalidateRecords(List<int> licenseIDs);
 
         /// <summary>
         /// Adds multiple license records to the system asynchronously.
@@ -49,7 +49,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
         /// <returns>A task that represents the asynchronous operation. The task result contains a collection of <see
         /// cref="LicenseRecord"/> objects corresponding to the provided license IDs. If no records are found, the
         /// result will be an empty collection.</returns>
-        Task<List<LicenseRecord>> BulkFetchLicenseRecordsNoTrackingAsync(List<string> licenseIDs);
+        Task<List<LicenseRecord>> BulkFetchLicenseRecordsNoTrackingAsync(List<int> licenseIDs);
 
 
         /// <summary>
@@ -61,6 +61,6 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
         /// <param name="recordIds">A list of license record identifiers for which to retrieve version numbers. Cannot be null or empty.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a dictionary where the keys are
         /// license record identifiers and the values are their corresponding version numbers.</returns>
-        Task<Dictionary<string, int>> GetVersionsForLicenseRecords(List<string> recordIds);
+        Task<Dictionary<int, int>> GetVersionsForLicenseRecords(List<int> recordIds);
     }
 }

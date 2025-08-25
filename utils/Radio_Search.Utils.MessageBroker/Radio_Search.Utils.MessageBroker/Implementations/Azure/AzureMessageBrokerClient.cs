@@ -61,11 +61,8 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
 
                 await _adminClient.CreateSubscriptionAsync(options, ruleOptions);
 
-                try
-                {
+                if(await _adminClient.RuleExistsAsync(destinationName, filter.FilterName, "$Default"))
                     await _adminClient.DeleteRuleAsync(destinationName, filter.FilterName, "$Default");
-                }
-                catch { }
             }
 
             return this;

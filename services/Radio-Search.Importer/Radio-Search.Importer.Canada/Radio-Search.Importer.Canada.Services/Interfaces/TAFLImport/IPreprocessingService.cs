@@ -15,8 +15,8 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport
         /// formatted.</remarks>
         /// <param name="fullTAFLStream">A <see cref="Stream"/> containing the full TAFL file data. The stream must be readable and positioned at the
         /// beginning of the file.</param>
-        /// <returns>A list of <see cref="TAFLEntryRawRow"/> objects representing the unique rows in the TAFL file.</returns>
-        public List<TAFLEntryRawRow> DeduplicateFullFile(Stream fullTAFLStream);
+        /// <returns>A list of <see cref="TaflEntryRawRow"/> objects representing the unique rows in the TAFL file.</returns>
+        public List<TaflEntryRawRow> DeduplicateFullFile(Stream fullTAFLStream);
 
         
         /// <summary>
@@ -25,11 +25,11 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport
         /// <remarks>This method processes the provided rows and generates a chunk file in a stream
         /// format. The stream can be used to save the chunk file to disk or transmit it over a network. Ensure that the
         /// input rows meet the required format and constraints for successful processing.</remarks>
-        /// <param name="rows">A list of <see cref="TAFLEntryRawRow"/> objects representing the raw data rows to be included in the chunk
+        /// <param name="rows">A list of <see cref="TaflEntryRawRow"/> objects representing the raw data rows to be included in the chunk
         /// file. Each row must contain valid data for the chunk file generation process.</param>
         /// <returns>A <see cref="Stream"/> containing the generated chunk file data. The caller is responsible for disposing of
         /// the stream.</returns>
-        public Stream GenerateChunkFile(List<TAFLEntryRawRow> rows);
+        public Stream GenerateChunkFile(List<TaflEntryRawRow> rows);
 
         /// <summary>
         /// Retrieves valid raw rows from the provided file stream.

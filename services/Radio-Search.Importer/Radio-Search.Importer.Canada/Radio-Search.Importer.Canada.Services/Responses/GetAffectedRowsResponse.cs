@@ -9,7 +9,7 @@ namespace Radio_Search.Importer.Canada.Services.Responses
         /// <summary>
         /// List of TAFLEntryRows that differ from their corresponding DB Row
         /// </summary>
-        public List<TAFLEntryRawRow> UpdatedRows { get; set; } = new();
+        public List<TaflEntryRawRow> UpdatedRows { get; set; } = new();
 
         /// <summary>
         /// List of DBRows that are no longer in the TAFL File

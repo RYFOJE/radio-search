@@ -13,8 +13,8 @@ using Radio_Search.Importer.Canada.Data;
 namespace Radio_Search.Importer.Canada.Data.Migrations
 {
     [DbContext(typeof(CanadaImporterContext))]
-    [Migration("20250816001341_max_size_change")]
-    partial class max_size_change
+    [Migration("20250820221456_autogenerate")]
+    partial class autogenerate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,9 +35,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LicenseRecordHistoryId"));
 
-                    b.Property<string>("CanadaLicenseRecordID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CanadaLicenseRecordID")
+                        .HasColumnType("int");
 
                     b.Property<int>("ChangeType")
                         .HasColumnType("int");
@@ -73,6 +72,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.HasIndex("EditedByImportJobID");
 
                     b.HasIndex("CanadaLicenseRecordID", "Version");
+
+                    b.HasIndex("EditedByImportJobID", "ChangeType");
 
                     b.ToTable("LicenseRecordsHistory", "Canada_Importer");
                 });
@@ -114,7 +115,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasIndex("Status");
 
-                    b.ToTable("Importobs", "Canada_Importer");
+                    b.ToTable("ImportJobs", "Canada_Importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJobChunkFile", b =>
@@ -421,8 +422,9 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecord", b =>
                 {
-                    b.Property<string>("CanadaLicenseRecordID")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CanadaLicenseRecordID")
+                        .HasMaxLength(30)
+                        .HasColumnType("int");
 
                     b.Property<int>("Version")
                         .HasColumnType("int");
@@ -469,7 +471,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("decimal(24,12)");
 
                     b.Property<string>("CallSign")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<string>("Channel")
                         .HasColumnType("nvarchar(max)");
@@ -636,17 +639,13 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasKey("CanadaLicenseRecordID", "Version");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("CanadaLicenseRecordID", "Version"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("CanadaLicenseRecordID", "Version"));
 
                     b.HasIndex("AnalogDigitalID");
 
                     b.HasIndex("AntennaPatternID");
 
                     b.HasIndex("AuthorizationStatusID");
-
-                    b.HasIndex("CanadaLicenseRecordID");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("CanadaLicenseRecordID"));
 
                     b.HasIndex("CommunicationTypeID");
 
@@ -660,8 +659,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasIndex("ITUClassTypeID");
 
-                    b.HasIndex("IsValid")
-                        .HasFilter("IsValid = 1");
+                    b.HasIndex("IsValid");
 
                     b.HasIndex("LicenseTypeID");
 
@@ -688,6 +686,12 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.HasIndex("StationTypeID");
 
                     b.HasIndex("SubserviceTypeID");
+
+                    b.HasIndex("IsValid", "CallSign");
+
+                    b.HasIndex("IsValid", "CanadaLicenseRecordID");
+
+                    b.HasIndex("IsValid", "FrequencyMHz");
 
                     b.ToTable("LicenseRecords", "Canada_Importer");
                 });

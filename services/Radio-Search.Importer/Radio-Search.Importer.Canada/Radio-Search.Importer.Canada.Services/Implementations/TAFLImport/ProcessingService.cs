@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Radio_Search.Importer.Canada.Data;
 using Radio_Search.Importer.Canada.Data.Enums;
@@ -36,7 +35,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
         }
 
         /// <inheritdoc/>
-        public async Task<GetInsertsAndUpdatesResponse> GetInsertsAndUpdates(List<TAFLEntryRawRow> rows)
+        public async Task<GetInsertsAndUpdatesResponse> GetInsertsAndUpdates(List<TaflEntryRawRow> rows)
         {
             var timer = Stopwatch.StartNew();
             try
@@ -46,7 +45,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
                 _logger.LogInformation("Starting for fetch all DB License Records for the License Records.");
                 var matchedDbRecords = (await _taflRepo.BulkFetchLicenseRecordsNoTrackingAsync(rows.Select(x => x.LicenseRecordID).ToList())).ToDictionary(t => t.CanadaLicenseRecordID, t => t);
 
-                _logger.LogInformation("Finished fetching all DB License Records for the License Records within {elapsedMs} ms.", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished fetching all DB License Records for the License Records within {ElapsedMs} ms.", timer.ElapsedMilliseconds);
 
                 response.InsertRows = rows.Where(x => !matchedDbRecords.ContainsKey(x.LicenseRecordID)).ToList();
 
@@ -72,7 +71,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             }
         }
 
-        public async Task InsertNewFromRawRecords(List<TAFLEntryRawRow> rows, int importID)
+        public async Task InsertNewFromRawRecords(List<TaflEntryRawRow> rows, int importID)
         {
             var dbNewLicenses = _mapper.Map<List<LicenseRecord>>(rows);
 
@@ -91,26 +90,26 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
 
                 await _taflRepo.BulkAddLicenseRecordsAsync(dbNewLicenses);
 
-                _logger.LogInformation("Finished inserting licenses into DB after {timeElapsedMS} ms", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished inserting licenses into DB after {ElapsedMs} ms", timer.ElapsedMilliseconds);
 
                 timer.Restart();
                 _logger.LogInformation("Inserting {LicenseHistoryCount} License History Records", licenseHistoryRecord.Count());
 
                 await _importJobRepo.BulkInsertLicenseRecordHistory(licenseHistoryRecord);
-                _logger.LogInformation("Finished inserting License Record Histories into DB after {timeElapsedMS} ms", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished inserting License Record Histories into DB after {ElapsedMs} ms", timer.ElapsedMilliseconds);
 
                 await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 _logger.LogError(ex, "Failed while trying to InsertNewFromRawRecords");
                 throw;
             }
         }
 
 
-        public async Task InsertUpdatedFromRawRecords(List<(int version, TAFLEntryRawRow row)> rows, int importID)
+        public async Task InsertUpdatedFromRawRecords(List<(int version, TaflEntryRawRow row)> rows, int importID)
         {
             var dbUpdatedLicenses = CreateUpdatedLicenseRecords(rows);
             var timer = Stopwatch.StartNew();
@@ -120,7 +119,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             {
                 _logger.LogInformation("Invalidating {UpdatedLicenseCount} outdated Licenses into the DB.", dbUpdatedLicenses.Count());
                 await _taflRepo.BulkInvalidateRecords(dbUpdatedLicenses.Select(x => x.CanadaLicenseRecordID).ToList());
-                _logger.LogInformation("Finished invalidating records in {elapsedMs} ms.", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished invalidating records in {ElapsedMs} ms.", timer.ElapsedMilliseconds);
                 timer.Restart();
 
                 List<LicenseRecordHistory> licenseHistoryRecord = [];
@@ -132,43 +131,43 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
 
                 await _taflRepo.BulkAddLicenseRecordsAsync(dbUpdatedLicenses);
 
-                _logger.LogInformation("Finished inserting licenses into DB after {timeElapsedMS} ms", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished inserting licenses into DB after {ElapsedMs} ms", timer.ElapsedMilliseconds);
 
                 timer.Restart();
                 _logger.LogInformation("Inserting {LicenseHistoryCount} License History Records", licenseHistoryRecord.Count());
 
                 await _importJobRepo.BulkInsertLicenseRecordHistory(licenseHistoryRecord);
-                _logger.LogInformation("Finished inserting License Record Histories into DB after {timeElapsedMS} ms", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished inserting License Record Histories into DB after {ElapsedMs} ms", timer.ElapsedMilliseconds);
 
                 await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 _logger.LogError(ex, "Failed while trying to InsertNewFromRawRecords");
                 throw;
             }
         }
 
-        public async Task<List<string>> GetDeletedRecords(int importID)
+        public async Task<List<int>> GetDeletedRecords(int importID)
         {
             var timer = Stopwatch.StartNew();
 
             _logger.LogInformation("Starting to fetch Records from Import");
             var recordIdsFromImport = await _importJobRepo.GetAllLicenseIDsFromImport(importID);
 
-            _logger.LogInformation("Fetched {importRecordsCount} records in {elapsedMs} ms.", recordIdsFromImport.Count(), timer.ElapsedMilliseconds);
+            _logger.LogInformation("Fetched {ImportRecordsCount} records in {ElapsedMs} ms.", recordIdsFromImport.Count(), timer.ElapsedMilliseconds);
             timer.Restart();
 
             _logger.LogInformation("Starting to fetch Excluded Records from Import");
             var recordIdsNotFromImport = await _importJobRepo.GetActiveLicensesNotFromImport(importID);
 
-            _logger.LogInformation("Fetched {importRecordsCount} excluded records in {elapsedMs} ms.", recordIdsNotFromImport.Count(), timer.ElapsedMilliseconds);
+            _logger.LogInformation("Fetched {ImportRecordsCount} excluded records in {ElapsedMs} ms.", recordIdsNotFromImport.Count(), timer.ElapsedMilliseconds);
 
             return recordIdsNotFromImport.Where(x => !recordIdsFromImport.Contains(x)).ToList();
         }
 
-        public async Task InvalidateRecordsFromDB(List<string> recordIDs, int importId)
+        public async Task InvalidateRecordsFromDB(List<int> recordIDs, int importId)
         {
             var timer = Stopwatch.StartNew();
             var versionInformation = await _taflRepo.GetVersionsForLicenseRecords(recordIDs);
@@ -178,26 +177,26 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             {
                 var licenseHistoryRecord = versionInformation.Select(x => CreateLicenseRecordHistory(x.Key, x.Value, importId, ChangeType.Removed)).ToList();
 
-                _logger.LogInformation("Starting to Bulk Invalidate {bulkInvalidateCount} records.", versionInformation.Count());
+                _logger.LogInformation("Starting to Bulk Invalidate {BulkInvalidateCount} records.", versionInformation.Count);
                 await _taflRepo.BulkInvalidateRecords(versionInformation.Keys.ToList());
-                _logger.LogInformation("Finished bulk invalidating in {elapsedMS} ms.", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished bulk invalidating in {ElapsedMS} ms.", timer.ElapsedMilliseconds);
 
 
                 timer.Restart();
                 _logger.LogInformation("Starting to Bulk insert Record History.");
                 await _importJobRepo.BulkInsertLicenseRecordHistory(licenseHistoryRecord);
-                _logger.LogInformation("Finished bulk insert Record History in {elapsedMS} ms.", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished bulk insert Record History in {ElapsedMS} ms.", timer.ElapsedMilliseconds);
 
                 await transaction.CommitAsync();
             }
             catch
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 throw;
             }
         }
 
-        private List<LicenseRecord> CreateUpdatedLicenseRecords(List<(int version, TAFLEntryRawRow row)> rows)
+        private List<LicenseRecord> CreateUpdatedLicenseRecords(List<(int version, TaflEntryRawRow row)> rows)
         {
             List<LicenseRecord> dbRecords = _mapper.Map<List<LicenseRecord>>(rows.Select(x => x.row));
             var lookupVersion = rows.ToDictionary(x => x.row.LicenseRecordID, x => x.version);
@@ -210,7 +209,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             return dbRecords;
         }
 
-        private static LicenseRecordHistory CreateLicenseRecordHistory(string recordId, int recordVersion, int ImportHistoryID, ChangeType changeType)
+        private static LicenseRecordHistory CreateLicenseRecordHistory(int recordId, int recordVersion, int ImportHistoryID, ChangeType changeType)
         {
             return new()
             {

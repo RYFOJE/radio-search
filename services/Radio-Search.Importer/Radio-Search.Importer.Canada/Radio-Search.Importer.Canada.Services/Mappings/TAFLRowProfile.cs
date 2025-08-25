@@ -9,7 +9,7 @@ namespace Radio_Search.Importer.Canada.Services.Mappings
     {
         public TAFLRowProfile()
         {
-            CreateMap<TAFLEntryRawRow, LicenseRecord>()
+            CreateMap<TaflEntryRawRow, LicenseRecord>()
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(src =>
                     src.Longitude.HasValue && src.Latitude.HasValue
                         ? new Point((double)src.Longitude.Value, (double)src.Latitude.Value) { SRID = 4326 }

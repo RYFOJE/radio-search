@@ -117,7 +117,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void TAFLListToDictionary_EmptyList()
         {
             // Arrange
-            List<TAFLEntryRawRow> rawRows = new();
+            List<TaflEntryRawRow> rawRows = new();
 
             // Act
             var response = _service.TAFLListToDictionary(rawRows);
@@ -130,7 +130,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void TAFLListToDictionary_Single()
         {
             // Arrange
-            List<TAFLEntryRawRow> rawRows = [
+            List<TaflEntryRawRow> rawRows = [
                 new() {LicenseRecordID = "record1"}];
 
             // Act
@@ -144,7 +144,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void TAFLListToDictionary_MultipleUnique()
         {
             // Arrange
-            List<TAFLEntryRawRow> rawRows = [
+            List<TaflEntryRawRow> rawRows = [
                 new() {LicenseRecordID = "record1"},
                 new() {LicenseRecordID = "record2"}];
 
@@ -159,7 +159,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void TAFLListToDictionary_MultipleDuplicates()
         {
             // Arrange
-            List<TAFLEntryRawRow> rawRows = [
+            List<TaflEntryRawRow> rawRows = [
                 new() {LicenseRecordID = "record1", AnalogDigitalID = "203"},
                 new() {LicenseRecordID = "record1", AnalogDigitalID = "12"}];
 
@@ -175,7 +175,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetUpdatedRowsFromRange_NoUpdates()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.1m) },
                 { "123", GetTAFLRawRow("123", 12.1m) },
                 { "a1b2", GetTAFLRawRow("a1b2", 12.1m) },
@@ -198,7 +198,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetUpdatedRowsFromRange_SingleUpdate()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.1m) },
                 { "123", GetTAFLRawRow("123", 12.1m) }, // Updated Row
                 { "a1b2", GetTAFLRawRow("a1b2", 12.1m) },
@@ -222,7 +222,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetUpdatedRowsFromRange_MultipleUpdate()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.1m) }, // Updated Row
                 { "123", GetTAFLRawRow("123", 12.1m) }, // Updated Row
                 { "a1b2", GetTAFLRawRow("a1b2", 12.1m) },
@@ -251,7 +251,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetDeletedRowsFromRange_NoDeletes()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.1m) },
                 { "123", GetTAFLRawRow("123", 12.1m) },
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
@@ -274,7 +274,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetDeletedRowsFromRange_OneDelete()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "123", GetTAFLRawRow("123", 12.1m) },
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
             };
@@ -297,7 +297,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetDeletedRowsFromRange_MultipleDelete()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
             };
 
@@ -322,7 +322,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetUnaffectedRowsFromRange_NoResults()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.2m) },
                 { "123", GetTAFLRawRow("123", 12.9m) },
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
@@ -344,7 +344,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetUnaffectedRowsFromRange_SingleResult()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.1m) },
                 { "123", GetTAFLRawRow("123", 12.9m) },
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
@@ -368,7 +368,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetUnaffectedRowsFromRange_MultipleResult()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.1m) },
                 { "123", GetTAFLRawRow("123", 12.4m) },
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
@@ -396,7 +396,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetCreatedRows_NoResults()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.2m) },
                 { "123", GetTAFLRawRow("123", 12.9m) },
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
@@ -420,7 +420,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetCreatedRows_SingleResult()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.2m) },
                 { "123", GetTAFLRawRow("123", 12.9m) },
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
@@ -444,7 +444,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void GetCreatedRows_MultipleResult()
         {
             // Arrange
-            Dictionary<string, TAFLEntryRawRow> inputRows = new(){
+            Dictionary<string, TaflEntryRawRow> inputRows = new(){
                 { "ABC", GetTAFLRawRow("ABC", 12.2m) },
                 { "123", GetTAFLRawRow("123", 12.9m) },
                 { "asda", GetTAFLRawRow("asda", 12.1m) }
@@ -520,7 +520,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void DeduplicateRows_NoDuplicates()
         {
             // Arrange
-            List<TAFLEntryRawRow> rows = [
+            List<TaflEntryRawRow> rows = [
                 new()
                     { 
                       LicenseRecordID = "00001234",
@@ -546,7 +546,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void DeduplicateRows_Duplicates()
         {
             // Arrange
-            List<TAFLEntryRawRow> rows = [
+            List<TaflEntryRawRow> rows = [
                 new()
                     {
                       LicenseRecordID = "000012233",
@@ -571,7 +571,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
         public void DeduplicateRows_BadData()
         {
             // Arrange
-            List<TAFLEntryRawRow> rows = [
+            List<TaflEntryRawRow> rows = [
                 new()
                     {
                       LicenseRecordID = "000012233",
@@ -605,7 +605,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
 
         #region HELPERS
 
-        private TAFLEntryRawRow GetTAFLRawRow(string LicenseID, decimal Frequency)
+        private TaflEntryRawRow GetTAFLRawRow(string LicenseID, decimal Frequency)
         {
             return new()
             { 

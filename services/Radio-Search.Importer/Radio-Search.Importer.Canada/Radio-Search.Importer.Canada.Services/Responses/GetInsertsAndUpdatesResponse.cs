@@ -5,8 +5,8 @@ namespace Radio_Search.Importer.Canada.Services.Responses
     public class GetInsertsAndUpdatesResponse
     {
 
-        public List<TAFLEntryRawRow> InsertRows { get; set; } = [];
-        public List<(int NewVersionNumber, TAFLEntryRawRow Row)> UpdateRows { get; set; } = [];
+        public List<TaflEntryRawRow> InsertRows { get; set; } = [];
+        public List<(int NewVersionNumber, TaflEntryRawRow Row)> UpdateRows { get; set; } = [];
 
     }
 }

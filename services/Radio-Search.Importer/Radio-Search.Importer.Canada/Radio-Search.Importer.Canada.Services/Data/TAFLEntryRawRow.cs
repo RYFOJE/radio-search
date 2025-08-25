@@ -4,11 +4,11 @@ using System;
 
 namespace Radio_Search.Importer.Canada.Services.Data
 {
-    public class TAFLEntryRawRow
+    public sealed class TaflEntryRawRow
     {
         [Index(0)] public string? StationFunctionID { get; set; }
         [Index(1)] public decimal? FrequencyMHz { get; set; }
-        [Index(2)] public string LicenseRecordID { get; set; } = String.Empty;
+        [Index(2)] public int LicenseRecordID { get; set; }
         [Index(3)] public short? RegulatoryServiceID { get; set; }
         [Index(4)] public string? CommunicationTypeID { get; set; }
         [Index(5)] public string? ConformityFrequencyPlanID { get; set; }
@@ -139,13 +139,13 @@ namespace Radio_Search.Importer.Canada.Services.Data
             return areEqual;
         }
 
-        public static bool operator ==(TAFLEntryRawRow left, LicenseRecord right)
+        public static bool operator ==(TaflEntryRawRow left, LicenseRecord right)
         {
             if (left is null) return right is null;
             return left.Equals(right);
         }
 
-        public static bool operator !=(TAFLEntryRawRow left, LicenseRecord right)
+        public static bool operator !=(TaflEntryRawRow left, LicenseRecord right)
         {
             return !(left == right);
         }

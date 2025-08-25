@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Radio_Search.Importer.Canada.Data.Enums;
+using Radio_Search.Importer.Canada.Data.Models;
 using Radio_Search.Importer.Canada.Data.Models.ImportInfo;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Data_Contracts.V1;
@@ -66,14 +67,14 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             {
                 _logger.LogInformation("Starting import job creation.");
                 var job = await _importJobRepo.UpsertImportJobRecord(new());
-                _logger.LogInformation("Import job record created in {elapsedMs} ms. JobID: {jobId}", timer.ElapsedMilliseconds, job.ImportJobID);
+                _logger.LogInformation("Import job record created in {ElapsedMs} ms. JobID: {JobId}", timer.ElapsedMilliseconds, job.ImportJobID);
 
                 timer.Restart();
 
                 var definitionFileName = string.Format(_fileLocations.UnprocessedTAFLDefinition, job.ImportJobID);
                 var taflFileName = string.Format(_fileLocations.UnprocessedTAFLRows, job.ImportJobID);
 
-                _logger.LogInformation("Starting download of TAFL Definition and TAFL Rows files: {definitionFile}, {taflFile}", definitionFileName, taflFileName);
+                _logger.LogInformation("Starting download of TAFL Definition and TAFL Rows files: {DefinitionFile}, {TaflFile}", definitionFileName, taflFileName);
 
                 var definition = _downloadFileService.DownloadAndSaveRecentTAFLDefinition(definitionFileName);
                 var tafl = _downloadFileService.DownloadAndSaveRecentTAFL(taflFileName);
@@ -81,13 +82,13 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 // Wait for both downloads to finish
                 await Task.WhenAll(definition, tafl);
 
-                _logger.LogInformation("Finished downloading TAFL files in {elapsedMs} ms.", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished downloading TAFL files in {ElapsedMs} ms.", timer.ElapsedMilliseconds);
 
                 timer.Restart();
 
                 await WriteMessageToSB(new DownloadCompleteMessage { ImportJobID = job.ImportJobID }, _sbDefinitions.TopicName, _sbDefinitions.DownloadComplete_SubscriptionName);
 
-                _logger.LogInformation("Download complete message sent in {elapsedMs} ms.", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Download complete message sent in {ElapsedMs} ms.", timer.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
@@ -103,7 +104,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             var timer = Stopwatch.StartNew();
             try
             {
-                if(IsJobOnOrPastStep(job, ImportStep.Chunking))
+                if(!IsProcessable(job, TimeSpan.FromMinutes(5))) // TODO: Make this configurable
                 {
                     _logger.LogInformation("HandleDownloadComplete has already been processed or is currently being processed. Job: {@Job}", job);
                     return;
@@ -122,12 +123,12 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 var definitionFileStream = await _blobService.DownloadAsync(string.Format(_fileLocations.UnprocessedTAFLDefinition, importJobID));
                 var definitionRows = _definitionImportService.ProcessTAFLDefinition(definitionFileStream);
                 await _definitionImportService.SaveTAFLDefinitionToDBAsync(definitionRows.Tables);
-                _logger.LogInformation("Finished processing the TAFL Definition File within {elapsedMs} ms.", timer.ElapsedMilliseconds);
+                _logger.LogInformation("Finished processing the TAFL Definition File within {ElapsedMs} ms.", timer.ElapsedMilliseconds);
 
                 timer.Restart();
 
                 // TAFL CSV STEP
-                List<TAFLEntryRawRow> rows;
+                List<TaflEntryRawRow> rows;
 
                 using(Stream rawFullStream = await _blobService.DownloadAsync(string.Format(_fileLocations.UnprocessedTAFLRows, importJobID)))
                 {
@@ -135,7 +136,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 }
 
 #warning ADD APP CONFIG VALUE
-                int chunkSize = _config.GetValue<int>("ChunkSize", 10_000); // TODO: Add the actual size in appconfig and remove default
+                int chunkSize = _config.GetValue("ChunkSize", 2_000); // TODO: Add the actual size in appconfig and remove default
 
                 var chunkedRows = rows
                     .Chunk(chunkSize)
@@ -165,11 +166,11 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                                 FileLocation = fileLocation
                             }, _sbDefinitions.TopicName, _sbDefinitions.ChunkReady_SubscriptionName);
 
-                        _logger.LogInformation("Finished creating chunk file at location: {location} within {timeInMS} ms.", fileLocation, chunkTimer.ElapsedMilliseconds);
+                        _logger.LogInformation("Finished creating chunk file at location: {Location} within {ElapsedMs} ms.", fileLocation, chunkTimer.ElapsedMilliseconds);
                     }
                     else
                     {
-                        _logger.LogWarning("Chunk file already existed. This is probably due to an Handle Downloaded that failed mid download. File: {file}", fileLocation);
+                        _logger.LogWarning("Chunk file already existed. This is probably due to an Handle Downloaded that failed mid download. File: {File}", fileLocation);
                     }
 
 
@@ -204,7 +205,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Failed to set the import as failed for ImportJobID: {importJobId}", importJobID);
+                _logger.LogError(ex, "Failed to set the import as failed for ImportJobID: {ImportJobId}", importJobID);
                 throw;
             }
         }
@@ -217,9 +218,9 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
             try
             {
-                if(chunkRecord.StartTime != null)
+                if(!IsProcessable(chunkRecord, TimeSpan.FromMinutes(5)))
                 {
-                    _logger.LogWarning("Concurrency issue, the file is currently being processed by another instance.");
+                    _logger.LogWarning("Concurrency issue, the file is currently being processed or has been completed by another instance.");
                     return;
                 }
                 else if(importJobRecord.Status == ImportStatus.Failure)
@@ -238,16 +239,18 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 using (Stream chunkStream = await _blobService.DownloadAsync(string.Format(_fileLocations.ChunkFile, importJobID, chunkID)))
                     preprocessResponse = await _preprocessingService.GetValidRawRows(chunkStream);
 
-                _logger.LogInformation("Finished getting valid rows. {invalidRecords} invalid records.", preprocessResponse.InvalidRowCount);
-
-#warning ADD STATS TRACKING HERE
-#warning ADD SAVING CHUNK FINISHED PROCESSING STATUS
+                _logger.LogInformation("Finished getting valid rows. {InvalidRecords} invalid records.", preprocessResponse.InvalidRowCount);
 
                 var insertAndUpdated = await _processingService.GetInsertsAndUpdates(preprocessResponse.ValidRows);
 
                 await _processingService.InsertNewFromRawRecords(insertAndUpdated.InsertRows, importJobID);
                 await _processingService.InsertUpdatedFromRawRecords(insertAndUpdated.UpdateRows, importJobID);
-                
+
+                _logger.LogInformation("Increasing stats field, New Count: {RowsAddedCount} Updated Count: {RowsUpdatedCount}.",
+                    insertAndUpdated.InsertRows.Count, insertAndUpdated.UpdateRows.Count);
+
+                await _importJobRepo.IncrementStatsField(importJobID, e => e.NewRecordCount, insertAndUpdated.InsertRows.Count);
+                await _importJobRepo.IncrementStatsField(importJobID, e => e.UpdatedRecordCount, insertAndUpdated.UpdateRows.Count);
 
                 chunkRecord.Status = FileStatus.Processed;
                 chunkRecord.EndTime = DateTime.UtcNow;
@@ -295,11 +298,6 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             }
         }
 
-        private static bool IsJobOnOrPastStep(ImportJob job, ImportStep beforeStep)
-        {
-            return job.CurrentStep > beforeStep;
-        }
-
         public async Task HandleChunkDone(int chunkID, int importJobID)
         {
             var chunkRecord = await _importJobRepo.GetImportJobChunkFile(importJobID, chunkID);
@@ -319,6 +317,16 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
         }
 
+        private static bool IsProcessable(TimeTrackedEntry record, TimeSpan expiryTime)
+        {
+            if (record.StartTime == null)
+                return true;
+
+            else if (record.EndTime != null)
+                return false;
+
+            return record.StartTime + expiryTime < DateTime.UtcNow;
+        }
 
     }
 }

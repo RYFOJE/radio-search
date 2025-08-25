@@ -37,7 +37,7 @@ public class DownloadCompleteFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process Download complete message. Attempt: {attemptNumber}", message.DeliveryCount);
+            _logger.LogError(ex, "Failed to process Download complete message. Attempt: {AttemptNumber}", message.DeliveryCount);
             await messageActions.AbandonMessageAsync(message);
         }
             // Complete the message
