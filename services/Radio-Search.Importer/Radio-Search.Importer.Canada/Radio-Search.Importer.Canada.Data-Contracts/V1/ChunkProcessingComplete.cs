@@ -2,5 +2,8 @@
 {
     public class ChunkProcessingComplete
     {
+
+        public int JobId { get; set; }
+
     }
 }

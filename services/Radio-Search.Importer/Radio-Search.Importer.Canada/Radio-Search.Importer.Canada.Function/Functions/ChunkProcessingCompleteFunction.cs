@@ -31,13 +31,13 @@ public class ChunkProcessingCompleteFunction
         try
         {
             JSONFormatter formatter = new JSONFormatter();
-            var deserializedMessage = formatter.Deserialize<ProcessChunkMessage>(message.Body.ToArray());
+            var deserializedMessage = formatter.Deserialize<ChunkProcessingComplete>(message.Body.ToArray());
 
-            //await _importManager.(deserializedMessage.ImportJobID, deserializedMessage.FileID);
+            await _importManager.HandleChunkProcessingCompleteAsync(deserializedMessage.JobId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process Chunk Ready message. Attempt: {attemptNumber}", message.DeliveryCount);
+            _logger.LogError(ex, "Failed to process Chunk Ready message. Attempt: {AttemptNumber}", message.DeliveryCount);
             await messageActions.AbandonMessageAsync(message);
         }
 
