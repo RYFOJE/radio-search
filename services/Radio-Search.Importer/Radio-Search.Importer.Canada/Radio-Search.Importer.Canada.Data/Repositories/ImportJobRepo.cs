@@ -25,8 +25,10 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         public async Task BulkInsertLicenseRecordHistoryAsync(List<LicenseRecordHistory> licenseRecordHistories)
         {
             await _context.BulkInsertOrUpdateAsync(licenseRecordHistories, opt => {
-                opt.BulkCopyTimeout = 250; // Extract this to a config
-                opt.BatchSize = 200;
+                opt.BulkCopyTimeout = 400;
+                opt.BatchSize = 5000;
+                opt.EnableStreaming = true;
+                opt.TrackingEntities = false;
             });
         }
 

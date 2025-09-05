@@ -26,9 +26,11 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         /// <inheritdoc/>
         public async Task BulkAddLicenseRecordsAsync(List<LicenseRecord> records)
         {
-            await _context.BulkInsertAsync(records, opt =>{
-                opt.BulkCopyTimeout = 400; // Extract this to a config
-                opt.BatchSize = 200;
+            await _context.BulkInsertOrUpdateAsync(records, opt => {
+                opt.BulkCopyTimeout = 400;
+                opt.BatchSize = 5000;
+                opt.EnableStreaming = true;
+                opt.TrackingEntities = false;
             });
         }
 
@@ -88,9 +90,20 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             {
                 var batchKeys = licenseIDs.Skip(i).Take(fetchLimit).ToList();
 
+                var idsString = string.Join(",", batchKeys);
+
+                var sql = $@"
+                    SELECT lr.* 
+                    FROM Canada_Importer.LicenseRecords lr
+                    INNER JOIN (
+                        SELECT CAST(value AS INT) as Id 
+                        FROM STRING_SPLIT(@ids, ',')
+                    ) ids ON lr.CanadaLicenseRecordID = ids.Id
+                    WHERE lr.IsValid = 1";
+
                 var batchRecords = await _context.LicenseRecords
+                    .FromSqlRaw(sql, new Microsoft.Data.SqlClient.SqlParameter("@ids", idsString))
                     .AsNoTracking()
-                    .Where(e => batchKeys.Contains(e.CanadaLicenseRecordID) && e.IsValid)
                     .ToListAsync();
 
                 allRecords.AddRange(batchRecords);
