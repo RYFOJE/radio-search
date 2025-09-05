@@ -77,6 +77,7 @@ namespace Radio_Search.Importer.Canada.Data
                     .HasForeignKey(u => u.EditedByImportJobID)
                     .IsRequired(false)
                     .OnDelete(DeleteBehavior.SetNull);
+
             });
 
             modelBuilder.Entity<ImportJob>(entity =>
@@ -130,6 +131,7 @@ namespace Radio_Search.Importer.Canada.Data
                 // Indexes
                 entity.HasIndex(u => u.FrequencyMHz);
                 entity.HasIndex(e => e.IsValid);
+                entity.HasIndex(e => e.CanadaLicenseRecordID);
                 entity.HasIndex(e => new { e.IsValid, e.CanadaLicenseRecordID });
                 entity.HasIndex(e => new { e.IsValid, e.CallSign });
                 entity.HasIndex(e => new { e.IsValid, e.FrequencyMHz });
@@ -158,7 +160,6 @@ namespace Radio_Search.Importer.Canada.Data
                 entity.Property(e => e.HorizontalPowerW).HasPrecision(24, 12);
                 entity.Property(e => e.VerticalPowerW).HasPrecision(24, 12);
                 entity.Property(e => e.CallSign).HasMaxLength(40);
-
 
                 // Relations
                 entity.HasOne(u => u.AntennaPattern)
