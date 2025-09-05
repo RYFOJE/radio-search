@@ -1,30 +1,6 @@
-# BACKEND
-variable "backend_storage_account_name" {
-  type    = string
-  default = "rdsterraform" 
-}
-
-variable "backend_resource_group_name" {
-  type    = string
-  default = "terraform"
-}
-
-variable "backend_container_name" {
-  type    = string
-  default = "tfstate"
-}
-
-variable "backend_key" {
-  type    = string
-  default = "terraform.tfstate"
-}
-
-
-# Actual values
-
 variable "subscription_id" {
   type    = string
-  default = "rdsimporter"
+  default = "e864341d-9146-443d-a6bb-5b47e11c828a"
 }
 
 variable "resource_group_name" {
@@ -39,13 +15,30 @@ variable "location" {
 
 # COMPUTE
 
-variable "compute_app_service_plan_name" {
-  type    = string
-  default = "compute-service-plan"
+variable "consumption_plans" {
+  type = map(object({
+    name         = string
+    sku          = string
+    all_functions = optional(list(object({
+      name           = string
+      runtime_name   = string
+      runtime_version= string
+    })), [])
+  }))
+  default = {}
 }
 
-variable "compute_app_service_plan_sku_name" {
-  type    = string
-  default = "B1"
+variable "app_service_plans" {
+  type = map(object({
+    name      = string
+    sku       = string
+    functions = optional(list(object({
+      name           = string
+      dotnet_version = string
+    })), [])
+    app_service = optional(list(object({
+      name = string
+    })), [])
+  }))
+  default = {}
 }
-
