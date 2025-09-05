@@ -33,7 +33,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task BulkInvalidateRecords(List<int> licenseIDs)
+        public async Task BulkInvalidateRecordsAsync(List<int> licenseIDs)
         {
             int batchSize;
             var configValue = _config[BULK_UPDATE_BATCH_SIZE_CONFIG_KEY];
@@ -99,7 +99,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return allRecords;
         }
 
-        public async Task<Dictionary<int, int>> GetVersionsForLicenseRecords(List<int> recordIds)
+        public async Task<Dictionary<int, int>> GetValidLicensesVersionIdsAsync(List<int> recordIds)
         {
             return await _context.LicenseRecords
                 .Where(x => x.IsValid && recordIds.Contains(x.CanadaLicenseRecordID))

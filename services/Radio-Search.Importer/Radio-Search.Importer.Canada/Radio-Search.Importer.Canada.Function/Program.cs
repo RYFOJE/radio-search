@@ -23,8 +23,6 @@ using Radio_Search.Importer.Canada.Services.Mappings;
 using Radio_Search.Importer.Canada.Services.Validators;
 using Radio_Search.Utils.BlobStorage;
 using Radio_Search.Utils.MessageBroker.ConfigurationSetupExtensions;
-using Radio_Search.Utils.MessageBroker.Implementations.Azure;
-using Radio_Search.Utils.MessageBroker.Interfaces;
 using System.Net;
 
 var builder = FunctionsApplication.CreateBuilder(args);
@@ -210,4 +208,4 @@ builder.Services.AddAutoMapper(cfg =>cfg.AddProfile<TAFLRowProfile>());
 
 builder.Services.AddHostedService<RunAtStart>();
 
-builder.Build().Run();
+await builder.Build().RunAsync();

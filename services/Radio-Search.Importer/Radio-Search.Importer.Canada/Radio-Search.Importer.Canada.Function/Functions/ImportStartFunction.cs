@@ -26,7 +26,7 @@ public class ImportStartFunction
     {
         try
         {
-            await _importManager.StartImportJob();
+            await _importManager.StartImportJobAsync();
         }
         catch (Exception ex)
         {

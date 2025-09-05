@@ -8,7 +8,7 @@
         /// TAFL CSV and TAFL Definition.
         /// </summary>
         /// <returns>An asynchronous task</returns>
-        Task StartImportJob();
+        Task StartImportJobAsync();
 
         /// <summary>
         /// Handles the completion of TAFL Definition and TAFL CSV Download. This function runs in a series of steps.
@@ -19,7 +19,7 @@
         /// </summary>
         /// <param name="importJobID">The import job associated to the download complete</param>
         /// <returns>An asynchronous task</returns>
-        Task HandleDownloadComplete(int importJobID);
+        Task HandleDownloadCompleteAsync(int importJobID);
 
         /// <summary>
         /// Processes a CSV Chunk record. It calculates the the difference between the DB and the records in the DB
@@ -27,21 +27,29 @@
         /// </summary>
         /// <param name="importJobID">The import job associated to the chunk.</param>
         /// <param name="chunkID">The chunks unique ID for the Job ID</param>
+        /// <param name="renewLockFunc">Function to renew the lock on a Service Bus Message so it does not expire.</param>
         /// <returns>A task</returns>
-        Task ProcessChunk(int importJobID, int chunkID);
+        Task ProcessChunkAsync(int importJobID, int chunkID, Func<Task> renewLockFunc);
 
         /// <summary>
         /// Marks an import job as failed and puts a message into queue to revert the failed import
         /// </summary>
         /// <param name="importJobID">The import job id to mark as failed</param>
         /// <returns>A task</returns>
-        Task MarkImportAsFailed(int importJobID);
+        Task MarkImportAsFailedAsync(int importJobID);
 
         /// <summary>
         /// Reverts records associated to the Import Job ID
         /// </summary>
         /// <param name="importJobID">Import Job ID</param>
         /// <returns>A task</returns>
-        Task RevertFailedImport(int importJobID);
+        Task RevertFailedImportAsync(int importJobID);
+
+        /// <summary>
+        /// Handles chunk processing going from in progress to complete, this fans in the processing
+        /// </summary>
+        /// <param name="importJobID">The job associated to the action</param>
+        /// <returns>An awaitable task</returns>
+        Task HandleChunkProcessingCompleteAsync(int importJobID);
     }
 }

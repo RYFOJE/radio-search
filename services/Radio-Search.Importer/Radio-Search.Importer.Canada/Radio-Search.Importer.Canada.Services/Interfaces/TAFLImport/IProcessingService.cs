@@ -43,6 +43,12 @@ namespace Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task InsertUpdatedFromRawRecords(List<(int version, TaflEntryRawRow row)> rows, int importID);
 
+        /// <summary>
+        /// Invalidates records from a list
+        /// </summary>
+        /// <param name="recordIDs">Records to invalidate</param>
+        /// <param name="importId">Import Job id associated to the invalidation</param>
+        /// <returns></returns>
         Task InvalidateRecordsFromDB(List<int> recordIDs, int importId);
 
 

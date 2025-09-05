@@ -506,7 +506,7 @@ namespace Radio_Search.Importer.Canada.UnitTests.Services
                 x => x.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed while trying to MarkImportAsFailed")),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed while trying to MarkImportAsFailedAsync")),
                     It.IsAny<Exception>(),
                     It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)),
                 Times.AtLeastOnce);

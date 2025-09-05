@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio_Search.Utils.MessageB
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TempLibraries", "TempLibraries", "{FC32900A-ED06-4E20-8810-E4493876CF7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BACKUP", "BACKUP\BACKUP.csproj", "{93AB8F2B-F176-4CCB-91F4-5D51A806BF9B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,10 +55,6 @@ Global
 		{E7BE610F-4483-DAEA-C4D9-8291A334710C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7BE610F-4483-DAEA-C4D9-8291A334710C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7BE610F-4483-DAEA-C4D9-8291A334710C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{93AB8F2B-F176-4CCB-91F4-5D51A806BF9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93AB8F2B-F176-4CCB-91F4-5D51A806BF9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93AB8F2B-F176-4CCB-91F4-5D51A806BF9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93AB8F2B-F176-4CCB-91F4-5D51A806BF9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

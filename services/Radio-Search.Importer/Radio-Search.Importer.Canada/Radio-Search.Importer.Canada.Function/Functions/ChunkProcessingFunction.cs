@@ -38,7 +38,9 @@ public class ChunkProcessingFunction
             _logger.LogInformation("Starting to process ChunkID: {ChunkID} for ImportJobID: {ImportID}. Lock expires: {LockExpiry}, Delivery count: {DeliveryCount}",
                 deserializedMessage.FileID, deserializedMessage.ImportJobID, message.LockedUntil, message.DeliveryCount);
 
-            await _importManager.ProcessChunk(deserializedMessage.ImportJobID, deserializedMessage.FileID);
+            await _importManager.ProcessChunkAsync(deserializedMessage.ImportJobID, deserializedMessage.FileID, 
+                async () => await messageActions.RenewMessageLockAsync(message)
+            );
 
             _logger.LogInformation("Finished processing the ChunkID: {ChunkID} for ImportJobID: {ImportID} in {ElapsedMs} ms.",
                 deserializedMessage.FileID, deserializedMessage.ImportJobID, timer.ElapsedMilliseconds);

@@ -59,14 +59,14 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task StartImportJob()
+        public async Task StartImportJobAsync()
         {
             // TODO: Add validation that there isn't currently an import going on
             var timer = Stopwatch.StartNew();
             try
             {
                 _logger.LogInformation("Starting import job creation.");
-                var job = await _importJobRepo.UpsertImportJobRecord(new());
+                var job = await _importJobRepo.UpsertImportJobRecordAsync(new());
                 _logger.LogInformation("Import job record created in {ElapsedMs} ms. JobID: {JobId}", timer.ElapsedMilliseconds, job.ImportJobID);
 
                 timer.Restart();
@@ -98,15 +98,15 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task HandleDownloadComplete(int importJobID)
+        public async Task HandleDownloadCompleteAsync(int importJobID)
         {
-            var job = await _importJobRepo.GetImportJobRecord(importJobID);
+            var job = await _importJobRepo.GetImportJobRecordAsync(importJobID);
             var timer = Stopwatch.StartNew();
             try
             {
                 if(!IsProcessable(job, TimeSpan.FromMinutes(5))) // TODO: Make this configurable
                 {
-                    _logger.LogInformation("HandleDownloadComplete has already been processed or is currently being processed. Job: {@Job}", job);
+                    _logger.LogInformation("HandleDownloadCompleteAsync has already been processed or is currently being processed. Job: {@Job}", job);
                     return;
                 }
                 else if(job.Status == ImportStatus.Failure)
@@ -116,7 +116,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 }
 
                 job.CurrentStep = ImportStep.Chunking;
-                await _importJobRepo.UpsertImportJobRecord(job);
+                await _importJobRepo.UpsertImportJobRecordAsync(job);
 
                 // DEFINITION STEP
                 _logger.LogInformation("Starting to process the TAFL Definition File.");
@@ -179,26 +179,26 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 }
 
                 job.CurrentStep = ImportStep.ProcessingChunks;
-                await _importJobRepo.UpsertImportJobRecord(job);
+                await _importJobRepo.UpsertImportJobRecordAsync(job);
             }
             catch (Exception ex)
             {
                 job.CurrentStep = ImportStep.DownloadingFiles;
-                await _importJobRepo.UpsertImportJobRecord(job); // What if this throws??
-                _logger.LogError(ex, "Failed to HandleDownloadComplete");
+                await _importJobRepo.UpsertImportJobRecordAsync(job); // What if this throws??
+                _logger.LogError(ex, "Failed to HandleDownloadCompleteAsync");
                 throw;
             }
         }
 
         /// <inheritdoc/>
-        public async Task MarkImportAsFailed(int importJobID)
+        public async Task MarkImportAsFailedAsync(int importJobID)
         {
             try
             {
-                var job = await _importJobRepo.GetImportJobRecord(importJobID);
+                var job = await _importJobRepo.GetImportJobRecordAsync(importJobID);
                 job.Status = ImportStatus.Failure;
 
-                await _importJobRepo.UpsertImportJobRecord(job);
+                await _importJobRepo.UpsertImportJobRecordAsync(job);
 
 #warning NOT VALID
                 await WriteMessageToSB(new ImportJobFailedMessage { ImportJobID = importJobID }, "ServiceBus:Names:ImportFailed", ""); // TODO: Switch to strongly typed
@@ -211,17 +211,16 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
         }
 
         /// <inheritdoc/>
-        public async Task ProcessChunk(int importJobID, int chunkID)
+        public async Task ProcessChunkAsync(int importJobID, int chunkID, Func<Task> renewLockFunc)
         {
-            var chunkRecord = await _importJobRepo.GetImportJobChunkFile(importJobID, chunkID);
-            var importJobRecord = await _importJobRepo.GetImportJobRecord(importJobID);
+            var chunkRecord = await _importJobRepo.GetImportJobChunkFileAsync(importJobID, chunkID);
+            var importJobRecord = await _importJobRepo.GetImportJobRecordAsync(importJobID);
 
             try
             {
                 if(!IsProcessable(chunkRecord, TimeSpan.FromMinutes(5)))
                 {
                     _logger.LogWarning("Concurrency issue, the file is currently being processed or has been completed by another instance.");
-                    return;
                 }
                 else if(importJobRecord.Status == ImportStatus.Failure)
                 {
@@ -232,7 +231,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 // Mark record as being worked on
                 chunkRecord.Status = FileStatus.Processing;
                 chunkRecord.StartTime = DateTime.UtcNow;
-                await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
+                await _importJobRepo.UpsertImportJobChunkFileRecordAsync(chunkRecord);
 
                 GetValidRawRowsResponse preprocessResponse;
 
@@ -243,31 +242,32 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
                 var insertAndUpdated = await _processingService.GetInsertsAndUpdates(preprocessResponse.ValidRows);
 
+                await renewLockFunc();
                 await _processingService.InsertNewFromRawRecords(insertAndUpdated.InsertRows, importJobID);
+
+                await renewLockFunc();
                 await _processingService.InsertUpdatedFromRawRecords(insertAndUpdated.UpdateRows, importJobID);
 
                 _logger.LogInformation("Increasing stats field, New Count: {RowsAddedCount} Updated Count: {RowsUpdatedCount}.",
                     insertAndUpdated.InsertRows.Count, insertAndUpdated.UpdateRows.Count);
 
-                await _importJobRepo.IncrementStatsField(importJobID, e => e.NewRecordCount, insertAndUpdated.InsertRows.Count);
-                await _importJobRepo.IncrementStatsField(importJobID, e => e.UpdatedRecordCount, insertAndUpdated.UpdateRows.Count);
+                await _importJobRepo.IncrementStatsFieldAsync(importJobID, e => e.NewRecordCount, insertAndUpdated.InsertRows.Count);
+                await _importJobRepo.IncrementStatsFieldAsync(importJobID, e => e.UpdatedRecordCount, insertAndUpdated.UpdateRows.Count);
 
-                chunkRecord.Status = FileStatus.Processed;
-                chunkRecord.EndTime = DateTime.UtcNow;
-                await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
+                await HandleChunkDoneAsync(chunkID, importJobID);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to process chunk for JobID: {JobID} ChunkID: {ChunkID}", importJobID, chunkID);
                 chunkRecord.StartTime = null;
-                await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
+                await _importJobRepo.UpsertImportJobChunkFileRecordAsync(chunkRecord);
 
                 throw;
             }
         }
 
         /// <inheritdoc/>
-        public Task RevertFailedImport(int importJobID)
+        public Task RevertFailedImportAsync(int importJobID)
         {
             throw new NotImplementedException();
         }
@@ -280,7 +280,29 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 FileID = ChunkID
             };
 
-            await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
+            await _importJobRepo.UpsertImportJobChunkFileRecordAsync(chunkRecord);
+        }
+
+        ///<inheritdoc/>
+        public async Task HandleChunkProcessingCompleteAsync(int importJobID)
+        {
+            var timer = Stopwatch.StartNew();
+            
+            _logger.LogInformation("Getting all records not included in import.");
+            var deletedRecords = await _processingService.GetDeletedRecords(importJobID);
+                
+            _logger.LogInformation("Fetched {DeletedCount} records in {ElapsedMs} ms.", deletedRecords.Count, timer.ElapsedMilliseconds);
+            timer.Restart();
+
+            _logger.LogInformation("Starting to invalidate {RecordCount} records.", deletedRecords.Count);
+            await _processingService.InvalidateRecordsFromDB(deletedRecords, importJobID);
+            _logger.LogInformation("Finished invalidating deleted records in {ElapsedMs} ms.", timer.ElapsedMilliseconds);
+
+            var importJobRecord = await _importJobRepo.GetImportJobRecordAsync(importJobID);
+            importJobRecord.CurrentStep = ImportStep.Complete;
+            importJobRecord.EndTime = DateTime.UtcNow;
+
+            await _importJobRepo.UpsertImportJobRecordAsync(importJobRecord);
         }
 
         private async Task WriteMessageToSB(object message, string topicName, string targetName)
@@ -298,23 +320,21 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             }
         }
 
-        public async Task HandleChunkDone(int chunkID, int importJobID)
+        public async Task HandleChunkDoneAsync(int chunkID, int importJobID)
         {
-            var chunkRecord = await _importJobRepo.GetImportJobChunkFile(importJobID, chunkID);
+            var chunkRecord = await _importJobRepo.GetImportJobChunkFileAsync(importJobID, chunkID);
             chunkRecord.Status = FileStatus.Processed;
             chunkRecord.EndTime = DateTime.UtcNow;
-            await _importJobRepo.UpsertImportJobChunkFileRecord(chunkRecord);
+            await _importJobRepo.UpsertImportJobChunkFileRecordAsync(chunkRecord);
 
 
-            if (!await _importJobRepo.IsChunkProcessingDone(chunkID))
+            if (!await _importJobRepo.IsChunkProcessingDoneAsync(importJobID))
                 return;
 
             _logger.LogInformation("Chunk processing is done. Inserting Fan In message to service bus.");
             var writer = _sbWriteFactory.GetMessageBrokerWriter(_sbDefinitions.TopicName);
 
-            //writer.WriteMessageAsync("");
-#warning NOT DONE
-
+            await writer.WriteMessageAsync(new ChunkProcessingComplete());
         }
 
         private static bool IsProcessable(TimeTrackedEntry record, TimeSpan expiryTime)
@@ -327,6 +347,5 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
             return record.StartTime + expiryTime < DateTime.UtcNow;
         }
-
     }
 }

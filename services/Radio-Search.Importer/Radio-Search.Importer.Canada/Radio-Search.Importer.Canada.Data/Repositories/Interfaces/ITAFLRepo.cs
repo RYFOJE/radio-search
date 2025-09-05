@@ -1,5 +1,4 @@
 ﻿using Radio_Search.Importer.Canada.Data.Models.License;
-using EFCore.BulkExtensions;
 
 namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
 {
@@ -26,7 +25,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
         /// </summary>
         /// <param name="licenseIDs">A list of Canadian Licenses to invalidate.</param>
         /// <returns></returns>
-        Task BulkInvalidateRecords(List<int> licenseIDs);
+        Task BulkInvalidateRecordsAsync(List<int> licenseIDs);
 
         /// <summary>
         /// Adds multiple license records to the system asynchronously.
@@ -61,6 +60,6 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
         /// <param name="recordIds">A list of license record identifiers for which to retrieve version numbers. Cannot be null or empty.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a dictionary where the keys are
         /// license record identifiers and the values are their corresponding version numbers.</returns>
-        Task<Dictionary<int, int>> GetVersionsForLicenseRecords(List<int> recordIds);
+        Task<Dictionary<int, int>> GetValidLicensesVersionIdsAsync(List<int> recordIds);
     }
 }

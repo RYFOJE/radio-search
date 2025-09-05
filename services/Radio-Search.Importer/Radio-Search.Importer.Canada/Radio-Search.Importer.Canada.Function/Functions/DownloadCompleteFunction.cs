@@ -33,7 +33,7 @@ public class DownloadCompleteFunction
             JSONFormatter formatter = new JSONFormatter();
             var deserializedMessage = formatter.Deserialize<DownloadCompleteMessage>(message.Body.ToArray());
 
-            await _importManager.HandleDownloadComplete(deserializedMessage.ImportJobID);
+            await _importManager.HandleDownloadCompleteAsync(deserializedMessage.ImportJobID);
         }
         catch (Exception ex)
         {

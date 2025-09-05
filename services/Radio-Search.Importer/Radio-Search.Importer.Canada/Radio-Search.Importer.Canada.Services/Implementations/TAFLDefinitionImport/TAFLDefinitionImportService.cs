@@ -150,147 +150,147 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StationFunctionType>(
                     tables,
                     TAFLDefinitionTableEnum.StationFunction,
-                    _definitionRepo.StationFunctionAddUpdate,
+                    _definitionRepo.StationFunctionAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.StationFunction)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, RegulatoryService>(
                     tables,
                     TAFLDefinitionTableEnum.RegulatoryService,
-                    _definitionRepo.RegulatoryServiceAddUpdate,
+                    _definitionRepo.RegulatoryServiceAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.RegulatoryService)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, CommunicationType>(
                     tables,
                     TAFLDefinitionTableEnum.CommunicationType,
-                    _definitionRepo.CommunicationTypeAddUpdate,
+                    _definitionRepo.CommunicationTypeAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.CommunicationType)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, ConformityFrequencyPlan>(
                     tables,
                     TAFLDefinitionTableEnum.ConformityToFrequencyPlan,
-                    _definitionRepo.ConformityToFrequencyPlanAddUpdate,
+                    _definitionRepo.ConformityToFrequencyPlanAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.ConformityToFrequencyPlan)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, AnalogDigital>(
                     tables,
                     TAFLDefinitionTableEnum.AnalogDigital,
-                    _definitionRepo.AnalogDigitalAddUpdate,
+                    _definitionRepo.AnalogDigitalAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.AnalogDigital)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, ModulationType>(
                     tables,
                     TAFLDefinitionTableEnum.ModulationType,
-                    _definitionRepo.ModulationTypeAddUpdate,
+                    _definitionRepo.ModulationTypeAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.ModulationType)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, FiltrationInstalledType>(
                     tables,
                     TAFLDefinitionTableEnum.FiltrationInstalledType,
-                    _definitionRepo.FiltrationTypeAddUpdate,
+                    _definitionRepo.FiltrationTypeAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.FiltrationInstalledType)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, AntennaPattern>(
                     tables,
                     TAFLDefinitionTableEnum.AntennaPattern,
-                    _definitionRepo.AntennaPatternAddUpdate,
+                    _definitionRepo.AntennaPatternAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.AntennaPattern)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, PolarizationType>(
                     tables,
                     TAFLDefinitionTableEnum.Polarization,
-                    _definitionRepo.PolarizationAddUpdate,
+                    _definitionRepo.PolarizationAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.Polarization)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StationType>(
                     tables,
                     TAFLDefinitionTableEnum.TypeOfStation,
-                    _definitionRepo.TypeOfStationAddUpdate,
+                    _definitionRepo.TypeOfStationAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.TypeOfStation)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, ITUClassType>(
                     tables,
                     TAFLDefinitionTableEnum.ITUClass,
-                    _definitionRepo.ITUClassAddUpdate,
+                    _definitionRepo.ITUClassAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.ITUClass)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StationCostCategory>(
                     tables,
                     TAFLDefinitionTableEnum.StationCostCategory,
-                    _definitionRepo.StationCostCategoryAddUpdate,
+                    _definitionRepo.StationCostCategoryAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.StationCostCategory)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, Province>(
                     tables,
                     TAFLDefinitionTableEnum.Provinces,
-                    _definitionRepo.ProvincesAddUpdate,
+                    _definitionRepo.ProvincesAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.Provinces)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, CongestionZoneType>(
                     tables,
                     TAFLDefinitionTableEnum.CongestionZone,
-                    _definitionRepo.CongestionZoneAddUpdate,
+                    _definitionRepo.CongestionZoneAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.CongestionZone)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, ServiceType>(
                     tables,
                     TAFLDefinitionTableEnum.Service,
-                    _definitionRepo.ServiceAddUpdate,
+                    _definitionRepo.ServiceAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.Service)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, SubserviceType>(
                     tables,
                     TAFLDefinitionTableEnum.Subservice,
-                    _definitionRepo.SubserviceAddUpdate,
+                    _definitionRepo.SubserviceAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.Subservice)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, LicenseType>(
                     tables,
                     TAFLDefinitionTableEnum.LicenseType,
-                    _definitionRepo.LicenseTypeAddUpdate,
+                    _definitionRepo.LicenseTypeAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.LicenseType)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, AuthorizationStatus>(
                     tables,
                     TAFLDefinitionTableEnum.AuthorizationStatus,
-                    _definitionRepo.AuthorizationStatusAddUpdate,
+                    _definitionRepo.AuthorizationStatusAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.AuthorizationStatus)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, OperationalStatus>(
                     tables,
                     TAFLDefinitionTableEnum.OperationalStatus,
-                    _definitionRepo.OperationalStatusAddUpdate,
+                    _definitionRepo.OperationalStatusAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.OperationalStatus)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StationClass>(
                     tables,
                     TAFLDefinitionTableEnum.StationClass,
-                    _definitionRepo.StationClassAddUpdate,
+                    _definitionRepo.StationClassAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.StationClass)
                 );
 
                 totalModifiedRowCount += await ProcessTableDefinitionAsync<TAFLDefinitionTableEnum, TAFLDefinitionRawRow, StandbyTransmitterInformation>(
                     tables,
                     TAFLDefinitionTableEnum.StandbyTransmitterInformation,
-                    _definitionRepo.StandbyTransmitterInformationAddUpdate,
+                    _definitionRepo.StandbyTransmitterInformationAddUpdateAsync,
                     nameof(TAFLDefinitionTableEnum.StandbyTransmitterInformation)
                 );
 

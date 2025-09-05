@@ -86,16 +86,16 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
                     x => CreateLicenseRecordHistory(x, importID, ChangeType.Created))
                 );
 
-                _logger.LogInformation("Inserting {NewLicenseCount} new Licenses into the DB.", dbNewLicenses.Count());
+                _logger.LogInformation("Inserting {NewLicenseCount} new Licenses into the DB.", dbNewLicenses.Count);
 
                 await _taflRepo.BulkAddLicenseRecordsAsync(dbNewLicenses);
 
                 _logger.LogInformation("Finished inserting licenses into DB after {ElapsedMs} ms", timer.ElapsedMilliseconds);
 
                 timer.Restart();
-                _logger.LogInformation("Inserting {LicenseHistoryCount} License History Records", licenseHistoryRecord.Count());
+                _logger.LogInformation("Inserting {LicenseHistoryCount} License History Records", licenseHistoryRecord.Count);
 
-                await _importJobRepo.BulkInsertLicenseRecordHistory(licenseHistoryRecord);
+                await _importJobRepo.BulkInsertLicenseRecordHistoryAsync(licenseHistoryRecord);
                 _logger.LogInformation("Finished inserting License Record Histories into DB after {ElapsedMs} ms", timer.ElapsedMilliseconds);
 
                 await transaction.CommitAsync();
@@ -117,8 +117,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                _logger.LogInformation("Invalidating {UpdatedLicenseCount} outdated Licenses into the DB.", dbUpdatedLicenses.Count());
-                await _taflRepo.BulkInvalidateRecords(dbUpdatedLicenses.Select(x => x.CanadaLicenseRecordID).ToList());
+                _logger.LogInformation("Invalidating {UpdatedLicenseCount} outdated Licenses into the DB.", dbUpdatedLicenses.Count);
+                await _taflRepo.BulkInvalidateRecordsAsync(dbUpdatedLicenses.Select(x => x.CanadaLicenseRecordID).ToList());
                 _logger.LogInformation("Finished invalidating records in {ElapsedMs} ms.", timer.ElapsedMilliseconds);
                 timer.Restart();
 
@@ -127,16 +127,16 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
                     x => CreateLicenseRecordHistory(x, importID, ChangeType.Updated))
                 );
 
-                _logger.LogInformation("Inserting {UpdatedLicenseCount} updated Licenses into the DB.", dbUpdatedLicenses.Count());
+                _logger.LogInformation("Inserting {UpdatedLicenseCount} updated Licenses into the DB.", dbUpdatedLicenses.Count);
 
                 await _taflRepo.BulkAddLicenseRecordsAsync(dbUpdatedLicenses);
 
                 _logger.LogInformation("Finished inserting licenses into DB after {ElapsedMs} ms", timer.ElapsedMilliseconds);
 
                 timer.Restart();
-                _logger.LogInformation("Inserting {LicenseHistoryCount} License History Records", licenseHistoryRecord.Count());
+                _logger.LogInformation("Inserting {LicenseHistoryCount} License History Records", licenseHistoryRecord.Count);
 
-                await _importJobRepo.BulkInsertLicenseRecordHistory(licenseHistoryRecord);
+                await _importJobRepo.BulkInsertLicenseRecordHistoryAsync(licenseHistoryRecord);
                 _logger.LogInformation("Finished inserting License Record Histories into DB after {ElapsedMs} ms", timer.ElapsedMilliseconds);
 
                 await transaction.CommitAsync();
@@ -154,13 +154,13 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
             var timer = Stopwatch.StartNew();
 
             _logger.LogInformation("Starting to fetch Records from Import");
-            var recordIdsFromImport = await _importJobRepo.GetAllLicenseIDsFromImport(importID);
+            var recordIdsFromImport = await _importJobRepo.GetAllLicenseIDsFromImportAsync(importID);
 
             _logger.LogInformation("Fetched {ImportRecordsCount} records in {ElapsedMs} ms.", recordIdsFromImport.Count(), timer.ElapsedMilliseconds);
             timer.Restart();
 
             _logger.LogInformation("Starting to fetch Excluded Records from Import");
-            var recordIdsNotFromImport = await _importJobRepo.GetActiveLicensesNotFromImport(importID);
+            var recordIdsNotFromImport = await _importJobRepo.GetActiveLicensesNotFromImportAsync(importID);
 
             _logger.LogInformation("Fetched {ImportRecordsCount} excluded records in {ElapsedMs} ms.", recordIdsNotFromImport.Count(), timer.ElapsedMilliseconds);
 
@@ -170,21 +170,21 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
         public async Task InvalidateRecordsFromDB(List<int> recordIDs, int importId)
         {
             var timer = Stopwatch.StartNew();
-            var versionInformation = await _taflRepo.GetVersionsForLicenseRecords(recordIDs);
+            var licensesAndVersions = await _taflRepo.GetValidLicensesVersionIdsAsync(recordIDs);
 
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var licenseHistoryRecord = versionInformation.Select(x => CreateLicenseRecordHistory(x.Key, x.Value, importId, ChangeType.Removed)).ToList();
+                var licenseHistoryRecord = licensesAndVersions.Select(x => CreateLicenseRecordHistory(x.Key, x.Value, importId, ChangeType.Removed)).ToList();
 
-                _logger.LogInformation("Starting to Bulk Invalidate {BulkInvalidateCount} records.", versionInformation.Count);
-                await _taflRepo.BulkInvalidateRecords(versionInformation.Keys.ToList());
+                _logger.LogInformation("Starting to Bulk Invalidate {BulkInvalidateCount} records.", licensesAndVersions.Count);
+                await _taflRepo.BulkInvalidateRecordsAsync(licensesAndVersions.Keys.ToList());
                 _logger.LogInformation("Finished bulk invalidating in {ElapsedMS} ms.", timer.ElapsedMilliseconds);
 
 
                 timer.Restart();
                 _logger.LogInformation("Starting to Bulk insert Record History.");
-                await _importJobRepo.BulkInsertLicenseRecordHistory(licenseHistoryRecord);
+                await _importJobRepo.BulkInsertLicenseRecordHistoryAsync(licenseHistoryRecord);
                 _logger.LogInformation("Finished bulk insert Record History in {ElapsedMS} ms.", timer.ElapsedMilliseconds);
 
                 await transaction.CommitAsync();

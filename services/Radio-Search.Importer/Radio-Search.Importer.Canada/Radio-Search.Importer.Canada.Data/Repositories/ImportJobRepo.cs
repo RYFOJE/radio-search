@@ -22,16 +22,16 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task BulkInsertLicenseRecordHistory(List<LicenseRecordHistory> licenseRecordHistories)
+        public async Task BulkInsertLicenseRecordHistoryAsync(List<LicenseRecordHistory> licenseRecordHistories)
         {
-            await _context.BulkInsertAsync(licenseRecordHistories, opt => {
+            await _context.BulkInsertOrUpdateAsync(licenseRecordHistories, opt => {
                 opt.BulkCopyTimeout = 250; // Extract this to a config
                 opt.BatchSize = 200;
             });
         }
 
         ///<inheritdoc/>
-        public async Task<ImportJobChunkFile> GetImportJobChunkFile(int importJobID, int fileID)
+        public async Task<ImportJobChunkFile> GetImportJobChunkFileAsync(int importJobID, int fileID)
         {
             var record = await _context.ImportJobChunkFiles.FirstOrDefaultAsync(x => x.ImportJobID == importJobID && x.FileID == fileID);
 
@@ -45,7 +45,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<ImportJob> GetImportJobRecord(int id)
+        public async Task<ImportJob> GetImportJobRecordAsync(int id)
         {
             var record = await _context.ImportJobs.FirstOrDefaultAsync(x => x.ImportJobID == id);
 
@@ -59,7 +59,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         ///<inheritdoc/>
-        public async Task<ImportJobStats> GetImportJobStats(int importJobID)
+        public async Task<ImportJobStats> GetImportJobStatsAsync(int importJobID)
         {
             var record = await _context.ImportJobStats.FirstOrDefaultAsync(x => x.ImportJobID == importJobID);
 
@@ -73,7 +73,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         ///<inheritdoc/>
-        public async Task<ImportJobChunkFile> UpsertImportJobChunkFileRecord(ImportJobChunkFile fileRecord)
+        public async Task<ImportJobChunkFile> UpsertImportJobChunkFileRecordAsync(ImportJobChunkFile fileRecord)
         {
             var exists = await _context.ImportJobChunkFiles.AnyAsync(x => x.ImportJobID == fileRecord.ImportJobID && x.FileID == fileRecord.FileID);
 
@@ -92,7 +92,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<ImportJob> UpsertImportJobRecord(ImportJob importHistory)
+        public async Task<ImportJob> UpsertImportJobRecordAsync(ImportJob importHistory)
         {
             var exists = await _context.ImportJobs.AnyAsync(x => x.ImportJobID == importHistory.ImportJobID);
 
@@ -111,7 +111,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         ///<inheritdoc/>
-        public async Task<ImportJobStats> CreateImportJobStats(int importJobID)
+        public async Task<ImportJobStats> CreateImportJobStatsAsync(int importJobID)
         {
             var importStats = new ImportJobStats { ImportJobID = importJobID };
             try
@@ -127,7 +127,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         ///<inheritdoc/>
-        public async Task IncrementStatsField(int importJobID, Expression<Func<ImportJobStats, int>> selector, int increaseAmount)
+        public async Task IncrementStatsFieldAsync(int importJobID, Expression<Func<ImportJobStats, int>> selector, int increaseAmount)
         {
             var stats = await _context.ImportJobStats.FirstOrDefaultAsync(x => x.ImportJobID == importJobID);
             if (stats == null)
@@ -144,7 +144,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<int>> GetAllLicenseIDsFromImport(int importJobID)
+        public async Task<IEnumerable<int>> GetAllLicenseIDsFromImportAsync(int importJobID)
         {
             return await _context.LicenseRecordsHistory
                 .Where(x => x.EditedByImportJobID == importJobID)
@@ -153,7 +153,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         ///<inheritdoc/>
-        public async Task<IEnumerable<int>> GetActiveLicensesNotFromImport(int importJobID)
+        public async Task<IEnumerable<int>> GetActiveLicensesNotFromImportAsync(int importJobID)
         {
             return await _context.LicenseRecords
                 .Where(x => x.IsValid && !x.HistoryRecords.Any(y => y.EditedByImportJobID == importJobID))
@@ -162,7 +162,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         }
 
         ///<inheritdoc/>
-        public async Task<bool> IsChunkProcessingDone(int importJobID)
+        public async Task<bool> IsChunkProcessingDoneAsync(int importJobID)
         {
             return !await _context.ImportJobChunkFiles
                 .Where(x => x.ImportJobID == importJobID && x.Status != Enums.FileStatus.Processed)

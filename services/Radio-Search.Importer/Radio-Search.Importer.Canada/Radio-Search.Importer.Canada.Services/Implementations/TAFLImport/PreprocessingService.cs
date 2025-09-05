@@ -9,7 +9,6 @@ using Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Responses;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Reflection;
 
 namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
@@ -283,27 +282,27 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
         {
             var definitions = new TAFLDefinitionAllDbRows
             {
-                StandbyTransmitterInfos = (await _definitionRepo.GetAllRowsNoTracking<StandbyTransmitterInformation>()).Select(x => x.StandbyTransmitterInformationID).ToHashSet(),
-                RegulatoryServices = (await _definitionRepo.GetAllRowsNoTracking<RegulatoryService>()).Select(x => x.RegulatoryServiceID).ToHashSet(),
-                CommunicationTypes = (await _definitionRepo.GetAllRowsNoTracking<CommunicationType>()).Select(x => x.CommunicationTypeID).ToHashSet(),
-                ConformityToFrequencyPlans = (await _definitionRepo.GetAllRowsNoTracking<ConformityFrequencyPlan>()).Select(x => x.ConformityFrequencyPlanID).ToHashSet(),
-                OperationalStatuses = (await _definitionRepo.GetAllRowsNoTracking<OperationalStatus>()).Select(x => x.OperationalStatusID).ToHashSet(),
-                StationClasses = (await _definitionRepo.GetAllRowsNoTracking<StationClass>()).Select(x => x.StationClassID).ToHashSet(),
-                Services = (await _definitionRepo.GetAllRowsNoTracking<ServiceType>()).Select(x => x.ServiceTypeID).ToHashSet(),
-                Subservices = (await _definitionRepo.GetAllRowsNoTracking<SubserviceType>()).Select(x => x.SubserviceTypeID).ToHashSet(),
-                LicenseTypes = (await _definitionRepo.GetAllRowsNoTracking<LicenseType>()).Select(x => x.LicenseTypeID).ToHashSet(),
-                AuthorizationStatuses = (await _definitionRepo.GetAllRowsNoTracking<AuthorizationStatus>()).Select(x => x.AuthorizationStatusID).ToHashSet(),
-                CongestionZones = (await _definitionRepo.GetAllRowsNoTracking<CongestionZoneType>()).Select(x => x.CongestionZoneTypeID).ToHashSet(),
-                StationTypes = (await _definitionRepo.GetAllRowsNoTracking<StationType>()).Select(x => x.StationTypeID).ToHashSet(),
-                ITUClassOfStations = (await _definitionRepo.GetAllRowsNoTracking<ITUClassType>()).Select(x => x.ITUClassTypeID).ToHashSet(),
-                StationCostCategories = (await _definitionRepo.GetAllRowsNoTracking<StationCostCategory>()).Select(x => x.StationCostCategoryID).ToHashSet(),
-                Provinces = (await _definitionRepo.GetAllRowsNoTracking<Province>()).Select(x => x.ProvinceID).ToHashSet(),
-                Polarizations = (await _definitionRepo.GetAllRowsNoTracking<PolarizationType>()).Select(x => x.PolarizationTypeID).ToHashSet(),
-                AntennaPatterns = (await _definitionRepo.GetAllRowsNoTracking<AntennaPattern>()).Select(x => x.AntennaPatternID).ToHashSet(),
-                ModulationTypes = (await _definitionRepo.GetAllRowsNoTracking<ModulationType>()).Select(x => x.ModulationTypeID).ToHashSet(),
-                FiltrationInstalledTypes = (await _definitionRepo.GetAllRowsNoTracking<FiltrationInstalledType>()).Select(x => x.FiltrationInstalledTypeID).ToHashSet(),
-                AnalogDigitals = (await _definitionRepo.GetAllRowsNoTracking<AnalogDigital>()).Select(x => x.AnalogDigitalID).ToHashSet(),
-                StationFunctions = (await _definitionRepo.GetAllRowsNoTracking<StationFunctionType>()).Select(x => x.StationFunctionTypeID).ToHashSet(),
+                StandbyTransmitterInfos = (await _definitionRepo.GetAllRowsNoTrackingAsync<StandbyTransmitterInformation>()).Select(x => x.StandbyTransmitterInformationID).ToHashSet(),
+                RegulatoryServices = (await _definitionRepo.GetAllRowsNoTrackingAsync<RegulatoryService>()).Select(x => x.RegulatoryServiceID).ToHashSet(),
+                CommunicationTypes = (await _definitionRepo.GetAllRowsNoTrackingAsync<CommunicationType>()).Select(x => x.CommunicationTypeID).ToHashSet(),
+                ConformityToFrequencyPlans = (await _definitionRepo.GetAllRowsNoTrackingAsync<ConformityFrequencyPlan>()).Select(x => x.ConformityFrequencyPlanID).ToHashSet(),
+                OperationalStatuses = (await _definitionRepo.GetAllRowsNoTrackingAsync<OperationalStatus>()).Select(x => x.OperationalStatusID).ToHashSet(),
+                StationClasses = (await _definitionRepo.GetAllRowsNoTrackingAsync<StationClass>()).Select(x => x.StationClassID).ToHashSet(),
+                Services = (await _definitionRepo.GetAllRowsNoTrackingAsync<ServiceType>()).Select(x => x.ServiceTypeID).ToHashSet(),
+                Subservices = (await _definitionRepo.GetAllRowsNoTrackingAsync<SubserviceType>()).Select(x => x.SubserviceTypeID).ToHashSet(),
+                LicenseTypes = (await _definitionRepo.GetAllRowsNoTrackingAsync<LicenseType>()).Select(x => x.LicenseTypeID).ToHashSet(),
+                AuthorizationStatuses = (await _definitionRepo.GetAllRowsNoTrackingAsync<AuthorizationStatus>()).Select(x => x.AuthorizationStatusID).ToHashSet(),
+                CongestionZones = (await _definitionRepo.GetAllRowsNoTrackingAsync<CongestionZoneType>()).Select(x => x.CongestionZoneTypeID).ToHashSet(),
+                StationTypes = (await _definitionRepo.GetAllRowsNoTrackingAsync<StationType>()).Select(x => x.StationTypeID).ToHashSet(),
+                ITUClassOfStations = (await _definitionRepo.GetAllRowsNoTrackingAsync<ITUClassType>()).Select(x => x.ITUClassTypeID).ToHashSet(),
+                StationCostCategories = (await _definitionRepo.GetAllRowsNoTrackingAsync<StationCostCategory>()).Select(x => x.StationCostCategoryID).ToHashSet(),
+                Provinces = (await _definitionRepo.GetAllRowsNoTrackingAsync<Province>()).Select(x => x.ProvinceID).ToHashSet(),
+                Polarizations = (await _definitionRepo.GetAllRowsNoTrackingAsync<PolarizationType>()).Select(x => x.PolarizationTypeID).ToHashSet(),
+                AntennaPatterns = (await _definitionRepo.GetAllRowsNoTrackingAsync<AntennaPattern>()).Select(x => x.AntennaPatternID).ToHashSet(),
+                ModulationTypes = (await _definitionRepo.GetAllRowsNoTrackingAsync<ModulationType>()).Select(x => x.ModulationTypeID).ToHashSet(),
+                FiltrationInstalledTypes = (await _definitionRepo.GetAllRowsNoTrackingAsync<FiltrationInstalledType>()).Select(x => x.FiltrationInstalledTypeID).ToHashSet(),
+                AnalogDigitals = (await _definitionRepo.GetAllRowsNoTrackingAsync<AnalogDigital>()).Select(x => x.AnalogDigitalID).ToHashSet(),
+                StationFunctions = (await _definitionRepo.GetAllRowsNoTrackingAsync<StationFunctionType>()).Select(x => x.StationFunctionTypeID).ToHashSet(),
             };
             return definitions;
         }
