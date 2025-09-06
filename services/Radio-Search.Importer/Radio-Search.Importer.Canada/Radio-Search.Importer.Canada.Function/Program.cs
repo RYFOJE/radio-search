@@ -193,7 +193,7 @@ builder.Services.AddDbContext<CanadaImporterContext>(options =>
                 tableName: "EFMigrationsHistory",
                 schema: "Canada_Importer"
             );
-            sqlOptions.CommandTimeout(120);
+            sqlOptions.CommandTimeout(180);
         }
     )
     .EnableSensitiveDataLogging(false)

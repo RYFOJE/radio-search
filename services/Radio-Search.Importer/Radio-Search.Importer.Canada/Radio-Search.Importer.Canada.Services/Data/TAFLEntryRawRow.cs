@@ -1,6 +1,6 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using NetTopologySuite.Geometries;
 using Radio_Search.Importer.Canada.Data.Models.License;
-using System;
 
 namespace Radio_Search.Importer.Canada.Services.Data
 {
@@ -72,71 +72,86 @@ namespace Radio_Search.Importer.Canada.Services.Data
         {
             if (other is null) return false;
 
-            // Compare each field, converting as needed
+            
             bool areEqual =
                 string.Equals(StationFunctionID, other.StationFunctionID, StringComparison.OrdinalIgnoreCase) &&
-                FrequencyMHz == other.FrequencyMHz &&
+                DecimalEquals(FrequencyMHz, other.FrequencyMHz) &&
                 RegulatoryServiceID == other.RegulatoryServiceID &&
                 string.Equals(CommunicationTypeID, other.CommunicationTypeID, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(ConformityFrequencyPlanID, other.ConformityFrequencyPlanID, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(FrequencyAllocationName, other.FrequencyAllocationName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(Channel, other.Channel, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(InternationalCoordinationNumber, other.InternationalCoordinationNumber, StringComparison.OrdinalIgnoreCase) &&
-                AnalogDigitalID ==other.AnalogDigitalID &&
-                OccupiedBandwidthKHz == other.OccupiedBandwidthKHz &&
+                AnalogDigitalID == other.AnalogDigitalID &&
+                DecimalEquals(OccupiedBandwidthKHz, other.OccupiedBandwidthKHz) &&
                 string.Equals(DesignationOfEmission, other.DesignationOfEmission, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(ModulationTypeID, other.ModulationTypeID, StringComparison.OrdinalIgnoreCase) &&
                 FiltrationInstalledTypeID == other.FiltrationInstalledTypeID &&
-                TxERPdBW == other.TxERPdBW &&
-                TxPowerW == other.TxPowerW &&
-                TotalLossesDb == other.TotalLossesDb &&
-                AnalogCapacityChannels == other.AnalogCapacityChannels &&
-                DigitalCapacityMbps == other.DigitalCapacityMbps &&
+                DecimalEquals(TxERPdBW, other.TxERPdBW) &&
+                DecimalEquals(TxPowerW, other.TxPowerW) &&
+                DecimalEquals(TotalLossesDb, other.TotalLossesDb) &&
+                DecimalEquals(AnalogCapacityChannels, other.AnalogCapacityChannels) &&
+                DecimalEquals(DigitalCapacityMbps, other.DigitalCapacityMbps) &&
                 string.Equals(RxUnfadedReceivedSignalLevel, other.RxUnfadedReceivedSignalLevel, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(RxThresholdSignalLevel, other.RxThresholdSignalLevel, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(AntennaManufacturer, other.AntennaManufacturer, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(AntennaModel, other.AntennaModel, StringComparison.OrdinalIgnoreCase) &&
-                AntennaGainDbi == other.AntennaGainDbi &&
+                DecimalEquals(AntennaGainDbi, other.AntennaGainDbi) &&
                 string.Equals(AntennaPatternID, other.AntennaPatternID, StringComparison.OrdinalIgnoreCase) &&
-                BeamwidthDeg == other.BeamwidthDeg &&
-                FrontToBackRatioDb == other.FrontToBackRatioDb &&
+                DecimalEquals(BeamwidthDeg, other.BeamwidthDeg) &&
+                DecimalEquals(FrontToBackRatioDb, other.FrontToBackRatioDb) &&
                 PolarizationTypeID == other.PolarizationTypeID &&
-                HeightAboveGroundM == other.HeightAboveGroundM &&
-                AzimuthMainLobeDeg == other.AzimuthMainLobeDeg &&
-                VerticalElevationAngleDeg == other.VerticalElevationAngleDeg &&
+                DecimalEquals(HeightAboveGroundM, other.HeightAboveGroundM) &&
+                DecimalEquals(AzimuthMainLobeDeg, other.AzimuthMainLobeDeg) &&
+                DecimalEquals(VerticalElevationAngleDeg, other.VerticalElevationAngleDeg) &&
                 string.Equals(StationLocation, other.StationLocation, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(StationReference, other.StationReference, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(CallSign, other.CallSign, StringComparison.OrdinalIgnoreCase) &&
                 StationTypeID == other.StationTypeID &&
                 string.Equals(ITUClassTypeID, other.ITUClassTypeID, StringComparison.OrdinalIgnoreCase) &&
-                (StationCostCategoryID == (other.StationCostCategoryID.HasValue ? (int?)other.StationCostCategoryID.Value : null)) &&
+                StationCostCategoryID == other.StationCostCategoryID &&
                 NumberOfIdenticalStations == other.NumberOfIdenticalStations &&
                 string.Equals(ReferenceIdentifier, other.ReferenceIdentifier, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(ProvinceID, other.ProvinceID, StringComparison.OrdinalIgnoreCase) &&
-                // Location: compare Latitude/Longitude to Point.Y/X
-                Nullable.Equals(Latitude, other.Location?.Y) &&
-                Nullable.Equals(Longitude, other.Location?.X) &&
+                // Location: compare Latitude/Longitude to Point.Y/X with tolerance
+                LocationEquals(Latitude, Longitude, other.Location) &&
                 GroundElevationM == other.GroundElevationM &&
-                AntennaStructureHeightM == other.AntennaStructureHeightM &&
+                DecimalEquals(AntennaStructureHeightM, other.AntennaStructureHeightM) &&
                 CongestionZoneTypeID == other.CongestionZoneTypeID &&
                 string.Equals(RadiusOfOperationKm, other.RadiusOfOperationKm, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(SatelliteName, other.SatelliteName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(AuthorizationNumber, other.AuthorizationNumber, StringComparison.OrdinalIgnoreCase) &&
-                (ServiceTypeID == (other.ServiceTypeID.HasValue ? (int?)other.ServiceTypeID.Value : null)) &&
-                (SubserviceTypeID == (other.SubserviceTypeID.HasValue ? (int?)other.SubserviceTypeID.Value : null)) &&
+                ServiceTypeID == other.ServiceTypeID &&
+                SubserviceTypeID == other.SubserviceTypeID &&
                 string.Equals(LicenseTypeID, other.LicenseTypeID, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(AuthorizationStatusID, other.AuthorizationStatusID, StringComparison.OrdinalIgnoreCase) &&
-                DateOnly.Equals(InServiceDate, other.InServiceDate) &&
+                Nullable.Equals(InServiceDate, other.InServiceDate) &&
                 string.Equals(AccountNumber, other.AccountNumber, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(LicenseeName, other.LicenseeName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(LicenseeAddress, other.LicenseeAddress, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(OperationalStatusID, other.OperationalStatusID, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(StationClassID, other.StationClassID, StringComparison.OrdinalIgnoreCase) &&
-                HorizontalPowerW == other.HorizontalPowerW &&
-                VerticalPowerW == other.VerticalPowerW &&
-                (StandbyTransmitterInformationID == (other.StandbyTransmitterInformationID.HasValue ? (int?)other.StandbyTransmitterInformationID.Value : null));
+                DecimalEquals(HorizontalPowerW, other.HorizontalPowerW) &&
+                DecimalEquals(VerticalPowerW, other.VerticalPowerW) &&
+                StandbyTransmitterInformationID == other.StandbyTransmitterInformationID;
 
             return areEqual;
+        }
+
+        private static bool DecimalEquals(decimal? a, decimal? b, decimal tolerance = 0.0001m)
+        {
+            if (a == null && b == null) return true;
+            if (a == null || b == null) return false;
+            return Math.Abs(a.Value - b.Value) < tolerance;
+        }
+
+        private static bool LocationEquals(decimal? latitude, decimal? longitude, Point? location, decimal tolerance = 0.0001m)
+        {
+            if (latitude == null && longitude == null && location == null) return true;
+            if (latitude == null || longitude == null || location == null || location.X == null || location.Y == null) return false;
+
+            return Math.Abs(latitude.Value - (decimal)location.Y) < tolerance &&
+                   Math.Abs(longitude.Value - (decimal)location.X) < tolerance;
         }
 
         public static bool operator ==(TaflEntryRawRow left, LicenseRecord right)

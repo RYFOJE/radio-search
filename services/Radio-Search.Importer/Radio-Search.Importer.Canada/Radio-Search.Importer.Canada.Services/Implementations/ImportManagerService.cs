@@ -302,6 +302,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             importJobRecord.CurrentStep = ImportStep.Complete;
             importJobRecord.EndTime = DateTime.UtcNow;
 
+            await _importJobRepo.IncrementStatsFieldAsync(importJobID, e => e.DeletedRecordCount, deletedRecords.Count);
+
             await _importJobRepo.UpsertImportJobRecordAsync(importJobRecord);
         }
 
