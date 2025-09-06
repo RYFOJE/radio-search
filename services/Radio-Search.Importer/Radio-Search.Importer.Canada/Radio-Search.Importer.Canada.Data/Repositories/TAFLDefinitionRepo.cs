@@ -14,7 +14,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             _context = context;
         }
 
-        public async Task<int> AnalogDigitalAddUpdate(List<AnalogDigital> entries)
+        public async Task<int> AnalogDigitalAddUpdateAsync(List<AnalogDigital> entries)
         {
             var existingItems = await _context.AnalogDigital.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.AnalogDigitalID);
@@ -35,7 +35,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> AntennaPatternAddUpdate(List<AntennaPattern> entries)
+        public async Task<int> AntennaPatternAddUpdateAsync(List<AntennaPattern> entries)
         {
             var existingItems = await _context.AntennaPatterns.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.AntennaPatternID);
@@ -56,7 +56,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> AuthorizationStatusAddUpdate(List<AuthorizationStatus> entries)
+        public async Task<int> AuthorizationStatusAddUpdateAsync(List<AuthorizationStatus> entries)
         {
             var existingItems = await _context.AuthorizationStatuses.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.AuthorizationStatusID);
@@ -77,7 +77,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> CommunicationTypeAddUpdate(List<CommunicationType> entries)
+        public async Task<int> CommunicationTypeAddUpdateAsync(List<CommunicationType> entries)
         {
             var existingItems = await _context.CommunicationTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.CommunicationTypeID);
@@ -98,7 +98,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> ConformityToFrequencyPlanAddUpdate(List<ConformityFrequencyPlan> entries)
+        public async Task<int> ConformityToFrequencyPlanAddUpdateAsync(List<ConformityFrequencyPlan> entries)
         {
             var existingItems = await _context.ConformityFrequencyPlans.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.ConformityFrequencyPlanID);
@@ -119,7 +119,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> CongestionZoneAddUpdate(List<CongestionZoneType> entries)
+        public async Task<int> CongestionZoneAddUpdateAsync(List<CongestionZoneType> entries)
         {
             var existingItems = await _context.CongestionZoneTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.CongestionZoneTypeID);
@@ -140,7 +140,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> FiltrationTypeAddUpdate(List<FiltrationInstalledType> entries)
+        public async Task<int> FiltrationTypeAddUpdateAsync(List<FiltrationInstalledType> entries)
         {
             var existingItems = await _context.FiltrationInstalledTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.FiltrationInstalledTypeID);
@@ -161,7 +161,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> ITUClassAddUpdate(List<ITUClassType> entries)
+        public async Task<int> ITUClassAddUpdateAsync(List<ITUClassType> entries)
         {
             var existingItems = await _context.ITUClassTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.ITUClassTypeID);
@@ -182,7 +182,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> LicenseTypeAddUpdate(List<LicenseType> entries)
+        public async Task<int> LicenseTypeAddUpdateAsync(List<LicenseType> entries)
         {
             var existingItems = await _context.LicenseTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.LicenseTypeID);
@@ -203,7 +203,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> ModulationTypeAddUpdate(List<ModulationType> entries)
+        public async Task<int> ModulationTypeAddUpdateAsync(List<ModulationType> entries)
         {
             var existingItems = await _context.ModulationTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.ModulationTypeID);
@@ -224,7 +224,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> OperationalStatusAddUpdate(List<OperationalStatus> entries)
+        public async Task<int> OperationalStatusAddUpdateAsync(List<OperationalStatus> entries)
         {
             var existingItems = await _context.OperationStatuses.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.OperationalStatusID);
@@ -245,7 +245,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> PolarizationAddUpdate(List<PolarizationType> entries)
+        public async Task<int> PolarizationAddUpdateAsync(List<PolarizationType> entries)
         {
             var existingItems = await _context.PolarizationTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.PolarizationTypeID);
@@ -266,7 +266,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> ProvincesAddUpdate(List<Province> entries)
+        public async Task<int> ProvincesAddUpdateAsync(List<Province> entries)
         {
             var existingItems = await _context.Provinces.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.ProvinceID);
@@ -287,7 +287,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> RegulatoryServiceAddUpdate(List<RegulatoryService> entries)
+        public async Task<int> RegulatoryServiceAddUpdateAsync(List<RegulatoryService> entries)
         {
             var existingItems = await _context.RegulatoryServices.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.RegulatoryServiceID);
@@ -308,7 +308,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> ServiceAddUpdate(List<ServiceType> entries)
+        public async Task<int> ServiceAddUpdateAsync(List<ServiceType> entries)
         {
             var existingItems = await _context.ServiceTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.ServiceTypeID);
@@ -329,7 +329,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> StandbyTransmitterInformationAddUpdate(List<StandbyTransmitterInformation> entries)
+        public async Task<int> StandbyTransmitterInformationAddUpdateAsync(List<StandbyTransmitterInformation> entries)
         {
             var existingItems = await _context.StandbyTransmitterInformation.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.StandbyTransmitterInformationID);
@@ -350,7 +350,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> StationClassAddUpdate(List<StationClass> entries)
+        public async Task<int> StationClassAddUpdateAsync(List<StationClass> entries)
         {
             var existingItems = await _context.StationClasses.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.StationClassID);
@@ -371,7 +371,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> StationCostCategoryAddUpdate(List<StationCostCategory> entries)
+        public async Task<int> StationCostCategoryAddUpdateAsync(List<StationCostCategory> entries)
         {
             var existingItems = await _context.StationCostCategories.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.StationCostCategoryID);
@@ -392,9 +392,9 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> StationFunctionAddUpdate(List<StationFunctionType> entries)
+        public async Task<int> StationFunctionAddUpdateAsync(List<StationFunctionType> entries)
         {
-            var existingItems = await _context.stationFunctionTypes.ToListAsync();
+            var existingItems = await _context.StationFunctionTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.StationFunctionTypeID);
 
             foreach (var item in entries)
@@ -413,7 +413,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> SubserviceAddUpdate(List<SubserviceType> entries)
+        public async Task<int> SubserviceAddUpdateAsync(List<SubserviceType> entries)
         {
             var existingItems = await _context.SubserviceTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.SubserviceTypeID);
@@ -434,9 +434,9 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> TypeOfStationAddUpdate(List<StationType> entries)
+        public async Task<int> TypeOfStationAddUpdateAsync(List<StationType> entries)
         {
-            var existingItems = await _context.stationTypes.ToListAsync();
+            var existingItems = await _context.StationTypes.ToListAsync();
             var existingDict = existingItems.ToDictionary(x => x.StationTypeID);
 
             foreach (var item in entries)
@@ -453,6 +453,11 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             }
 
             return await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<T>> GetAllRowsNoTrackingAsync<T>() where T : MultiLanguageEntry
+        {
+            return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
     }
 }

@@ -4,26 +4,27 @@ namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
 {
     public interface ITAFLDefinitionRepo
     {
-        Task<int> StationFunctionAddUpdate(List<StationFunctionType> entries);
-        Task<int> RegulatoryServiceAddUpdate(List<RegulatoryService> entries);
-        Task<int> CommunicationTypeAddUpdate(List<CommunicationType> entries);
-        Task<int> ConformityToFrequencyPlanAddUpdate(List<ConformityFrequencyPlan> entries);
-        Task<int> AnalogDigitalAddUpdate(List<AnalogDigital> entries);
-        Task<int> ModulationTypeAddUpdate(List<ModulationType> entries);
-        Task<int> FiltrationTypeAddUpdate(List<FiltrationInstalledType> entries);
-        Task<int> AntennaPatternAddUpdate(List<AntennaPattern> entries);
-        Task<int> PolarizationAddUpdate(List<PolarizationType> entries);
-        Task<int> TypeOfStationAddUpdate(List<StationType> entries);
-        Task<int> ITUClassAddUpdate(List<ITUClassType> entries);
-        Task<int> StationCostCategoryAddUpdate(List<StationCostCategory> entries);
-        Task<int> ProvincesAddUpdate(List<Province> entries);
-        Task<int> CongestionZoneAddUpdate(List<CongestionZoneType> entries);
-        Task<int> ServiceAddUpdate(List<ServiceType> entries);
-        Task<int> SubserviceAddUpdate(List<SubserviceType> entries);
-        Task<int> LicenseTypeAddUpdate(List<LicenseType> entries);
-        Task<int> AuthorizationStatusAddUpdate(List<AuthorizationStatus> entries);
-        Task<int> OperationalStatusAddUpdate(List<OperationalStatus> entries);
-        Task<int> StationClassAddUpdate(List<StationClass> entries);
-        Task<int> StandbyTransmitterInformationAddUpdate(List<StandbyTransmitterInformation> entries);
+        Task<int> StationFunctionAddUpdateAsync(List<StationFunctionType> entries);
+        Task<int> RegulatoryServiceAddUpdateAsync(List<RegulatoryService> entries);
+        Task<int> CommunicationTypeAddUpdateAsync(List<CommunicationType> entries);
+        Task<int> ConformityToFrequencyPlanAddUpdateAsync(List<ConformityFrequencyPlan> entries);
+        Task<int> AnalogDigitalAddUpdateAsync(List<AnalogDigital> entries);
+        Task<int> ModulationTypeAddUpdateAsync(List<ModulationType> entries);
+        Task<int> FiltrationTypeAddUpdateAsync(List<FiltrationInstalledType> entries);
+        Task<int> AntennaPatternAddUpdateAsync(List<AntennaPattern> entries);
+        Task<int> PolarizationAddUpdateAsync(List<PolarizationType> entries);
+        Task<int> TypeOfStationAddUpdateAsync(List<StationType> entries);
+        Task<int> ITUClassAddUpdateAsync(List<ITUClassType> entries);
+        Task<int> StationCostCategoryAddUpdateAsync(List<StationCostCategory> entries);
+        Task<int> ProvincesAddUpdateAsync(List<Province> entries);
+        Task<int> CongestionZoneAddUpdateAsync(List<CongestionZoneType> entries);
+        Task<int> ServiceAddUpdateAsync(List<ServiceType> entries);
+        Task<int> SubserviceAddUpdateAsync(List<SubserviceType> entries);
+        Task<int> LicenseTypeAddUpdateAsync(List<LicenseType> entries);
+        Task<int> AuthorizationStatusAddUpdateAsync(List<AuthorizationStatus> entries);
+        Task<int> OperationalStatusAddUpdateAsync(List<OperationalStatus> entries);
+        Task<int> StationClassAddUpdateAsync(List<StationClass> entries);
+        Task<int> StandbyTransmitterInformationAddUpdateAsync(List<StandbyTransmitterInformation> entries);
+        Task<List<T>> GetAllRowsNoTrackingAsync<T>() where T : MultiLanguageEntry;
     }
 }

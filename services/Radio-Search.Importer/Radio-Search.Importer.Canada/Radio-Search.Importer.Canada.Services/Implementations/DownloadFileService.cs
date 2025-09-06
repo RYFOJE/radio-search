@@ -31,12 +31,14 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
             _blobStorageService = blobStorageService;
         }
 
+        #region public
+
         /// <inheritdoc/>
-        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFL()
+        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFL(string location)
         {
             Stream? taflStream = null;
             Stream? unzippedFileStream = null;
-            var newFileName = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd") + ".csv";
+
             Uri resp;
 
             try
@@ -44,69 +46,61 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 taflStream = await DownloadTAFLFromSource();
                 unzippedFileStream = UnzipSingleFile(taflStream);
 
-                resp = await _blobStorageService.UploadAsync($"csv/unprocessed/{newFileName}", unzippedFileStream);
+                resp = await _blobStorageService.UploadAsync(location, unzippedFileStream);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the download and unzip process.");
-
-                return new()
-                {
-                    Success = false,
-                    Message = ex.Message
-                };
+                throw;
             }
             finally
             {
-                taflStream?.Dispose();
-                unzippedFileStream?.Dispose();
+                taflStream?.DisposeAsync();
+                unzippedFileStream?.DisposeAsync();
             }
 
             return new()
             {
                 Success = true,
                 Message = "Successfully uploaded new TAFL File",
-                FileName = newFileName,
+                FileName = location,
                 FullPath = resp
             };
         }
 
         /// <inheritdoc/>
-        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFLDefinition()
+        public async Task<DownloadFileResponse> DownloadAndSaveRecentTAFLDefinition(string location)
         {
             Stream? taflStream = null;
-            var newFileName = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd") + ".pdf";
             Uri resp;
 
             try
             {
                 taflStream = await DownloadTAFLDefinitionFromSource();
-                resp = await _blobStorageService.UploadAsync($"pdf/unprocessed/{newFileName}", taflStream);
+                resp = await _blobStorageService.UploadAsync(location, taflStream);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the download and unzip process.");
-
-                return new()
-                {
-                    Success = false,
-                    Message = ex.Message
-                };
+                throw;
             }
             finally
             {
-                taflStream?.Dispose();
+                taflStream?.DisposeAsync();
             }
 
             return new()
             {
                 Success = true,
                 Message = "Successfully uploaded new TAFL Definition File",
-                FileName = newFileName,
+                FileName = location,
                 FullPath = resp
             };
         }
 
+        #endregion
+
+        #region private
 
         /// <summary>
         /// Downloads the file from the Canadian website
@@ -193,5 +187,9 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 throw;
             }
         }
+
+        #endregion
+
+
     }
 }

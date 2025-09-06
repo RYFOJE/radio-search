@@ -11,7 +11,7 @@ namespace Radio_Search.Importer.Canada.Services.Responses
         /// <summary>
         /// List of processed records that were found inside of the TAFL File
         /// </summary>
-        public List<TAFLEntryRawRow> Data { get; set; } = new();
+        public List<TaflEntryRawRow> Data { get; set; } = new();
 
         /// <summary>
         /// Amount of skipped rows because they had the incorrect amount of rows

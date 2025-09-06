@@ -186,6 +186,7 @@ namespace Radio_Search.Importer.Canada.Services.Mappings
 
             CreateMap<StandbyTransmitterInformation, TAFLDefinitionRawRow>()
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.StandbyTransmitterInformationID.ToString()));
+
         }
 
     }

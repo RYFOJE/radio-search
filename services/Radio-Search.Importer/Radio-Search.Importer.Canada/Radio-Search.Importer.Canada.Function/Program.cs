@@ -1,7 +1,6 @@
-using AutoMapper;
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using DnsClient.Internal;
+using FluentValidation;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,12 +12,18 @@ using OpenTelemetry.Resources;
 using Radio_Search.Importer.Canada.Data;
 using Radio_Search.Importer.Canada.Services;
 using Radio_Search.Importer.Canada.Services.Configuration;
+using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Implementations;
+using Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionImport;
+using Radio_Search.Importer.Canada.Services.Implementations.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Interfaces;
+using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
+using Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Mappings;
+using Radio_Search.Importer.Canada.Services.Validators;
 using Radio_Search.Utils.BlobStorage;
+using Radio_Search.Utils.MessageBroker.ConfigurationSetupExtensions;
 using System.Net;
-using System.Reflection;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -109,22 +114,20 @@ var resourceAttributes = new Dictionary<string, object> {
             ?? throw new ArgumentNullException("Could not find instance ID") }
     };
 
-if (isProduction)
-{
-    builder.Services.AddOpenTelemetry().UseAzureMonitor(
-        options =>
-        {
-            options.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsightsConnectionString");
-        }).ConfigureResource(resourceBuilder =>
-        {
-            resourceBuilder.AddAttributes(resourceAttributes);
-        });
 
-    builder.Services.AddLogging(loggingBuilder =>
+builder.Services.AddOpenTelemetry().UseAzureMonitor(
+    options =>
     {
-        loggingBuilder.AddConsole();
+        options.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsightsConnectionString");
+    }).ConfigureResource(resourceBuilder =>
+    {
+        resourceBuilder.AddAttributes(resourceAttributes);
     });
-}
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole();
+});
 
 
 #endregion
@@ -132,11 +135,19 @@ if (isProduction)
 #region DEPENDENCY INJECTION
 
 // Services
-builder.Services.AddScoped<IImportService, ImportService>();
+builder.Services.AddScoped<IImportManagerService, ImportManagerService>();
 builder.Services.AddScoped<IDownloadFileService, DownloadFileService>();
-builder.Services.AddScoped<IUpdateVerificationService, UpdateVerificationService>();
-builder.Services.AddScoped<IPDFProcessingServices, PDFProcessingServices>();
+builder.Services.AddScoped<IPDFProcessingServices, PdfProcessingServices>();
+builder.Services.AddScoped<ITAFLDefinitionImportService, TaflDefinitionImportService>();
+builder.Services.AddScoped<IPreprocessingService, PreprocessingService>();
+builder.Services.AddScoped<IProcessingService, ProcessingService>();
 builder.Services.ImporterCanadaAddData();
+builder.Services.AddScoped<IValidator<TaflEntryRawRow>, TAFLEntryRawRowValidator>();
+
+builder.Services.AddAzureServiceBusClient(new() { 
+    ServiceBusUrl = config.GetConnectionString("CanadaImporterServiceBus") ?? throw new ArgumentNullException()
+});
+builder.Services.AddAzureWriterFactory();
 
 builder.Services.AddBlobStorage(
         blobConnectionString: builder.Configuration.GetValue<string>("BlobStorage:URL") ?? throw new ArgumentNullException("BlobStorage:URL Cannot be null"),
@@ -159,6 +170,12 @@ builder.Services.Configure<DownloaderURLs>(
 builder.Services.Configure<TAFLDefinitionTablesOrder>(
     builder.Configuration.GetSection("TAFLDefinitionTables"));
 
+builder.Services.Configure<FileLocations>(
+    builder.Configuration.GetSection("FileLocations"));
+
+builder.Services.Configure<ServiceBusDefinitions>(
+    builder.Configuration.GetSection("ServiceBusDefinitions"));
+
 #endregion
 
 #region DB CONTEXTS
@@ -169,13 +186,27 @@ var connectionString = builder.Configuration.GetConnectionString("CanadaImporter
 builder.Services.AddDbContext<CanadaImporterContext>(options =>
     options.UseSqlServer(
         connectionString,
-        x => x.UseNetTopologySuite()
-    ));
+        sqlOptions =>
+        {
+            sqlOptions.UseNetTopologySuite();
+            sqlOptions.MigrationsHistoryTable(
+                tableName: "EFMigrationsHistory",
+                schema: "Canada_Importer"
+            );
+            sqlOptions.CommandTimeout(180);
+        }
+    )
+    .EnableSensitiveDataLogging(false)
+);
+
 
 #endregion
 
 #region AUTOMAPPER
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<TAFLDefinitionProfile>());
+builder.Services.AddAutoMapper(cfg =>cfg.AddProfile<TAFLRowProfile>());
 #endregion
 
-builder.Build().Run();
+builder.Services.AddHostedService<RunAtStart>();
+
+await builder.Build().RunAsync();

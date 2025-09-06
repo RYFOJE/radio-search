@@ -19,6 +19,20 @@
         Task<Uri> UploadAsync(string blobName, Stream content);
 
         /// <summary>
+        /// Asynchronously retrieves a writable <see cref="Stream"/> for the specified blob.
+        /// </summary>
+        /// <remarks>The returned <see cref="Stream"/> must be properly disposed after use to ensure that 
+        /// resources are released and the write operation is finalized. If <paramref name="overwrite"/>  is <see
+        /// langword="false"/> and the blob already exists, the operation may fail depending on  the
+        /// implementation.</remarks>
+        /// <param name="blobName">The name of the blob to write to. This cannot be null or empty.</param>
+        /// <param name="overwrite">A value indicating whether to overwrite the blob if it already exists.  <see langword="true"/> to overwrite
+        /// the existing blob; otherwise, <see langword="false"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a writable  <see cref="Stream"/>
+        /// for the specified blob.</returns>
+        Task<Stream> GetWriteStream(string blobName, bool overwrite = false);
+
+        /// <summary>
         /// Asynchronously downloads the specified blob and returns its content as a stream.
         /// </summary>
         /// <remarks>The caller is responsible for disposing the returned <see cref="Stream"/> to free

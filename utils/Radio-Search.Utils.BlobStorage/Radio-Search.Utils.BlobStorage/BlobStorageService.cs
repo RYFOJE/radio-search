@@ -45,6 +45,7 @@ namespace Radio_Search.Utils.BlobStorage
             return await blob.OpenReadAsync();
         }
 
+        /// <inheritdoc/>
         public async Task<bool> ExistsAsync(string blobName)
         {
             var blob = _containerClient.GetBlobClient(blobName);
@@ -98,6 +99,19 @@ namespace Radio_Search.Utils.BlobStorage
             await blob.UploadAsync(content);
 
             return blob.Uri;
+        }
+
+        ///<inheritdoc/>
+        public async Task<Stream> GetWriteStream(string blobName, bool overwrite = false)
+        {
+            var blob = _containerClient.GetBlobClient(blobName);
+
+            if (overwrite && await blob.ExistsAsync())
+            {
+                throw new InvalidOperationException($"The destination blob '{blobName}' already exists.");
+            }
+
+            return await blob.OpenWriteAsync(overwrite: overwrite);
         }
     }
 }

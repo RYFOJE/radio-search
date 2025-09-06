@@ -9,7 +9,7 @@
         ConformityToFrequencyPlan = 6,
         AnalogDigital = 10,
         ModulationType = 13,
-        FiltrationType = 14,
+        FiltrationInstalledType = 14,
         AntennaPattern = 25,
         Polarization = 28,
         TypeOfStation = 35,

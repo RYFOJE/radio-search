@@ -24,34 +24,161 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.ImportHistory", b =>
+            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.LicenseRecordHistory", b =>
                 {
-                    b.Property<Guid>("ImportHistoryID")
+                    b.Property<int>("LicenseRecordHistoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LicenseRecordHistoryId"));
+
+                    b.Property<int>("CanadaLicenseRecordID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChangeType")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("EditedByImportJobID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EditedByUserID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("LicenseRecordHistoryId");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("LicenseRecordHistoryId"), false);
+
+                    b.HasIndex("CanadaLicenseRecordID");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("CanadaLicenseRecordID"));
+
+                    b.HasIndex("EditedByImportJobID");
+
+                    b.HasIndex("CanadaLicenseRecordID", "Version");
+
+                    b.HasIndex("EditedByImportJobID", "ChangeType");
+
+                    b.ToTable("LicenseRecordsHistory", "Canada_Importer");
+                });
+
+            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJob", b =>
+                {
+                    b.Property<int>("ImportJobID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImportJobID"));
+
+                    b.Property<byte[]>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CurrentStep")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte[]>("FileHash")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int?>("ImportRowCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SkippedRowCount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartTime")
+                    b.Property<DateTime?>("StartTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.HasKey("ImportHistoryID");
+                    b.Property<DateTime>("UpdateTime")
+                        .HasColumnType("datetime2");
 
-                    b.ToTable("ImportHistory", "Canada_Importer");
+                    b.HasKey("ImportJobID");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("ImportJobs", "Canada_Importer");
+                });
+
+            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJobChunkFile", b =>
+                {
+                    b.Property<int>("ImportJobID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FileID")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdateTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ImportJobID", "FileID");
+
+                    b.ToTable("ImportJobChunkFiles", "Canada_Importer");
+                });
+
+            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJobStats", b =>
+                {
+                    b.Property<int>("ImportJobID")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DeletedRecordCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NewRecordCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreprocessingSkippedRows")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UpdatedRecordCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("ImportJobID");
+
+                    b.ToTable("ImportJobStats", "Canada_Importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.AnalogDigital", b =>
@@ -292,22 +419,26 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecord", b =>
                 {
-                    b.Property<string>("LicenseRecordID")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CanadaLicenseRecordID")
+                        .HasMaxLength(30)
+                        .HasColumnType("int");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
 
                     b.Property<string>("AccountNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("AnalogCapacityChannels")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<string>("AnalogDigitalID")
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<decimal?>("AntennaGainDbi")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<string>("AntennaManufacturer")
                         .HasColumnType("nvarchar(max)");
@@ -319,8 +450,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("nvarchar(15)");
 
                     b.Property<decimal?>("AntennaStructureHeightM")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<string>("AuthorizationNumber")
                         .HasColumnType("nvarchar(max)");
@@ -329,15 +460,16 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("nvarchar(3)");
 
                     b.Property<decimal?>("AzimuthMainLobeDeg")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<decimal?>("BeamwidthDeg")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<string>("CallSign")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
 
                     b.Property<string>("Channel")
                         .HasColumnType("nvarchar(max)");
@@ -350,7 +482,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<string>("ConformityToFrequencyPlanConformityFrequencyPlanID")
+                    b.Property<string>("ConformityFrequencyPlanID")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CongestionZoneTypeID")
@@ -363,8 +495,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("DigitalCapacityMbps")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<string>("FiltrationInstalledTypeID")
                         .HasColumnType("nvarchar(1)");
@@ -373,29 +505,29 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("FrequencyMHz")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<decimal?>("FrontToBackRatioDb")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<int?>("GroundElevationM")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("HeightAboveGroundM")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<decimal?>("HorizontalPowerW")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
-                    b.Property<string>("ITUClassOfStationITUClassTypeID")
+                    b.Property<string>("ITUClassTypeID")
                         .HasColumnType("nvarchar(3)");
 
-                    b.Property<string>("InServiceDate")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateOnly?>("InServiceDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("InternationalCoordinationNumber")
                         .HasColumnType("nvarchar(max)");
@@ -403,7 +535,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<bool>("IsValid")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LicenceTypeLicenseTypeID")
+                    b.Property<string>("LicenseTypeID")
                         .HasColumnType("nvarchar(7)");
 
                     b.Property<string>("LicenseeAddress")
@@ -422,8 +554,8 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("OccupiedBandwidthKHz")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<string>("OperationalStatusID")
                         .HasColumnType("nvarchar(5)");
@@ -464,7 +596,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<short?>("StationCostCategoryID")
                         .HasColumnType("smallint");
 
-                    b.Property<string>("StationFunctionTypeID")
+                    b.Property<string>("StationFunctionID")
                         .HasColumnType("nvarchar(3)");
 
                     b.Property<string>("StationLocation")
@@ -480,29 +612,31 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<decimal?>("TotalLossesDb")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<decimal?>("TxERPdBW")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<decimal?>("TxPowerW")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<DateTime>("UpdateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("VerticalElevationAngleDeg")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
                     b.Property<decimal?>("VerticalPowerW")
-                        .HasPrecision(12, 10)
-                        .HasColumnType("decimal(12,10)");
+                        .HasPrecision(24, 12)
+                        .HasColumnType("decimal(24,12)");
 
-                    b.HasKey("LicenseRecordID");
+                    b.HasKey("CanadaLicenseRecordID", "Version");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("CanadaLicenseRecordID", "Version"));
 
                     b.HasIndex("AnalogDigitalID");
 
@@ -510,9 +644,11 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasIndex("AuthorizationStatusID");
 
+                    b.HasIndex("CanadaLicenseRecordID");
+
                     b.HasIndex("CommunicationTypeID");
 
-                    b.HasIndex("ConformityToFrequencyPlanConformityFrequencyPlanID");
+                    b.HasIndex("ConformityFrequencyPlanID");
 
                     b.HasIndex("CongestionZoneTypeID");
 
@@ -520,9 +656,11 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasIndex("FrequencyMHz");
 
-                    b.HasIndex("ITUClassOfStationITUClassTypeID");
+                    b.HasIndex("ITUClassTypeID");
 
-                    b.HasIndex("LicenceTypeLicenseTypeID");
+                    b.HasIndex("IsValid");
+
+                    b.HasIndex("LicenseTypeID");
 
                     b.HasIndex("ModulationTypeID");
 
@@ -542,43 +680,19 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasIndex("StationCostCategoryID");
 
-                    b.HasIndex("StationFunctionTypeID");
+                    b.HasIndex("StationFunctionID");
 
                     b.HasIndex("StationTypeID");
 
                     b.HasIndex("SubserviceTypeID");
 
+                    b.HasIndex("IsValid", "CallSign");
+
+                    b.HasIndex("IsValid", "CanadaLicenseRecordID");
+
+                    b.HasIndex("IsValid", "FrequencyMHz");
+
                     b.ToTable("LicenseRecords", "Canada_Importer");
-                });
-
-            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecordHistory", b =>
-                {
-                    b.Property<int>("LicenseRecordHistoryID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LicenseRecordHistoryID"));
-
-                    b.Property<int>("ChangeType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("ImportHistoryRecordImportHistoryID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("JSONRepresentation")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LicenseRecordID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("LicenseRecordHistoryID");
-
-                    b.HasIndex("ImportHistoryRecordImportHistoryID");
-
-                    b.HasIndex("LicenseRecordID");
-
-                    b.ToTable("LicenseRecordsHistory", "Canada_Importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseType", b =>
@@ -903,7 +1017,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasKey("StationFunctionTypeID");
 
-                    b.ToTable("stationFunctionTypes", "Canada_Importer");
+                    b.ToTable("StationFunctionTypes", "Canada_Importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StationType", b =>
@@ -932,7 +1046,7 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasKey("StationTypeID");
 
-                    b.ToTable("stationTypes", "Canada_Importer");
+                    b.ToTable("StationTypes", "Canada_Importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.SubserviceType", b =>
@@ -964,91 +1078,150 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.ToTable("SubserviceTypes", "Canada_Importer");
                 });
 
+            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.LicenseRecordHistory", b =>
+                {
+                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJob", "EditedByImportJob")
+                        .WithMany("AssociatedLicenseRecordHistories")
+                        .HasForeignKey("EditedByImportJobID")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecord", "LicenseRecord")
+                        .WithMany("HistoryRecords")
+                        .HasForeignKey("CanadaLicenseRecordID", "Version")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("EditedByImportJob");
+
+                    b.Navigation("LicenseRecord");
+                });
+
+            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJobChunkFile", b =>
+                {
+                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJob", "ImportJob")
+                        .WithMany("ImportJobChunkFiles")
+                        .HasForeignKey("ImportJobID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ImportJob");
+                });
+
+            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJobStats", b =>
+                {
+                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJob", null)
+                        .WithOne("Stats")
+                        .HasForeignKey("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJobStats", "ImportJobID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecord", b =>
                 {
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.AnalogDigital", "AnalogDigital")
                         .WithMany()
-                        .HasForeignKey("AnalogDigitalID");
+                        .HasForeignKey("AnalogDigitalID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.AntennaPattern", "AntennaPattern")
                         .WithMany()
-                        .HasForeignKey("AntennaPatternID");
+                        .HasForeignKey("AntennaPatternID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.AuthorizationStatus", "AuthorizationStatus")
                         .WithMany()
-                        .HasForeignKey("AuthorizationStatusID");
+                        .HasForeignKey("AuthorizationStatusID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.CommunicationType", "CommunicationType")
                         .WithMany()
-                        .HasForeignKey("CommunicationTypeID");
+                        .HasForeignKey("CommunicationTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.ConformityFrequencyPlan", "ConformityToFrequencyPlan")
                         .WithMany()
-                        .HasForeignKey("ConformityToFrequencyPlanConformityFrequencyPlanID");
+                        .HasForeignKey("ConformityFrequencyPlanID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.CongestionZoneType", "CongestionZone")
                         .WithMany()
-                        .HasForeignKey("CongestionZoneTypeID");
+                        .HasForeignKey("CongestionZoneTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.FiltrationInstalledType", "FiltrationInstalled")
+                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.FiltrationInstalledType", "FiltrationInstalledType")
                         .WithMany()
-                        .HasForeignKey("FiltrationInstalledTypeID");
+                        .HasForeignKey("FiltrationInstalledTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.ITUClassType", "ITUClassOfStation")
                         .WithMany()
-                        .HasForeignKey("ITUClassOfStationITUClassTypeID");
+                        .HasForeignKey("ITUClassTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.LicenseType", "LicenceType")
+                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.LicenseType", "LicenseType")
                         .WithMany()
-                        .HasForeignKey("LicenceTypeLicenseTypeID");
+                        .HasForeignKey("LicenseTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.ModulationType", "ModulationType")
                         .WithMany()
-                        .HasForeignKey("ModulationTypeID");
+                        .HasForeignKey("ModulationTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.OperationalStatus", "OperationalStatus")
                         .WithMany()
-                        .HasForeignKey("OperationalStatusID");
+                        .HasForeignKey("OperationalStatusID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.PolarizationType", "Polarization")
                         .WithMany()
-                        .HasForeignKey("PolarizationTypeID");
+                        .HasForeignKey("PolarizationTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.Province", "Province")
                         .WithMany()
-                        .HasForeignKey("ProvinceID");
+                        .HasForeignKey("ProvinceID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.RegulatoryService", "RegulatoryService")
                         .WithMany()
-                        .HasForeignKey("RegulatoryServiceID");
+                        .HasForeignKey("RegulatoryServiceID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.ServiceType", "Service")
                         .WithMany()
-                        .HasForeignKey("ServiceTypeID");
+                        .HasForeignKey("ServiceTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.StandbyTransmitterInformation", "StandbyTransmitterInfo")
                         .WithMany()
-                        .HasForeignKey("StandbyTransmitterInformationID");
+                        .HasForeignKey("StandbyTransmitterInformationID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.StationClass", "StationClass")
                         .WithMany()
-                        .HasForeignKey("StationClassID");
+                        .HasForeignKey("StationClassID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.StationCostCategory", "StationCostCategory")
                         .WithMany()
-                        .HasForeignKey("StationCostCategoryID");
+                        .HasForeignKey("StationCostCategoryID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.StationFunctionType", "StationFunction")
                         .WithMany()
-                        .HasForeignKey("StationFunctionTypeID");
+                        .HasForeignKey("StationFunctionID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.StationType", "StationType")
                         .WithMany()
-                        .HasForeignKey("StationTypeID");
+                        .HasForeignKey("StationTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.SubserviceType", "Subservice")
                         .WithMany()
-                        .HasForeignKey("SubserviceTypeID");
+                        .HasForeignKey("SubserviceTypeID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("AnalogDigital");
 
@@ -1062,11 +1235,11 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.Navigation("CongestionZone");
 
-                    b.Navigation("FiltrationInstalled");
+                    b.Navigation("FiltrationInstalledType");
 
                     b.Navigation("ITUClassOfStation");
 
-                    b.Navigation("LicenceType");
+                    b.Navigation("LicenseType");
 
                     b.Navigation("ModulationType");
 
@@ -1093,33 +1266,19 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Navigation("Subservice");
                 });
 
-            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecordHistory", b =>
+            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJob", b =>
                 {
-                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.History.ImportHistory", "ImportHistoryRecord")
-                        .WithMany("AssociatedRecords")
-                        .HasForeignKey("ImportHistoryRecordImportHistoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.Navigation("AssociatedLicenseRecordHistories");
+
+                    b.Navigation("ImportJobChunkFiles");
+
+                    b.Navigation("Stats")
                         .IsRequired();
-
-                    b.HasOne("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecord", "LicenseRecord")
-                        .WithMany("History")
-                        .HasForeignKey("LicenseRecordID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ImportHistoryRecord");
-
-                    b.Navigation("LicenseRecord");
-                });
-
-            modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.ImportHistory", b =>
-                {
-                    b.Navigation("AssociatedRecords");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecord", b =>
                 {
-                    b.Navigation("History");
+                    b.Navigation("HistoryRecords");
                 });
 #pragma warning restore 612, 618
         }
