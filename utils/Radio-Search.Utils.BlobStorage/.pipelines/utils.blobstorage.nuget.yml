@@ -14,6 +14,6 @@ stages:
   jobs:
     - template: infrastructure/pipelines/templates/build-upload-package.yml
       parameters:
-        projectDirectory: 'utils/Radio-Search.Utils.BlobStorage'
-        projectFile: 'utils/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage.csproj'
+        projectDirectory: '/utils/Radio-Search.Utils.BlobStorage'
+        projectFile: '/utils/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage.csproj'
         dotnetVersion: '8.x'
