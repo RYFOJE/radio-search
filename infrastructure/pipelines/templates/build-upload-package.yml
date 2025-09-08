@@ -30,7 +30,7 @@ jobs:
         displayName: 'Build all projects (library + tests)'
         inputs:
           command: 'build'
-          projects: '${{ parameters.projectDirectory }}/*.csproj'
+          projects: '${{ parameters.projectDirectory }}/**/*.csproj'
           arguments: '--configuration Release'
 
       - task: DotNetCoreCLI@2
