@@ -1,0 +1,19 @@
+name: $(Date:yyyyMMdd).$(Rev:r)
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - utils/Radio-Search.Utils.BlobStorage/**
+
+stages:
+- stage: Build
+  displayName: 'Build and Pack'
+  jobs:
+    - template: infrastructure/pipelines/templates/build-upload-package.yml
+      parameters:
+        projectDirectory: 'utils/Radio-Search.Utils.BlobStorage'
+        projectFile: 'utils/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage.csproj'
+        dotnetVersion: '8.x'
