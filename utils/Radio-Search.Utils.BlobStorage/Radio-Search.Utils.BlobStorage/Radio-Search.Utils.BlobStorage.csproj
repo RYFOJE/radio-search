@@ -9,6 +9,7 @@
 	<Version>1.0.0</Version>
 	<Authors>Ryan Jennings</Authors>
 	<Description>An interface between Blob Storage</Description>
+	<IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
