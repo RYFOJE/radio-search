@@ -27,7 +27,7 @@ jobs:
         displayName: 'Run Tests'
         inputs:
           testSelector: 'testAssemblies'
-          testAssemblyVer2: '**\*test*.dll' # Adjust this pattern to match your test assemblies
+          testAssemblyVer2: '**\*Tests.dll'
           searchFolder: '$(System.DefaultWorkingDirectory)'
           failOnMinTestsNotRun: True
           minimumExpectedTests: '1'
