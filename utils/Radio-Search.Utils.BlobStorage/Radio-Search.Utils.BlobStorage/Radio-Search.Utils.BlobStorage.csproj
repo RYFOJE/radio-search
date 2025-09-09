@@ -5,6 +5,10 @@
     <RootNamespace>Radio_Search.Utils.BlobStorage</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<PackageId>Radio-Search.Utils.BlobStorage</PackageId>
+	<Version>1.0.0</Version>
+	<Authors>Ryan Jennings</Authors>
+	<Description>An interface between Blob Storage</Description>
   </PropertyGroup>
 
   <ItemGroup>

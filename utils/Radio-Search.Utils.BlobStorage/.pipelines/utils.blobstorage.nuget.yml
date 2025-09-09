@@ -12,7 +12,7 @@ stages:
 - stage: Build
   displayName: 'Build and Pack'
   jobs:
-    - template: /infrastructure/pipelines/templates/build-upload-package.yml
+    - template: /infrastructure/pipelines/templates/build-package.yml
       parameters:
         projectDirectory: 'utils/Radio-Search.Utils.BlobStorage'
         projectFile: 'utils/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage.csproj'
@@ -26,3 +26,9 @@ stages:
     - template: /infrastructure/pipelines/templates/run-tests.yml
       parameters:
         testDirectoryArtifactName: 'test'
+
+- stage: Publish
+  displayName: 'Publish the package'
+  dependsOn: Test
+  jobs:
+    - template: /infrastructure/pipelines/templates/publish-package.yml
