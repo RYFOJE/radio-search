@@ -21,5 +21,5 @@ jobs:
         inputs:
           command: 'push'
           packagesToPush: '$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.nupkg'
-          publishVstsFeed: Byte-Force-Artifacts
-          vstsFeed: Byte-Force-Artifacts
+          publishVstsFeed: Radio-Search
+          vstsFeed: Radio-Search
