@@ -6,7 +6,6 @@ parameters:
     type: string
     default: 'lib'
 
-
 jobs:
   - job: RunTests
     displayName: "Run Tests"
@@ -15,8 +14,11 @@ jobs:
     steps:
       - download: current
         artifact: ${{ parameters.testDirectoryArtifactName }}
+        displayName: 'Download Test Artifacts'
+        
       - download: current
         artifact: ${{ parameters.projectToTestArtifactName }}
+        displayName: 'Download Library Artifacts'
 
       - task: UseDotNet@2
         displayName: 'Install .NET SDK'
@@ -28,6 +30,6 @@ jobs:
         inputs:
           testSelector: 'testAssemblies'
           testAssemblyVer2: '**\*Tests.dll'
-          searchFolder: '$(System.DefaultWorkingDirectory)'
-          failOnMinTestsNotRun: True
+          searchFolder: '$(Pipeline.Workspace)/${{ parameters.testDirectoryArtifactName }}'
+          failOnMinTestsNotRun: true
           minimumExpectedTests: '1'

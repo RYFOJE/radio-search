@@ -35,7 +35,7 @@ jobs:
           inputs:
             command: 'build'
             projects: '${{ parameters.projectDirectory }}/Tests/**/*Tests.csproj'
-            arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/test'
+            arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/test --no-restore'
 
       - task: DotNetCoreCLI@2
         displayName: 'Build project'
