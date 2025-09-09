@@ -9,6 +9,9 @@ parameters:
   - name: hasTests
     type: boolean
     default: true
+  - name: testProjectPattern
+    type: string
+    default: '${{ parameters.projectDirectory }}/Tests/*Tests.csproj'
 
 jobs:
   - job: BuildAndPack
@@ -34,7 +37,7 @@ jobs:
           displayName: 'Build all tests'
           inputs:
             command: 'build'
-            projects: '${{ parameters.projectDirectory }}/Tests/*Tests.csproj'
+            projects: '${{ parameters.testProjectPattern }}'
             arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/test'
 
       - task: DotNetCoreCLI@2

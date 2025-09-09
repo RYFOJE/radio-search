@@ -17,6 +17,7 @@ stages:
         projectDirectory: 'utils/Radio-Search.Utils.BlobStorage'
         projectFile: 'utils/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage.csproj'
         dotnetVersion: '8.x'
+        
 
 - stage: Test
   displayName: 'Run Tests'
