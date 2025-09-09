@@ -12,7 +12,7 @@ parameters:
 
 jobs:
   - job: BuildAndPack
-    displayName: "Build and Pack Library + Tests"
+    displayName: "Build and Pack"
     pool:
       vmImage: 'windows-latest'
     steps:
@@ -50,7 +50,7 @@ jobs:
           command: 'pack'
           packagesToPack: ${{ parameters.projectFile }}
           versioningScheme: byBuildNumber
-          arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/lib'
+          arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/lib --no-build'
 
       - publish: '$(Build.ArtifactStagingDirectory)/lib'
         artifact: lib
