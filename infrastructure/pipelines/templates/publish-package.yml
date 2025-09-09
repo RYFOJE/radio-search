@@ -4,8 +4,8 @@ parameters:
     default: 'lib'
 
 jobs:
-  - job: BuildAndPack
-    displayName: "Build and Pack Library + Tests"
+  - job: PublishPackage
+    displayName: "Publish Package"
     pool:
       vmImage: 'windows-latest'
     steps:
@@ -13,13 +13,14 @@ jobs:
         artifact: ${{ parameters.packageArtifactName }}
         displayName: 'Download Library Artifacts'
 
+      - script: dir $(Pipeline.Workspace)/${{ parameters.packageArtifactName }}
+        displayName: 'List downloaded artifacts'
+
       - task: NuGetAuthenticate@1
 
       - task: NuGetCommand@2
-        # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
         displayName: 'Publish package to Artifact Feed'
         inputs:
           command: 'push'
           packagesToPush: '$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.nupkg'
-          publishVstsFeed: Radio-Search
-          vstsFeed: Radio-Search
+          publishVstsFeed: 'Radio-Search'  # Ensure this feed name is correct
