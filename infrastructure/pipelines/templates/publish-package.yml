@@ -1,7 +1,7 @@
 parameters:
   - name: packageArtifactName
     type: string
-    default: 'lib'
+    default: 'nupkg'
 
 jobs:
   - job: PublishPackage

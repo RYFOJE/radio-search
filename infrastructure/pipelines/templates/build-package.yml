@@ -50,10 +50,20 @@ jobs:
           command: 'pack'
           packagesToPack: ${{ parameters.projectFile }}
           versioningScheme: byBuildNumber
-          arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/lib --no-build'
+          packDirectory: '$(Build.ArtifactStagingDirectory)/nupkg'
+          nobuild: true
+          arguments: '--configuration Release'
+
+      - powershell: |
+          Write-Host "Contents of nupkg directory:"
+          Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)/nupkg" -Recurse
+        displayName: 'List nupkg directory contents'
 
       - publish: '$(Build.ArtifactStagingDirectory)/lib'
         artifact: lib
+
+      - publish: '$(Build.ArtifactStagingDirectory)/nupkg'
+        artifact: nupkg
 
       - publish: '$(Build.ArtifactStagingDirectory)/test'
         artifact: test
