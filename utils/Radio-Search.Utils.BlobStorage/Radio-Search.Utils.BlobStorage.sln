@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35913.81 d17.13
+VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Utils.BlobStorage", "Radio-Search.Utils.BlobStorage\Radio-Search.Utils.BlobStorage.csproj", "{94990A54-3FA1-42A6-B467-138B3D717D5D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Utils.BlobStorage.UnitTests", "..\Tests\Radio-Search.Utils.BlobStorage\Radio-Search.Utils.BlobStorage.UnitTests\Radio-Search.Utils.BlobStorage.UnitTests.csproj", "{4A38E90A-6A9F-4BD3-9D43-EC09F1E2289E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{94990A54-3FA1-42A6-B467-138B3D717D5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94990A54-3FA1-42A6-B467-138B3D717D5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94990A54-3FA1-42A6-B467-138B3D717D5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A38E90A-6A9F-4BD3-9D43-EC09F1E2289E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A38E90A-6A9F-4BD3-9D43-EC09F1E2289E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A38E90A-6A9F-4BD3-9D43-EC09F1E2289E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A38E90A-6A9F-4BD3-9D43-EC09F1E2289E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4A38E90A-6A9F-4BD3-9D43-EC09F1E2289E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FD2E90F-C153-4C59-999A-021391997535}

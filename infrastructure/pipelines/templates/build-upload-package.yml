@@ -6,6 +6,9 @@ parameters:
   - name: dotnetVersion
     type: string
     default: '8.x'
+  - name: hasTests
+    type: boolean
+    default: true
 
 jobs:
   - job: BuildAndPack
@@ -21,17 +24,25 @@ jobs:
       - task: NuGetAuthenticate@1
 
       - task: DotNetCoreCLI@2
-        displayName: 'Restore .NET packages'
+        displayName: 'Restore all projects'
         inputs:
           command: 'restore'
-          projects: ${{ parameters.projectFile }}
+          projects: '${{ parameters.projectDirectory }}/**/*.csproj'
+
+      - ${{ if eq(parameters.hasTests, true) }}:
+        - task: DotNetCoreCLI@2
+          displayName: 'Build all tests'
+          inputs:
+            command: 'build'
+            projects: '${{ parameters.projectDirectory }}/**/*Tests.csproj'
+            arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/test'
 
       - task: DotNetCoreCLI@2
-        displayName: 'Build all projects (library + tests)'
+        displayName: 'Build project'
         inputs:
           command: 'build'
-          projects: '${{ parameters.projectDirectory }}/**/*.csproj'
-          arguments: '--configuration Release'
+          projects: ${{ parameters.projectFile }}
+          arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/lib'
 
       - task: DotNetCoreCLI@2
         displayName: 'Pack the library into a NuGet package'
@@ -39,7 +50,11 @@ jobs:
           command: 'pack'
           packagesToPack: ${{ parameters.projectFile }}
           versioningScheme: byBuildNumber
-          arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
+          arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/lib'
 
-      - publish: '$(Build.ArtifactStagingDirectory)'
-        artifact: drop
+
+      - publish: '$(Build.ArtifactStagingDirectory)/lib'
+        artifact: lib
+
+      - publish: '$(Build.ArtifactStagingDirectory)/test'
+        artifact: test

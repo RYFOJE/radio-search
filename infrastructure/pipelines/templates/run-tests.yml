@@ -1,6 +1,33 @@
 parameters:
-- name: testProjects
-  type: object
+  - name: testDirectoryArtifactName
+    type: string
+    default: 'test'
+  - name: projectToTestArtifactName
+    type: string
+    default: 'lib'
 
-steps:
-  
+
+jobs:
+  - job: RunTests
+    displayName: "Run Tests"
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - download: current
+        artifact: ${{ parameters.testDirectoryArtifactName }}
+      - download: current
+        artifact: ${{ parameters.projectToTestArtifactName }}
+
+      - task: UseDotNet@2
+        displayName: 'Install .NET SDK'
+        inputs:
+          version: '8.x'
+
+      - task: VSTest@2
+        displayName: 'Run Tests'
+        inputs:
+          testSelector: 'testAssemblies'
+          testAssemblyVer2: '**\*test*.dll' # Adjust this pattern to match your test assemblies
+          searchFolder: '$(System.DefaultWorkingDirectory)'
+          failOnMinTestsNotRun: True
+          minimumExpectedTests: '1'
