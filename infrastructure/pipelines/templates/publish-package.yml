@@ -13,9 +13,6 @@ jobs:
         artifact: ${{ parameters.packageArtifactName }}
         displayName: 'Download Library Artifacts'
 
-      - script: dir $(Pipeline.Workspace)/${{ parameters.packageArtifactName }}
-        displayName: 'List downloaded artifacts'
-
       - task: NuGetAuthenticate@1
 
       - task: NuGetCommand@2
