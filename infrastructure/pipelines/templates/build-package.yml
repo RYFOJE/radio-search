@@ -51,7 +51,6 @@ jobs:
           packagesToPack: ${{ parameters.projectFile }}
           versioningScheme: byBuildNumber
           packDirectory: '$(Build.ArtifactStagingDirectory)/nupkg'
-          nobuild: true
           arguments: '--configuration Release'
 
       - powershell: |
