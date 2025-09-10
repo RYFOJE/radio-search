@@ -6,7 +6,7 @@ trigger:
       - main
   paths:
     include:
-      - utils/Radio-Search.Utils.BlobStorage/**
+      - utils/Radio-Search.Utils.MessageBroker/**
 
 stages:
 - stage: Build

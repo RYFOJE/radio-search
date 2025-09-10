@@ -6,6 +6,7 @@ parameters:
 jobs:
   - job: PublishPackage
     displayName: "Publish Package"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     pool:
       vmImage: 'windows-latest'
     steps:
@@ -20,4 +21,4 @@ jobs:
         inputs:
           command: 'push'
           packagesToPush: '$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.nupkg'
-          publishVstsFeed: '$(System.TeamProject)/Radio-Search'  # Project-scoped format
+          publishVstsFeed: '$(System.TeamProject)/Radio-Search'
