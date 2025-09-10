@@ -20,5 +20,4 @@ jobs:
         inputs:
           command: 'push'
           packagesToPush: '$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.nupkg'
-          publishVstsFeed: Radio-Search
-          vstsFeed: Radio-Search
+          publishVstsFeed: '$(System.TeamProject)/Radio-Search'  # Project-scoped format
