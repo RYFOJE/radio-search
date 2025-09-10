@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Radio_Search.Importer.CountryData.Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7263"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "containerRunArguments": "--init",
+      "httpPort": 30272,
+      "useSSL": false
+    }
+  }
+}

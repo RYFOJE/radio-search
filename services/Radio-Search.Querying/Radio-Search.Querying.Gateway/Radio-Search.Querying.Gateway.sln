@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36301.6 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.Api", "Radio-Search.Querying.Gateway.Api\Radio-Search.Querying.Gateway.Api.csproj", "{897B2DDD-7EEF-4FA3-A0F4-40D87687F98B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.Data-Contracts", "Radio-Search.Querying.Gateway.Data-Contracts\Radio-Search.Querying.Gateway.Data-Contracts.csproj", "{33DD4BBE-3D2F-48CC-A8C4-F8A2872A960D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.Service-Contract", "Radio-Search.Querying.Gateway.Service-Contract\Radio-Search.Querying.Gateway.Service-Contract.csproj", "{DA61D63D-453B-4089-8E33-1428BA0805E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.Services", "Radio-Search.Querying.Gateway.Services\Radio-Search.Querying.Gateway.Services.csproj", "{FD6CCDCE-1B03-4F94-9DBD-E60338303703}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.IntegrationTests", "Radio-Search.Querying.Gateway.IntegrationTests\Radio-Search.Querying.Gateway.IntegrationTests.csproj", "{8960C260-7259-465B-A6B2-493407F1B837}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.UnitTests", "Radio-Search.Querying.Gateway.UnitTests\Radio-Search.Querying.Gateway.UnitTests.csproj", "{D43B7A7F-661D-46AB-B325-8562A97BEE8C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{897B2DDD-7EEF-4FA3-A0F4-40D87687F98B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{897B2DDD-7EEF-4FA3-A0F4-40D87687F98B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{897B2DDD-7EEF-4FA3-A0F4-40D87687F98B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{897B2DDD-7EEF-4FA3-A0F4-40D87687F98B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33DD4BBE-3D2F-48CC-A8C4-F8A2872A960D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33DD4BBE-3D2F-48CC-A8C4-F8A2872A960D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33DD4BBE-3D2F-48CC-A8C4-F8A2872A960D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33DD4BBE-3D2F-48CC-A8C4-F8A2872A960D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA61D63D-453B-4089-8E33-1428BA0805E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA61D63D-453B-4089-8E33-1428BA0805E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA61D63D-453B-4089-8E33-1428BA0805E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA61D63D-453B-4089-8E33-1428BA0805E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD6CCDCE-1B03-4F94-9DBD-E60338303703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD6CCDCE-1B03-4F94-9DBD-E60338303703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD6CCDCE-1B03-4F94-9DBD-E60338303703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD6CCDCE-1B03-4F94-9DBD-E60338303703}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8960C260-7259-465B-A6B2-493407F1B837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8960C260-7259-465B-A6B2-493407F1B837}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8960C260-7259-465B-A6B2-493407F1B837}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8960C260-7259-465B-A6B2-493407F1B837}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D43B7A7F-661D-46AB-B325-8562A97BEE8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D43B7A7F-661D-46AB-B325-8562A97BEE8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D43B7A7F-661D-46AB-B325-8562A97BEE8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D43B7A7F-661D-46AB-B325-8562A97BEE8C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8960C260-7259-465B-A6B2-493407F1B837} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{D43B7A7F-661D-46AB-B325-8562A97BEE8C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F5923905-C553-4799-AB0C-D05C4946C0D6}
+	EndGlobalSection
+EndGlobal
