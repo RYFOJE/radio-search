@@ -60,4 +60,5 @@ jobs:
         artifact: nupkg
 
       - publish: '$(Build.ArtifactStagingDirectory)/test'
+        condition: eq('${{ parameters.hasTests }}', 'true')
         artifact: test
