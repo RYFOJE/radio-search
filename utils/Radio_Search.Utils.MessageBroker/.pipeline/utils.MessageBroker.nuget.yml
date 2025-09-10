@@ -14,9 +14,10 @@ stages:
   jobs:
     - template: /infrastructure/pipelines/templates/build-package.yml
       parameters:
-        projectDirectory: 'utils/Radio-Search.Utils.BlobStorage'
-        projectFile: 'utils/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage/Radio-Search.Utils.BlobStorage.csproj'
+        projectDirectory: 'utils/Radio_Search.Utils.MessageBroker'
+        projectFile: 'utils/Radio_Search.Utils.MessageBroker/Radio_Search.Utils.MessageBroker/Radio_Search.Utils.MessageBroker.csproj'
         dotnetVersion: '8.x'
+        hasTests: false
 
 - stage: Publish
   displayName: 'Publish the package'
