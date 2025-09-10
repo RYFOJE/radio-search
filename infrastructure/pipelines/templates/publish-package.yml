@@ -20,4 +20,5 @@ jobs:
         inputs:
           command: 'push'
           packagesToPush: '$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.nupkg'
-          publishVstsFeed: 'Radio-Search'  # Ensure this feed name is correct
+          publishVstsFeed: Radio-Search
+          vstsFeed: Radio-Search
