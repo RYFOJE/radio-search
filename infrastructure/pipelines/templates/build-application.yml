@@ -47,7 +47,7 @@ jobs:
 
       # FOR TESTS
       - task: DotNetCoreCLI@2
-        displayName: 'Build project'
+        displayName: 'Build project for tests'
         condition: eq('${{ parameters.hasTests }}', 'true')
         inputs:
           command: 'build'
