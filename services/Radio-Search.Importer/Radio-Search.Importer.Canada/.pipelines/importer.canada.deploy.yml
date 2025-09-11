@@ -19,7 +19,7 @@ stages:
         dotnetVersion: '8.x'
         hasTests: false
 
-- stage: Build
+- stage: Deploy
   displayName: 'Deploy'
   # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   jobs:
