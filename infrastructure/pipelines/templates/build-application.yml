@@ -58,7 +58,6 @@ jobs:
         displayName: 'Publish project'
         inputs:
           command: 'publish'
-          publishWebProjects: false
           projects: '${{ parameters.projectFile }}'
           arguments: '--configuration $(buildConfiguration) --output $(System.DefaultWorkingDirectory)/unzipped'
           publishWebProjects: false
