@@ -3,7 +3,7 @@ name: $(BuildDefinitionName)_$(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
 trigger:
   branches:
     include:
-      - main
+      - master
   paths:
     include:
       - utils/Radio-Search.Utils.MessageBroker/**

@@ -1,0 +1,30 @@
+parameters:
+  - name: artifactName
+    type: string
+    default: zipfile
+  - name: azureSubscription
+    type: string
+    default: Radio-Search
+  - name: appName
+    type: string
+
+
+jobs:
+  - job: Build
+    displayName: "Build"
+    # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - download: current
+        artifact: ${{ parameters.artifactName }}
+        displayName: 'Download Test Artifacts'
+
+      - task: AzureFunctionApp@2
+        inputs:
+          azureSubscription: ${{ parameters.azureSubscription }}
+          appType: functionAppLinux
+          isFlexConsumption: true
+          appName: $(appName)
+          package: $(System.ArtifactsDirectory)/${{ parameters.artifactName }}/*.zip
+          deploymentMethod: 'auto'
