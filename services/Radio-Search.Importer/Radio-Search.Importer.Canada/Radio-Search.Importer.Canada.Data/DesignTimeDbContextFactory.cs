@@ -1,44 +1,4 @@
-﻿//using Azure.Identity;
-//using Microsoft.EntityFrameworkCore;
-//using Microsoft.EntityFrameworkCore.Design;
-//using Microsoft.Extensions.Configuration;
-
-//namespace Radio_Search.Importer.Canada.Data
-//{
-//    public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<CanadaImporterContext>
-//    {
-//        public CanadaImporterContext CreateDbContext(string[] args)
-//        {
-//            // Accept connection string from args or environment variable
-//            //string connectionString = args.Length > 0
-//            //    ? args[0]
-//            //    : System.Environment.GetEnvironmentVariable("CANADA_DB_CONNECTION")
-//            //      ?? throw new InvalidOperationException("Connection string must be provided via args or CANADA_DB_CONNECTION env variable.");
-
-//            var connectionString = "Host=rds-spatial-db.postgres.database.azure.com;Port=5432;Database=importer_canada;Username=ryfoje;Password=n%4LDVP7S*nNu@%zSF;Pooling=true;SSL Mode=Prefer;Trust Server Certificate=true;";
-//#warning REMOVE THIS
-
-//            var optionsBuilder = new DbContextOptionsBuilder<CanadaImporterContext>();
-//            optionsBuilder.UseNpgsql(
-//                connectionString,
-//                sqlOptions =>
-//                {
-//                    sqlOptions.UseNetTopologySuite();
-//                    sqlOptions.MigrationsHistoryTable(
-//                        tableName: "__EFMigrationsHistory",
-//                        schema: "canada_importer"
-//                    );
-//                    sqlOptions.CommandTimeout(180);
-//                })
-//                .EnableSensitiveDataLogging(false);
-
-//            return new CanadaImporterContext(optionsBuilder.Options);
-//        }
-//    }
-//}
-
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Azure.Identity;
