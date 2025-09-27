@@ -1,5 +1,6 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using CsvHelper.Configuration;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.Configuration;
 using OpenTelemetry.Resources;
 using Radio_Search.Importer.Canada.Data;
 using Radio_Search.Importer.Canada.Services;
@@ -23,6 +25,7 @@ using Radio_Search.Importer.Canada.Services.Mappings;
 using Radio_Search.Importer.Canada.Services.Validators;
 using Radio_Search.Utils.BlobStorage;
 using Radio_Search.Utils.MessageBroker.ConfigurationSetupExtensions;
+using System.Data.Common;
 using System.Net;
 
 var builder = FunctionsApplication.CreateBuilder(args);
@@ -180,25 +183,34 @@ builder.Services.Configure<ServiceBusDefinitions>(
 
 #region DB CONTEXTS
 
-var connectionString = builder.Configuration.GetConnectionString("CanadaImporter")
-    ?? throw new InvalidOperationException("Connection string 'CanadaImporter' not found.");
+var dbConnString = String.Format(
+    builder.Configuration.GetValue<string>("PostgresqlConnectionTemplate")
+        ?? throw new InvalidOperationException("PostgresqlConnectionTemplate is null"),
+    builder.Configuration.GetValue<string>("CanadaDbUrl")
+        ?? throw new InvalidOperationException("CanadaDbUrl is null"),
+    builder.Configuration.GetValue<string>("CanadaDbName")
+        ?? throw new InvalidOperationException("CanadaDbName is null"),
+    builder.Configuration.GetValue<string>("CanadaDbUsername")
+        ?? throw new InvalidOperationException("CanadaDbUsername is null"),
+    builder.Configuration.GetValue<string>("CanadaDbPassword")
+        ?? throw new InvalidOperationException("CanadaDbPassword is null")
+);
 
 builder.Services.AddDbContext<CanadaImporterContext>(options =>
-    options.UseSqlServer(
-        connectionString,
+    options.UseNpgsql(
+        dbConnString,
         sqlOptions =>
         {
             sqlOptions.UseNetTopologySuite();
             sqlOptions.MigrationsHistoryTable(
-                tableName: "EFMigrationsHistory",
-                schema: "Canada_Importer"
+                tableName: "__EFMigrationsHistory",
+                schema: "canada_importer"
             );
             sqlOptions.CommandTimeout(180);
         }
     )
     .EnableSensitiveDataLogging(false)
 );
-
 
 #endregion
 

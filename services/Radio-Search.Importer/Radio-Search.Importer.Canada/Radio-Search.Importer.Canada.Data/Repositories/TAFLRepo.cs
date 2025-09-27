@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Radio_Search.Importer.Canada.Data.Models.License;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
+using Npgsql;
 
 namespace Radio_Search.Importer.Canada.Data.Repositories
 {
@@ -90,19 +91,14 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
             {
                 var batchKeys = licenseIDs.Skip(i).Take(fetchLimit).ToList();
 
-                var idsString = string.Join(",", batchKeys);
-
                 var sql = $@"
                     SELECT lr.* 
-                    FROM Canada_Importer.LicenseRecords lr
-                    INNER JOIN (
-                        SELECT CAST(value AS INT) as Id 
-                        FROM STRING_SPLIT(@ids, ',')
-                    ) ids ON lr.CanadaLicenseRecordID = ids.Id
-                    WHERE lr.IsValid = 1";
+                    FROM canada_importer.""LicenseRecords"" lr
+                    WHERE lr.""CanadaLicenseRecordID"" = ANY(@ids)
+                    AND lr.""IsValid"" = true";
 
                 var batchRecords = await _context.LicenseRecords
-                    .FromSqlRaw(sql, new Microsoft.Data.SqlClient.SqlParameter("@ids", idsString))
+                    .FromSqlRaw(sql, new NpgsqlParameter("@ids", batchKeys.ToArray()))
                     .AsNoTracking()
                     .ToListAsync();
 
@@ -121,6 +117,5 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
                     x => x.Version
                 );
         }
-
     }
 }
