@@ -69,5 +69,17 @@
         /// <param name="toBlobName">The name of the destination blob. Cannot be null or empty.</param>
         /// <returns>A task that represents the asynchronous move operation.</returns>
         Task MoveAsync(string fromBlobName, string toBlobName);
+
+        /// <summary>
+        /// Retrieves a list of all blob names within the specified directory in the storage container.
+        /// </summary>
+        /// <remarks>This method performs an asynchronous operation to retrieve blob names. Ensure that
+        /// the  <paramref name="blobDirectory"/> parameter specifies a valid directory path within the storage
+        /// container.</remarks>
+        /// <param name="blobDirectory">The path of the directory within the storage container to search for blobs.  This value cannot be null or
+        /// empty.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a list of blob names  found in
+        /// the specified directory. If no blobs are found, the list will be empty.</returns>
+        Task<List<string>> ListBlobsForDirectory(string blobDirectory);
     }
 }

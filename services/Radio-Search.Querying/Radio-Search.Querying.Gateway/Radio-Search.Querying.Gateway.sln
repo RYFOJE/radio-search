@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36301.6 d17.14
+VisualStudioVersion = 17.14.36301.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.Api", "Radio-Search.Querying.Gateway.Api\Radio-Search.Querying.Gateway.Api.csproj", "{897B2DDD-7EEF-4FA3-A0F4-40D87687F98B}"
 EndProject
@@ -16,6 +16,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.IntegrationTests", "Radio-Search.Querying.Gateway.IntegrationTests\Radio-Search.Querying.Gateway.IntegrationTests.csproj", "{8960C260-7259-465B-A6B2-493407F1B837}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Querying.Gateway.UnitTests", "Radio-Search.Querying.Gateway.UnitTests\Radio-Search.Querying.Gateway.UnitTests.csproj", "{D43B7A7F-661D-46AB-B325-8562A97BEE8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Utils.BlobStorage", "..\..\..\utils\Radio-Search.Utils.BlobStorage\Radio-Search.Utils.BlobStorage\Radio-Search.Utils.BlobStorage.csproj", "{46066D57-3659-E654-B433-E1CF7349A3C6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExternalLibraries", "ExternalLibraries", "{92B1B946-62CA-447D-921A-A96D8A5A19CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +51,10 @@ Global
 		{D43B7A7F-661D-46AB-B325-8562A97BEE8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D43B7A7F-661D-46AB-B325-8562A97BEE8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D43B7A7F-661D-46AB-B325-8562A97BEE8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46066D57-3659-E654-B433-E1CF7349A3C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46066D57-3659-E654-B433-E1CF7349A3C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46066D57-3659-E654-B433-E1CF7349A3C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46066D57-3659-E654-B433-E1CF7349A3C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,6 +62,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{8960C260-7259-465B-A6B2-493407F1B837} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{D43B7A7F-661D-46AB-B325-8562A97BEE8C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{46066D57-3659-E654-B433-E1CF7349A3C6} = {92B1B946-62CA-447D-921A-A96D8A5A19CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F5923905-C553-4799-AB0C-D05C4946C0D6}
