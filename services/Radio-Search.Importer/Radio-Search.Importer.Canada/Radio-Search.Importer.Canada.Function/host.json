@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "functionTimeout": "02:00:00",
+  "functionTimeout": "00:15:00",
   "logging": {
     "logLevel": {
       "Default": "Warning",
@@ -26,7 +26,7 @@
     "serviceBus": {
       "prefetchCount": 0,
       "messageHandlerOptions": {
-        "maxConcurrentCalls": 1
+        "maxConcurrentCalls": 10
       }
     }
   }
