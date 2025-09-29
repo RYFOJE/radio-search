@@ -2,10 +2,10 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Radio_Search.Importer.Canada.Data;
 
 #nullable disable
@@ -13,61 +13,58 @@ using Radio_Search.Importer.Canada.Data;
 namespace Radio_Search.Importer.Canada.Data.Migrations
 {
     [DbContext(typeof(CanadaImporterContext))]
-    [Migration("20250820225355_changedMaxLength")]
-    partial class changedMaxLength
+    [Migration("20250927013844_licenseIndex")]
+    partial class licenseIndex
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("Canada_Importer")
-                .HasAnnotation("ProductVersion", "8.0.18")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasDefaultSchema("canada_importer")
+                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "postgis");
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.LicenseRecordHistory", b =>
                 {
                     b.Property<int>("LicenseRecordHistoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LicenseRecordHistoryId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LicenseRecordHistoryId"));
 
                     b.Property<int>("CanadaLicenseRecordID")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ChangeType")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("EditedByImportJobID")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int?>("EditedByUserID")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Version")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("LicenseRecordHistoryId");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("LicenseRecordHistoryId"), false);
-
                     b.HasIndex("CanadaLicenseRecordID");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("CanadaLicenseRecordID"));
 
                     b.HasIndex("EditedByImportJobID");
 
@@ -75,517 +72,517 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasIndex("EditedByImportJobID", "ChangeType");
 
-                    b.ToTable("LicenseRecordsHistory", "Canada_Importer");
+                    b.ToTable("LicenseRecordsHistory", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJob", b =>
                 {
                     b.Property<int>("ImportJobID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImportJobID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ImportJobID"));
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CurrentStep")
                         .IsRequired()
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                        .HasColumnType("character varying(25)");
 
                     b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("StartTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ImportJobID");
 
                     b.HasIndex("Status");
 
-                    b.ToTable("ImportJobs", "Canada_Importer");
+                    b.ToTable("ImportJobs", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJobChunkFile", b =>
                 {
                     b.Property<int>("ImportJobID")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("FileID")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("StartTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ImportJobID", "FileID");
 
-                    b.ToTable("ImportJobChunkFiles", "Canada_Importer");
+                    b.ToTable("ImportJobChunkFiles", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.ImportInfo.ImportJobStats", b =>
                 {
                     b.Property<int>("ImportJobID")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("DeletedRecordCount")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("NewRecordCount")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("PreprocessingSkippedRows")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UpdatedRecordCount")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("ImportJobID");
 
-                    b.ToTable("ImportJobStats", "Canada_Importer");
+                    b.ToTable("ImportJobStats", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.AnalogDigital", b =>
                 {
-                    b.Property<string>("AnalogDigitalID")
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char>("AnalogDigitalID")
+                        .HasColumnType("character(1)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("AnalogDigitalID");
 
-                    b.ToTable("AnalogDigital", "Canada_Importer");
+                    b.ToTable("AnalogDigital", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.AntennaPattern", b =>
                 {
                     b.Property<string>("AntennaPatternID")
                         .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasColumnType("character varying(15)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("AntennaPatternID");
 
-                    b.ToTable("AntennaPatterns", "Canada_Importer");
+                    b.ToTable("AntennaPatterns", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.AuthorizationStatus", b =>
                 {
                     b.Property<string>("AuthorizationStatusID")
                         .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("character varying(3)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("AuthorizationStatusID");
 
-                    b.ToTable("AuthorizationStatuses", "Canada_Importer");
+                    b.ToTable("AuthorizationStatuses", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.CommunicationType", b =>
                 {
                     b.Property<string>("CommunicationTypeID")
                         .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("character varying(5)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("CommunicationTypeID");
 
-                    b.ToTable("CommunicationTypes", "Canada_Importer");
+                    b.ToTable("CommunicationTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.ConformityFrequencyPlan", b =>
                 {
                     b.Property<string>("ConformityFrequencyPlanID")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ConformityFrequencyPlanID");
 
-                    b.ToTable("ConformityFrequencyPlans", "Canada_Importer");
+                    b.ToTable("ConformityFrequencyPlans", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.CongestionZoneType", b =>
                 {
-                    b.Property<string>("CongestionZoneTypeID")
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char>("CongestionZoneTypeID")
+                        .HasColumnType("character(1)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("CongestionZoneTypeID");
 
-                    b.ToTable("CongestionZoneTypes", "Canada_Importer");
+                    b.ToTable("CongestionZoneTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.FiltrationInstalledType", b =>
                 {
-                    b.Property<string>("FiltrationInstalledTypeID")
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char>("FiltrationInstalledTypeID")
+                        .HasColumnType("character(1)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("FiltrationInstalledTypeID");
 
-                    b.ToTable("FiltrationInstalledTypes", "Canada_Importer");
+                    b.ToTable("FiltrationInstalledTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.ITUClassType", b =>
                 {
                     b.Property<string>("ITUClassTypeID")
                         .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("character varying(3)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ITUClassTypeID");
 
-                    b.ToTable("ITUClassTypes", "Canada_Importer");
+                    b.ToTable("ITUClassTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseRecord", b =>
                 {
                     b.Property<int>("CanadaLicenseRecordID")
                         .HasMaxLength(30)
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Version")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("AccountNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("AnalogCapacityChannels")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
-                    b.Property<string>("AnalogDigitalID")
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char?>("AnalogDigitalID")
+                        .HasColumnType("character(1)");
 
                     b.Property<decimal?>("AntennaGainDbi")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<string>("AntennaManufacturer")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("AntennaModel")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("AntennaPatternID")
-                        .HasColumnType("nvarchar(15)");
+                        .HasColumnType("character varying(15)");
 
                     b.Property<decimal?>("AntennaStructureHeightM")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<string>("AuthorizationNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("AuthorizationStatusID")
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("character varying(3)");
 
                     b.Property<decimal?>("AzimuthMainLobeDeg")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<decimal?>("BeamwidthDeg")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<string>("CallSign")
                         .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("character varying(40)");
 
                     b.Property<string>("Channel")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("CommunicationTypeID")
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("character varying(5)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<string>("ConformityFrequencyPlanID")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
-                    b.Property<string>("CongestionZoneTypeID")
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char?>("CongestionZoneTypeID")
+                        .HasColumnType("character(1)");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DesignationOfEmission")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("DigitalCapacityMbps")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
-                    b.Property<string>("FiltrationInstalledTypeID")
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char?>("FiltrationInstalledTypeID")
+                        .HasColumnType("character(1)");
 
                     b.Property<string>("FrequencyAllocationName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal?>("FrequencyMHz")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<decimal?>("FrontToBackRatioDb")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<int?>("GroundElevationM")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal?>("HeightAboveGroundM")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<decimal?>("HorizontalPowerW")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<string>("ITUClassTypeID")
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("character varying(3)");
 
                     b.Property<DateOnly?>("InServiceDate")
                         .HasColumnType("date");
 
                     b.Property<string>("InternationalCoordinationNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsValid")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LicenseTypeID")
-                        .HasColumnType("nvarchar(7)");
+                        .HasColumnType("character varying(7)");
 
                     b.Property<string>("LicenseeAddress")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("LicenseeName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Point>("Location")
-                        .HasColumnType("geography");
+                        .HasColumnType("geometry");
 
                     b.Property<string>("ModulationTypeID")
-                        .HasColumnType("nvarchar(25)");
+                        .HasColumnType("character varying(25)");
 
                     b.Property<int?>("NumberOfIdenticalStations")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal?>("OccupiedBandwidthKHz")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<string>("OperationalStatusID")
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("character varying(5)");
 
-                    b.Property<string>("PolarizationTypeID")
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char?>("PolarizationTypeID")
+                        .HasColumnType("character(1)");
 
                     b.Property<string>("ProvinceID")
-                        .HasColumnType("nvarchar(2)");
+                        .HasColumnType("character varying(2)");
 
                     b.Property<string>("RadiusOfOperationKm")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ReferenceIdentifier")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<short?>("RegulatoryServiceID")
                         .HasColumnType("smallint");
 
                     b.Property<string>("RxThresholdSignalLevel")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RxUnfadedReceivedSignalLevel")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("SatelliteName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<short?>("ServiceTypeID")
                         .HasColumnType("smallint");
@@ -594,19 +591,19 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<string>("StationClassID")
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("character varying(5)");
 
                     b.Property<short?>("StationCostCategoryID")
                         .HasColumnType("smallint");
 
                     b.Property<string>("StationFunctionID")
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("character varying(3)");
 
                     b.Property<string>("StationLocation")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("StationReference")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<short?>("StationTypeID")
                         .HasColumnType("smallint");
@@ -616,36 +613,36 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.Property<decimal?>("TotalLossesDb")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<decimal?>("TxERPdBW")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<decimal?>("TxPowerW")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("VerticalElevationAngleDeg")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.Property<decimal?>("VerticalPowerW")
                         .HasPrecision(24, 12)
-                        .HasColumnType("decimal(24,12)");
+                        .HasColumnType("numeric(24,12)");
 
                     b.HasKey("CanadaLicenseRecordID", "Version");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("CanadaLicenseRecordID", "Version"));
 
                     b.HasIndex("AnalogDigitalID");
 
                     b.HasIndex("AntennaPatternID");
 
                     b.HasIndex("AuthorizationStatusID");
+
+                    b.HasIndex("CanadaLicenseRecordID");
 
                     b.HasIndex("CommunicationTypeID");
 
@@ -693,156 +690,156 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
 
                     b.HasIndex("IsValid", "FrequencyMHz");
 
-                    b.ToTable("LicenseRecords", "Canada_Importer");
+                    b.ToTable("LicenseRecords", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.LicenseType", b =>
                 {
                     b.Property<string>("LicenseTypeID")
                         .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
+                        .HasColumnType("character varying(7)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("LicenseTypeID");
 
-                    b.ToTable("LicenseTypes", "Canada_Importer");
+                    b.ToTable("LicenseTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.ModulationType", b =>
                 {
                     b.Property<string>("ModulationTypeID")
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                        .HasColumnType("character varying(25)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ModulationTypeID");
 
-                    b.ToTable("ModulationTypes", "Canada_Importer");
+                    b.ToTable("ModulationTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.OperationalStatus", b =>
                 {
                     b.Property<string>("OperationalStatusID")
                         .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("character varying(5)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("OperationalStatusID");
 
-                    b.ToTable("OperationStatuses", "Canada_Importer");
+                    b.ToTable("OperationStatuses", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.PolarizationType", b =>
                 {
-                    b.Property<string>("PolarizationTypeID")
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char>("PolarizationTypeID")
+                        .HasColumnType("character(1)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("PolarizationTypeID");
 
-                    b.ToTable("PolarizationTypes", "Canada_Importer");
+                    b.ToTable("PolarizationTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.Province", b =>
                 {
                     b.Property<string>("ProvinceID")
                         .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)");
+                        .HasColumnType("character varying(2)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ProvinceID");
 
-                    b.ToTable("Provinces", "Canada_Importer");
+                    b.ToTable("Provinces", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.RegulatoryService", b =>
@@ -853,25 +850,25 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("RegulatoryServiceID");
 
-                    b.ToTable("RegulatoryServices", "Canada_Importer");
+                    b.ToTable("RegulatoryServices", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.ServiceType", b =>
@@ -882,25 +879,25 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ServiceTypeID");
 
-                    b.ToTable("ServiceTypes", "Canada_Importer");
+                    b.ToTable("ServiceTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StandbyTransmitterInformation", b =>
@@ -911,55 +908,55 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("StandbyTransmitterInformationID");
 
-                    b.ToTable("StandbyTransmitterInformation", "Canada_Importer");
+                    b.ToTable("StandbyTransmitterInformation", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StationClass", b =>
                 {
                     b.Property<string>("StationClassID")
                         .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("character varying(5)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("StationClassID");
 
-                    b.ToTable("StationClasses", "Canada_Importer");
+                    b.ToTable("StationClasses", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StationCostCategory", b =>
@@ -970,55 +967,55 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("StationCostCategoryID");
 
-                    b.ToTable("StationCostCategories", "Canada_Importer");
+                    b.ToTable("StationCostCategories", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StationFunctionType", b =>
                 {
                     b.Property<string>("StationFunctionTypeID")
                         .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
+                        .HasColumnType("character varying(3)");
 
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("StationFunctionTypeID");
 
-                    b.ToTable("StationFunctionTypes", "Canada_Importer");
+                    b.ToTable("StationFunctionTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.StationType", b =>
@@ -1029,25 +1026,25 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("StationTypeID");
 
-                    b.ToTable("StationTypes", "Canada_Importer");
+                    b.ToTable("StationTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.License.SubserviceType", b =>
@@ -1058,25 +1055,25 @@ namespace Radio_Search.Importer.Canada.Data.Migrations
                     b.Property<byte[]>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DescriptionEN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("DescriptionFR")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdateTime")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("SubserviceTypeID");
 
-                    b.ToTable("SubserviceTypes", "Canada_Importer");
+                    b.ToTable("SubserviceTypes", "canada_importer");
                 });
 
             modelBuilder.Entity("Radio_Search.Importer.Canada.Data.Models.History.LicenseRecordHistory", b =>

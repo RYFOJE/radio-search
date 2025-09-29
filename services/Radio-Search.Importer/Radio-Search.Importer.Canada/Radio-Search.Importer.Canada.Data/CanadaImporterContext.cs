@@ -42,7 +42,7 @@ namespace Radio_Search.Importer.Canada.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema("Canada_Importer");
+            modelBuilder.HasDefaultSchema("canada_importer");
 
             base.OnModelCreating(modelBuilder);
 
@@ -52,8 +52,7 @@ namespace Radio_Search.Importer.Canada.Data
 
             modelBuilder.Entity<LicenseRecordHistory>(entity =>
             {
-                entity.HasKey(e => e.LicenseRecordHistoryId)
-                    .IsClustered(false);
+                entity.HasKey(e => e.LicenseRecordHistoryId);
 
                 entity.HasIndex(e => new { e.EditedByImportJobID, e.ChangeType }); // For import tracking
 
@@ -63,8 +62,7 @@ namespace Radio_Search.Importer.Canada.Data
                 entity.HasIndex(u => u.EditedByImportJobID)
                     .IsUnique(false);
 
-                entity.HasIndex(e => e.CanadaLicenseRecordID)
-                    .IsClustered(true);
+                entity.HasIndex(e => e.CanadaLicenseRecordID);
 
                 entity.HasOne(e => e.LicenseRecord)
                     .WithMany(x => x.HistoryRecords)
@@ -125,8 +123,7 @@ namespace Radio_Search.Importer.Canada.Data
 
             modelBuilder.Entity<LicenseRecord>(entity =>
             {
-                // Make the composite primary key clustered for optimal insert performance
-                entity.HasKey(e => new { e.CanadaLicenseRecordID, e.Version }).IsClustered(true);
+                entity.HasKey(e => new { e.CanadaLicenseRecordID, e.Version });
 
                 // Indexes
                 entity.HasIndex(u => u.FrequencyMHz);
