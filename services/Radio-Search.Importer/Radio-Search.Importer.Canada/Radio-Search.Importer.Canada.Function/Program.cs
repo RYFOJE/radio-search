@@ -100,41 +100,6 @@ builder.Configuration.AddAzureKeyVault(
 builder.Configuration.AddConfiguration(config);
 #endregion
 
-#region APPLICATION INSIGHTS
-// TODO: Extract this to a package
-
-string? instanceId;
-
-instanceId = Environment.GetEnvironmentVariable("HOSTNAME");
-instanceId = instanceId ?? Environment.MachineName;
-instanceId = string.IsNullOrEmpty(instanceId) ? Dns.GetHostName() : instanceId;
-instanceId = instanceId ?? null;
-
-var resourceAttributes = new Dictionary<string, object> {
-        { "service.name", config.GetValue<string>("ApplicationInsights:ApplicationName")
-            ?? throw new ArgumentNullException("ApplicationInsights:ApplicationName is null") },
-        { "service.instance.id", instanceId
-            ?? throw new ArgumentNullException("Could not find instance ID") }
-    };
-
-
-builder.Services.AddOpenTelemetry().UseAzureMonitor(
-    options =>
-    {
-        options.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsightsConnectionString");
-    }).ConfigureResource(resourceBuilder =>
-    {
-        resourceBuilder.AddAttributes(resourceAttributes);
-    });
-
-builder.Services.AddLogging(loggingBuilder =>
-{
-    loggingBuilder.AddConsole();
-});
-
-
-#endregion
-
 #region DEPENDENCY INJECTION
 
 // Services
