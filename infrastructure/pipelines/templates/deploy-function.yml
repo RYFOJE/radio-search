@@ -26,5 +26,5 @@ jobs:
           appType: functionAppLinux
           isFlexConsumption: true
           appName: ${{ parameters.appName }}
-          package: $(System.ArtifactsDirectory)/${{ parameters.artifactName }}/*.zip
+          package: $(Pipeline.Workspace)/${{ parameters.artifactName }}/*.zip
           deploymentMethod: 'auto'
