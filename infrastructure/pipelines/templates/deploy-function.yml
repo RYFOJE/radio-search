@@ -10,8 +10,8 @@ parameters:
 
 
 jobs:
-  - job: Build
-    displayName: "Build"
+  - job: Deploy
+    displayName: "Deploy"
     # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     pool:
       vmImage: 'windows-latest'
@@ -25,6 +25,6 @@ jobs:
           azureSubscription: ${{ parameters.azureSubscription }}
           appType: functionAppLinux
           isFlexConsumption: true
-          appName: $(appName)
+          appName: ${{ parameters.appName }}
           package: $(System.ArtifactsDirectory)/${{ parameters.artifactName }}/*.zip
           deploymentMethod: 'auto'
