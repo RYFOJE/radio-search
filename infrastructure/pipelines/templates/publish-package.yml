@@ -1,0 +1,24 @@
+parameters:
+  - name: packageArtifactName
+    type: string
+    default: 'nupkg'
+
+jobs:
+  - job: PublishPackage
+    displayName: "Publish Package"
+    # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - download: current
+        artifact: ${{ parameters.packageArtifactName }}
+        displayName: 'Download Library Artifacts'
+
+      - task: NuGetAuthenticate@1
+
+      - task: NuGetCommand@2
+        displayName: 'Publish package to Artifact Feed'
+        inputs:
+          command: 'push'
+          packagesToPush: '$(Pipeline.Workspace)/${{ parameters.packageArtifactName }}/*.nupkg'
+          publishVstsFeed: '$(System.TeamProject)/Radio-Search'

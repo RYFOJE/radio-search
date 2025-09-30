@@ -1,0 +1,64 @@
+parameters:
+  - name: projectDirectory
+    type: string
+  - name: projectFile
+    type: string
+  - name: dotnetVersion
+    type: string
+    default: '8.x'
+  - name: hasTests
+    type: boolean
+    default: true
+
+jobs:
+  - job: BuildAndPack
+    displayName: "Build and Pack"
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - task: UseDotNet@2
+        displayName: 'Install .NET SDK'
+        inputs:
+          version: ${{ parameters.dotnetVersion }}
+
+      - task: NuGetAuthenticate@1
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Restore all projects'
+        inputs:
+          command: 'restore'
+          projects: '${{ parameters.projectDirectory }}/**/*.csproj'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Build all tests'
+        condition: eq('${{ parameters.hasTests }}', 'true')
+        inputs:
+          command: 'build'
+          projects: '${{ parameters.projectDirectory }}/Tests/**/*Tests.csproj'
+          arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/test --no-restore'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Build project'
+        inputs:
+          command: 'build'
+          projects: ${{ parameters.projectFile }}
+          arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/lib'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Pack the library into a NuGet package'
+        inputs:
+          command: 'pack'
+          packagesToPack: ${{ parameters.projectFile }}
+          versioningScheme: byBuildNumber
+          packDirectory: '$(Build.ArtifactStagingDirectory)/nupkg'
+          arguments: '--configuration Release'
+
+      - publish: '$(Build.ArtifactStagingDirectory)/lib'
+        artifact: lib
+
+      - publish: '$(Build.ArtifactStagingDirectory)/nupkg'
+        artifact: nupkg
+
+      - publish: '$(Build.ArtifactStagingDirectory)/test'
+        condition: eq('${{ parameters.hasTests }}', 'true')
+        artifact: test

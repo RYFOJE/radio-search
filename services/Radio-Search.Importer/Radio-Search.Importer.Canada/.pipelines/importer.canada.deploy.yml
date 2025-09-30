@@ -1,0 +1,32 @@
+name: $(BuildDefinitionName)_$(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - services/Radio-Search.Importer/Radio-Search.Importer.Canada/**
+
+stages:
+- stage: Build
+  displayName: 'Build and Pack'
+  jobs:
+    - template: /infrastructure/pipelines/templates/build-application.yml
+      parameters:
+        projectDirectory: 'services/Radio-Search.Importer/Radio-Search.Importer.Canada'
+        projectFile: 'services/Radio-Search.Importer/Radio-Search.Importer.Canada/Radio-Search.Importer.Canada.Function/Radio-Search.Importer.Canada.Function.csproj'
+        dotnetVersion: '8.x'
+        hasTests: false
+
+- stage: Deploy
+  displayName: 'Deploy'
+  # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  jobs:
+    - template: /infrastructure/pipelines/templates/deploy-function.yml
+      parameters:
+        appName: importer-canada
+
+
+
+    

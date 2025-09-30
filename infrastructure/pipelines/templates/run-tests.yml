@@ -1,0 +1,35 @@
+parameters:
+  - name: testDirectoryArtifactName
+    type: string
+    default: 'test'
+  - name: projectToTestArtifactName
+    type: string
+    default: 'lib'
+
+jobs:
+  - job: RunTests
+    displayName: "Run Tests"
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - download: current
+        artifact: ${{ parameters.testDirectoryArtifactName }}
+        displayName: 'Download Test Artifacts'
+        
+      - download: current
+        artifact: ${{ parameters.projectToTestArtifactName }}
+        displayName: 'Download Library Artifacts'
+
+      - task: UseDotNet@2
+        displayName: 'Install .NET SDK'
+        inputs:
+          version: '8.x'
+
+      - task: VSTest@2
+        displayName: 'Run Tests'
+        inputs:
+          testSelector: 'testAssemblies'
+          testAssemblyVer2: '**\*Tests.dll'
+          searchFolder: '$(Pipeline.Workspace)/${{ parameters.testDirectoryArtifactName }}'
+          failOnMinTestsNotRun: true
+          minimumExpectedTests: '1'
