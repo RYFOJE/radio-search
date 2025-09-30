@@ -120,9 +120,13 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
 
                 // DEFINITION STEP
                 _logger.LogInformation("Starting to process the TAFL Definition File.");
-                var definitionFileStream = await _blobService.DownloadAsync(string.Format(_fileLocations.UnprocessedTAFLDefinition, importJobID));
-                var definitionRows = _definitionImportService.ProcessTAFLDefinition(definitionFileStream);
-                await _definitionImportService.SaveTAFLDefinitionToDBAsync(definitionRows.Tables);
+
+                using (var definitionFileStream = await _blobService.DownloadAsync(string.Format(_fileLocations.UnprocessedTAFLDefinition, importJobID)))
+                {
+                    var definitionRows = _definitionImportService.ProcessTAFLDefinition(definitionFileStream);
+                    await _definitionImportService.SaveTAFLDefinitionToDBAsync(definitionRows.Tables);
+                }
+
                 _logger.LogInformation("Finished processing the TAFL Definition File within {ElapsedMs} ms.", timer.ElapsedMilliseconds);
 
                 timer.Restart();
