@@ -33,6 +33,8 @@ using var loggerFactory = LoggerFactory.Create(logging =>
 });
 var logger = loggerFactory.CreateLogger("Startup");
 
+logger.LogInformation("LOADING. PLEASE AT LEAST SHOW UP");
+
 #region VALUES
 
 #region BOOTSTRAPPING
