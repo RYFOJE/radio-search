@@ -194,6 +194,6 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<TAFLDefinitionProfile>());
 builder.Services.AddAutoMapper(cfg =>cfg.AddProfile<TAFLRowProfile>());
 #endregion
 
-builder.Services.AddHostedService<RunAtStart>();
+//builder.Services.AddHostedService<RunAtStart>();
 
 await builder.Build().RunAsync();
