@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Radio_Search.Importer.Canada.Data;
-using Radio_Search.Importer.Canada.Data.Models.License;
+using Radio_Search.Canada.Models.License;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Data;

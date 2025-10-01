@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Radio_Search.Importer.Canada.Data;
-using Radio_Search.Importer.Canada.Data.Enums;
-using Radio_Search.Importer.Canada.Data.Models.History;
-using Radio_Search.Importer.Canada.Data.Models.License;
+using Radio_Search.Canada.Models.History;
+using Radio_Search.Canada.Models.License;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Responses;
 using System.Diagnostics;
+using Radio_Search.Canada.Models.Enums;
 
 namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLImport
 {

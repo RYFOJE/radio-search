@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio_Search.Utils.MessageB
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TempLibraries", "TempLibraries", "{FC32900A-ED06-4E20-8810-E4493876CF7B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Radio-Search.Canada.Models", "..\..\..\shared\Canada\Radio-Search.Canada.Models\Radio-Search.Canada.Models\Radio-Search.Canada.Models.csproj", "{0F4221EA-E319-841E-E016-DD180A4D78F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{E7BE610F-4483-DAEA-C4D9-8291A334710C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7BE610F-4483-DAEA-C4D9-8291A334710C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7BE610F-4483-DAEA-C4D9-8291A334710C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F4221EA-E319-841E-E016-DD180A4D78F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F4221EA-E319-841E-E016-DD180A4D78F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F4221EA-E319-841E-E016-DD180A4D78F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F4221EA-E319-841E-E016-DD180A4D78F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,6 +69,7 @@ Global
 		{4C7356D8-5EA3-45DB-BC16-19B74A98DB8B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{46066D57-3659-E654-B433-E1CF7349A3C6} = {FC32900A-ED06-4E20-8810-E4493876CF7B}
 		{E7BE610F-4483-DAEA-C4D9-8291A334710C} = {FC32900A-ED06-4E20-8810-E4493876CF7B}
+		{0F4221EA-E319-841E-E016-DD180A4D78F3} = {FC32900A-ED06-4E20-8810-E4493876CF7B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5299C3BA-8EB4-43ED-B1FC-EB12FAC41D40}

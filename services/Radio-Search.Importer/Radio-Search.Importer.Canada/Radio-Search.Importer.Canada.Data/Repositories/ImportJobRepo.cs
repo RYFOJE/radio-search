@@ -1,8 +1,9 @@
 ﻿using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Radio_Search.Importer.Canada.Data.Models.History;
-using Radio_Search.Importer.Canada.Data.Models.ImportInfo;
+using Radio_Search.Canada.Models.Enums;
+using Radio_Search.Canada.Models.History;
+using Radio_Search.Canada.Models.ImportInfo;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using System.Linq.Expressions;
 
@@ -167,7 +168,7 @@ namespace Radio_Search.Importer.Canada.Data.Repositories
         public async Task<bool> IsChunkProcessingDoneAsync(int importJobID)
         {
             return !await _context.ImportJobChunkFiles
-                .Where(x => x.ImportJobID == importJobID && x.Status != Enums.FileStatus.Processed)
+                .Where(x => x.ImportJobID == importJobID && x.Status != FileStatus.Processed)
                 .AnyAsync();
         }
     }

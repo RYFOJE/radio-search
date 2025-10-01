@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Radio_Search.Importer.Canada.Data.Enums;
-using Radio_Search.Importer.Canada.Data.Models;
-using Radio_Search.Importer.Canada.Data.Models.ImportInfo;
+using Radio_Search.Canada.Models;
+using Radio_Search.Canada.Models.Enums;
+using Radio_Search.Canada.Models.ImportInfo;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Data_Contracts.V1;
 using Radio_Search.Importer.Canada.Services.Configuration;

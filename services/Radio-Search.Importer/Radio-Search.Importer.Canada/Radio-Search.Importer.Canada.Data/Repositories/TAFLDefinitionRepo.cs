@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Radio_Search.Importer.Canada.Data.Models.License;
+using Radio_Search.Canada.Models.License;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 
 namespace Radio_Search.Importer.Canada.Data.Repositories

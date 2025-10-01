@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Radio_Search.Importer.Canada.Data.Models.History;
-using Radio_Search.Importer.Canada.Data.Models.ImportInfo;
-using Radio_Search.Importer.Canada.Data.Models.License;
+using Radio_Search.Canada.Models.History;
+using Radio_Search.Canada.Models.ImportInfo;
+using Radio_Search.Canada.Models.License;
 
 namespace Radio_Search.Importer.Canada.Data
 {

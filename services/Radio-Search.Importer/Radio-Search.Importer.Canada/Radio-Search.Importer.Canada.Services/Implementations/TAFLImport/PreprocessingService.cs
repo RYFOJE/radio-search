@@ -2,7 +2,7 @@
 using CsvHelper.Configuration;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using Radio_Search.Importer.Canada.Data.Models.License;
+using Radio_Search.Canada.Models.License;
 using Radio_Search.Importer.Canada.Data.Repositories.Interfaces;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport;

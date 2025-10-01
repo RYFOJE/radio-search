@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using NetTopologySuite.Geometries;
-using Radio_Search.Importer.Canada.Data.Models.License;
+using Radio_Search.Canada.Models.License;
 using Radio_Search.Importer.Canada.Services.Data;
 
 namespace Radio_Search.Importer.Canada.Services.Mappings

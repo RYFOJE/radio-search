@@ -1,5 +1,5 @@
-﻿using Radio_Search.Importer.Canada.Data.Models.History;
-using Radio_Search.Importer.Canada.Data.Models.ImportInfo;
+﻿using Radio_Search.Canada.Models.History;
+using Radio_Search.Canada.Models.ImportInfo;
 using System.Linq.Expressions;
 
 namespace Radio_Search.Importer.Canada.Data.Repositories.Interfaces
