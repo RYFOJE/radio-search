@@ -37,6 +37,10 @@ logger.LogInformation("LOADING. PLEASE AT LEAST SHOW UP");
 
 #region VALUES
 
+var options = new DefaultAzureCredentialOptions { Diagnostics = { IsLoggingContentEnabled = true } };
+var credential = new DefaultAzureCredential(options);
+
+
 #region BOOTSTRAPPING
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "production";
@@ -55,66 +59,66 @@ logger.LogInformation("Loaded appsettings");
 #region APP CONFIG
 
 // Common
-//try
-//{
-//    var uri = config.GetValue<string>("AppConfig:Common:URL") ?? throw new ArgumentNullException("AppConfig:Common:URL is null");
-//    var sentinelLabel = config.GetValue<string>("AppConfig:Common:Sentinel") ?? throw new ArgumentNullException("AppConfig:Common:Sentinel is null");
-//    var refreshInterval = config.GetValue("AppConfig:Common:RefreshInterval", 5);
+try
+{
+    var uri = config.GetValue<string>("AppConfig:Common:URL") ?? throw new ArgumentNullException("AppConfig:Common:URL is null");
+    var sentinelLabel = config.GetValue<string>("AppConfig:Common:Sentinel") ?? throw new ArgumentNullException("AppConfig:Common:Sentinel is null");
+    var refreshInterval = config.GetValue("AppConfig:Common:RefreshInterval", 5);
 
-//    logger.LogInformation("Initializing Common AppConfig");
-//    builder.Configuration.AddAzureAppConfiguration(options =>
-//    {
+    logger.LogInformation("Initializing Common AppConfig");
+    builder.Configuration.AddAzureAppConfiguration(options =>
+    {
 
 
-//        options.Connect(new Uri(uri), new DefaultAzureCredential());
+        options.Connect(new Uri(uri), new DefaultAzureCredential());
 
-//        options.Select(KeyFilter.Any, LabelFilter.Null);
+        options.Select(KeyFilter.Any, LabelFilter.Null);
 
-//        options.ConfigureRefresh(refreshOptions =>
-//        {
-//            refreshOptions.Register(sentinelLabel, refreshAll: true);
-//            refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
-//        });
-//    });
-//    logger.LogInformation("Loaded common appconfig");
-//}
-//catch (Exception ex)
-//{
-//    logger.LogError(ex, "Failed to initialize Common AppConfig");
-//    throw;
-//}
+        options.ConfigureRefresh(refreshOptions =>
+        {
+            refreshOptions.Register(sentinelLabel, refreshAll: true);
+            refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
+        });
+    });
+    logger.LogInformation("Loaded common appconfig");
+}
+catch (Exception ex)
+{
+    logger.LogError(ex, "Failed to initialize Common AppConfig");
+    throw;
+}
 
 // Importers
-//try
-//{
-//    var uri = config.GetValue<string>("AppConfig:Importer:URL") ?? throw new ArgumentNullException("AppConfig:Importer:URL is null");
-//    var sentinelLabel = config.GetValue<string>("AppConfig:Importer:Sentinel") ?? throw new ArgumentNullException("AppConfig:Importer:Sentinel is null");
-//    var keyPrefix = config.GetValue<string>("AppConfig:Importer:Prefix") ?? throw new ArgumentNullException("AppConfig:Importer:Prefix is null");
-//    var refreshInterval = config.GetValue("AppConfig:Importer:RefreshInterval", 5);
+try
+{
+    var uri = config.GetValue<string>("AppConfig:Importer:URL") ?? throw new ArgumentNullException("AppConfig:Importer:URL is null");
+    var sentinelLabel = config.GetValue<string>("AppConfig:Importer:Sentinel") ?? throw new ArgumentNullException("AppConfig:Importer:Sentinel is null");
+    var keyPrefix = config.GetValue<string>("AppConfig:Importer:Prefix") ?? throw new ArgumentNullException("AppConfig:Importer:Prefix is null");
+    var refreshInterval = config.GetValue("AppConfig:Importer:RefreshInterval", 5);
 
-//    logger.LogInformation("Initializing Importer AppConfig");
-//    builder.Configuration.AddAzureAppConfiguration(options =>
-//    {
+    logger.LogInformation("Initializing Importer AppConfig");
+    builder.Configuration.AddAzureAppConfiguration(options =>
+    {
 
 
-//        options.Connect(new Uri(uri), new DefaultAzureCredential());
+        options.Connect(new Uri(uri), new DefaultAzureCredential());
 
-//        options.Select($"{keyPrefix}:*", LabelFilter.Null);
-//        options.TrimKeyPrefix($"{keyPrefix}:");
+        options.Select($"{keyPrefix}:*", LabelFilter.Null);
+        options.TrimKeyPrefix($"{keyPrefix}:");
 
-//        options.ConfigureRefresh(refreshOptions =>
-//        {
-//            refreshOptions.Register(sentinelLabel, refreshAll: true);
-//            refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
-//        });
-//    });
-//    logger.LogInformation("Loaded importer appconfig");
-//}
-//catch (Exception ex)
-//{
-//    logger.LogError(ex, "Failed to initialize Importer AppConfig");
-//    throw;
-//}
+        options.ConfigureRefresh(refreshOptions =>
+        {
+            refreshOptions.Register(sentinelLabel, refreshAll: true);
+            refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
+        });
+    });
+    logger.LogInformation("Loaded importer appconfig");
+}
+catch (Exception ex)
+{
+    logger.LogError(ex, "Failed to initialize Importer AppConfig");
+    throw;
+}
 
 #endregion
 
