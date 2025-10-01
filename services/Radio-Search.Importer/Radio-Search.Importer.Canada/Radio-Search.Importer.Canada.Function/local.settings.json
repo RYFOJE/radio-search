@@ -1,10 +1,8 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    //"AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "sb_importer__fullyQualifiedNamespace": "https://rds-importers.servicebus.windows.net:443/",
-    "canada-blob__blobServiceUri": "http://127.0.0.1:10000/devstoreaccount1",
-    "canada-blob__queueServiceUri": "http://127.0.0.1:10001/devstoreaccount1"
+    "sb_importer__fullyQualifiedNamespace": "https://rds-importers.servicebus.windows.net:443/"
   }
 }
