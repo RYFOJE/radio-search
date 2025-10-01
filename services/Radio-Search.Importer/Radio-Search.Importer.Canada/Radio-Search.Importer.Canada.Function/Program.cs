@@ -1,6 +1,4 @@
 using Azure.Identity;
-using Azure.Monitor.OpenTelemetry.AspNetCore;
-using CsvHelper.Configuration;
 using FluentValidation;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +7,6 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Protocols.Configuration;
-using OpenTelemetry.Resources;
 using Radio_Search.Importer.Canada.Data;
 using Radio_Search.Importer.Canada.Services;
 using Radio_Search.Importer.Canada.Services.Configuration;
@@ -25,12 +21,17 @@ using Radio_Search.Importer.Canada.Services.Mappings;
 using Radio_Search.Importer.Canada.Services.Validators;
 using Radio_Search.Utils.BlobStorage;
 using Radio_Search.Utils.MessageBroker.ConfigurationSetupExtensions;
-using System.Data.Common;
-using System.Net;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
+
+// Create a logger for startup
+using var loggerFactory = LoggerFactory.Create(logging =>
+{
+    logging.AddConsole();
+});
+var logger = loggerFactory.CreateLogger("Startup");
 
 #region VALUES
 
@@ -44,6 +45,9 @@ var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
+
+logger.LogInformation("Loaded appsettings");
+
 #endregion
 
 #region APP CONFIG
@@ -66,6 +70,8 @@ builder.Configuration.AddAzureAppConfiguration(options =>
     });
 });
 
+logger.LogInformation("Loaded common appconfig");
+
 // Importers
 builder.Configuration.AddAzureAppConfiguration(options =>
 {
@@ -86,6 +92,8 @@ builder.Configuration.AddAzureAppConfiguration(options =>
     });
 });
 
+logger.LogInformation("Loaded importer appconfig");
+
 #endregion
 
 #region KEYVAULT
@@ -94,9 +102,12 @@ builder.Configuration.AddAzureKeyVault(
     new Uri(config.GetValue<string>("Keyvault-Importer") ?? throw new ArgumentNullException("Keyvault-Importer is null")),
     new DefaultAzureCredential());
 
+logger.LogInformation("Loaded keyvault");
+
 #endregion
 
 builder.Configuration.AddConfiguration(config);
+
 #endregion
 
 #region DEPENDENCY INJECTION
