@@ -4,3 +4,4 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "sb_importer__fullyQualifiedNamespace": "https://rds-importers.servicebus.windows.net:443/"
   }
+}

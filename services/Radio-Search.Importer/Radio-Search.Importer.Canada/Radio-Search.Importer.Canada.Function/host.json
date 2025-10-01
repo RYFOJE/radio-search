@@ -3,16 +3,16 @@
   "functionTimeout": "00:15:00",
   "logging": {
     "logLevel": {
-      "Default": "Warning",
+      "Default": "Information",
       "Function": "Information",
-      "Microsoft": "Warning",
-      "Microsoft.EntityFrameworkCore.Database.Command": "Warning",
-      "Microsoft.EntityFrameworkCore.Database.Connection": "Warning",
-      "Azure.Messaging.ServiceBus": "Warning",
-      "Azure.Storage": "Warning",
+      "Microsoft": "Information",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Information",
+      "Microsoft.EntityFrameworkCore.Database.Connection": "Information",
+      "Azure.Messaging.ServiceBus": "Information",
+      "Azure.Storage": "Information",
       "Microsoft.Azure.WebJobs": "Information",
-      "Microsoft.Azure.Functions.Worker": "Warning",
-      "Microsoft.Azure.Functions.Worker.Http": "Warning"
+      "Microsoft.Azure.Functions.Worker": "Information",
+      "Microsoft.Azure.Functions.Worker.Http": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
