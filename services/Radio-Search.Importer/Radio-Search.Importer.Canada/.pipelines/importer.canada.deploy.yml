@@ -21,11 +21,11 @@ stages:
 
 - stage: Deploy
   displayName: 'Deploy'
-  # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   jobs:
     - template: /infrastructure/pipelines/templates/deploy-function.yml
       parameters:
-        appName: importer-canada
+        appName: rds-importer-canada
 
 
 
