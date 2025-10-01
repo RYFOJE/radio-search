@@ -3,8 +3,8 @@
   "functionTimeout": "00:15:00",
   "logging": {
     "logLevel": {
-      "Default": "Information",
-      "Function": "Information",
+      "Default": "Debug",
+      "Function": "Debug",
       "Microsoft": "Information",
       "Microsoft.EntityFrameworkCore.Database.Command": "Information",
       "Microsoft.EntityFrameworkCore.Database.Connection": "Information",
