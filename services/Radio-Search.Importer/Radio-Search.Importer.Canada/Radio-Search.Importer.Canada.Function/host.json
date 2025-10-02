@@ -3,12 +3,12 @@
   "functionTimeout": "00:05:00",
   "logging": {
     "logLevel": {
-      "Default": "Warning",
+      "Default": "Debug",
       "Radio-Search": "Debug"
     },
     "applicationInsights": {
       "samplingSettings": {
-        "isEnabled": true,
+        "isEnabled": false,
         "maxTelemetryItemsPerSecond": 5
       },
       "enableLiveMetricsFilters": true

@@ -26,6 +26,12 @@ var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.ConfigureFunctionsWebApplication();
 
+# region Azure Credentials
+
+DefaultAzureCredential azureCreds = new DefaultAzureCredential();
+
+#endregion
+
 #region VALUES
 
 #region BOOTSTRAPPING
@@ -38,26 +44,6 @@ var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
-
-#endregion
-
-
-# region Azure Credentials
-
-var identity = config.GetValue<string?>("AzureClientID");
-DefaultAzureCredential azureCreds;
-
-if(string.IsNullOrWhiteSpace(identity))
-    azureCreds = new DefaultAzureCredential();
-
-else
-{
-    azureCreds = new DefaultAzureCredential(new DefaultAzureCredentialOptions
-    {
-        ManagedIdentityClientId = identity
-    });
-}
-
 
 #endregion
 
