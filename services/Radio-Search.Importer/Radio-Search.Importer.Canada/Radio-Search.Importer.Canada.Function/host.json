@@ -3,19 +3,12 @@
   "functionTimeout": "00:05:00",
   "logging": {
     "logLevel": {
-      "Default": "Trace",
-      "Function": "Trace",
-      "Microsoft": "Trace",
-      "Microsoft.Azure.Functions.Worker": "Trace",
-      "Microsoft.Azure.Functions.Worker.Http": "Trace",
-      "Microsoft.Azure.WebJobs": "Trace",
-      "Azure.Messaging.ServiceBus": "Trace",
-      "Azure.Storage": "Trace",
-      "Microsoft.EntityFrameworkCore": "Trace"
+      "Default": "Warning"
     },
     "applicationInsights": {
       "samplingSettings": {
-        "isEnabled": false
+        "isEnabled": true,
+        "maxTelemetryItemsPerSecond": 5
       },
       "enableLiveMetricsFilters": true
     }
