@@ -40,6 +40,7 @@ logger.LogInformation("LOADING. PLEASE AT LEAST SHOW UP");
 var options = new DefaultAzureCredentialOptions { Diagnostics = { IsLoggingContentEnabled = true } };
 var credential = new DefaultAzureCredential(options);
 
+logger.LogInformation("FETCHED AZURE CREDENTIALS");
 
 #region BOOTSTRAPPING
 
