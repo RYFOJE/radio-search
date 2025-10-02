@@ -9,12 +9,15 @@ parameters:
   - name: hasTests
     type: boolean
     default: true
+  - name: vmImage
+    type: string
+    default: 'ubuntu-latest'
 
 jobs:
   - job: BuildAndPack
     displayName: "Build and Pack"
     pool:
-      vmImage: 'windows-latest'
+      vmImage: ${{ parameters.vmImage }}
     steps:
       - task: UseDotNet@2
         displayName: 'Install .NET SDK'

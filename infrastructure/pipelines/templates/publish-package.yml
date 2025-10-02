@@ -2,13 +2,16 @@ parameters:
   - name: packageArtifactName
     type: string
     default: 'nupkg'
+  - name: vmImage
+    type: string
+    default: 'ubuntu-latest'
 
 jobs:
   - job: PublishPackage
     displayName: "Publish Package"
-    # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     pool:
-      vmImage: 'windows-latest'
+      vmImage: ${{ parameters.vmImage }}
     steps:
       - download: current
         artifact: ${{ parameters.packageArtifactName }}

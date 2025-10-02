@@ -12,13 +12,16 @@ parameters:
   - name: buildConfiguration
     type: string
     default: 'Release'
+  - name: vmImage
+    type: string
+    default: 'ubuntu-latest'
 
 
 jobs:
   - job: Build
     displayName: "Build"
     pool:
-      vmImage: 'windows-latest'
+      vmImage: ${{ parameters.vmImage }}
     steps:
       - task: UseDotNet@2
         displayName: 'Install .NET SDK'
