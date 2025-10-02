@@ -3,7 +3,8 @@
   "functionTimeout": "00:05:00",
   "logging": {
     "logLevel": {
-      "Default": "Warning"
+      "Default": "Warning",
+      "Radio-Search": "Debug"
     },
     "applicationInsights": {
       "samplingSettings": {
