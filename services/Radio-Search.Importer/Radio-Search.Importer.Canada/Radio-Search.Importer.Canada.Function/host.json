@@ -3,21 +3,19 @@
   "functionTimeout": "00:05:00",
   "logging": {
     "logLevel": {
-      "Default": "Debug",
-      "Function": "Debug",
-      "Microsoft": "Information",
-      "Microsoft.EntityFrameworkCore.Database.Command": "Information",
-      "Microsoft.EntityFrameworkCore.Database.Connection": "Information",
-      "Azure.Messaging.ServiceBus": "Information",
-      "Azure.Storage": "Information",
-      "Microsoft.Azure.WebJobs": "Information",
-      "Microsoft.Azure.Functions.Worker": "Information",
-      "Microsoft.Azure.Functions.Worker.Http": "Information"
+      "Default": "Trace",
+      "Function": "Trace",
+      "Microsoft": "Trace",
+      "Microsoft.Azure.Functions.Worker": "Trace",
+      "Microsoft.Azure.Functions.Worker.Http": "Trace",
+      "Microsoft.Azure.WebJobs": "Trace",
+      "Azure.Messaging.ServiceBus": "Trace",
+      "Azure.Storage": "Trace",
+      "Microsoft.EntityFrameworkCore": "Trace"
     },
     "applicationInsights": {
       "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Request"
+        "isEnabled": false
       },
       "enableLiveMetricsFilters": true
     }
@@ -26,7 +24,7 @@
     "serviceBus": {
       "prefetchCount": 0,
       "messageHandlerOptions": {
-        "maxConcurrentCalls": 10
+        "maxConcurrentCalls": 1
       }
     }
   }
