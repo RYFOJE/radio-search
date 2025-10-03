@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Radio_Search.Utils.BlobStorage.Interfaces;
 
@@ -112,6 +113,25 @@ namespace Radio_Search.Utils.BlobStorage
             }
 
             return await blob.OpenWriteAsync(overwrite: overwrite);
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<string>> ListBlobsForDirectory(string blobDirectory)
+        {
+            List<string> foundBlobs = [];
+
+            var resultSegment = _containerClient.GetBlobsAsync()
+                .AsPages(default, 100);
+
+            await foreach (Page<BlobItem> blobPage in resultSegment)
+            {
+                foreach (BlobItem blobItem in blobPage.Values)
+                {
+                    foundBlobs.Add(blobItem.Name);
+                }
+            }
+
+            return foundBlobs;
         }
     }
 }
