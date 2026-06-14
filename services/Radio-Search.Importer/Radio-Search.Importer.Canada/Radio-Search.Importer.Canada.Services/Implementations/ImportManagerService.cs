@@ -124,6 +124,10 @@ namespace Radio_Search.Importer.Canada.Services.Implementations
                 using (var definitionFileStream = await _blobService.DownloadAsync(string.Format(_fileLocations.UnprocessedTAFLDefinition, importJobID)))
                 {
                     var definitionRows = _definitionImportService.ProcessTAFLDefinition(definitionFileStream);
+
+                    if (!definitionRows.Success)
+                        throw new InvalidOperationException($"ProcessTAFLDefinition failed: {definitionRows.Message}");
+
                     await _definitionImportService.SaveTAFLDefinitionToDBAsync(definitionRows.Tables);
                 }
 
