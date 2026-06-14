@@ -39,8 +39,10 @@ public class DownloadCompleteFunction
         {
             _logger.LogError(ex, "Failed to process Download complete message. Attempt: {AttemptNumber}", message.DeliveryCount);
             await messageActions.AbandonMessageAsync(message);
+            return;
         }
-            // Complete the message
+
+        // Complete the message
         await messageActions.CompleteMessageAsync(message);
     }
 }
