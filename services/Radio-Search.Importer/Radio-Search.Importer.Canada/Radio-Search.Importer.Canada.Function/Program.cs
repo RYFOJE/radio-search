@@ -12,9 +12,11 @@ using Radio_Search.Importer.Canada.Services;
 using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Implementations;
+using Radio_Search.Importer.Canada.Services.Implementations.EnvironmentManagement;
 using Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionImport;
 using Radio_Search.Importer.Canada.Services.Implementations.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Interfaces;
+using Radio_Search.Importer.Canada.Services.Interfaces.EnvironmentManagement;
 using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
 using Radio_Search.Importer.Canada.Services.Interfaces.TAFLImport;
 using Radio_Search.Importer.Canada.Services.Mappings;
@@ -113,6 +115,10 @@ builder.Services.AddScoped<IPreprocessingService, PreprocessingService>();
 builder.Services.AddScoped<IProcessingService, ProcessingService>();
 builder.Services.ImporterCanadaAddData();
 builder.Services.AddScoped<IValidator<TaflEntryRawRow>, TAFLEntryRawRowValidator>();
+builder.Services.AddSingleton<IServiceBusManagement, ServiceBusManagement>();
+builder.Services.AddSingleton<IFontManagement, FontManagement>();
+
+
 
 builder.Services.AddAzureServiceBusClient(new() { 
     ServiceBusUrl = config.GetConnectionString("CanadaImporterServiceBus") ?? throw new ArgumentNullException()
@@ -186,6 +192,6 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<TAFLDefinitionProfile>());
 builder.Services.AddAutoMapper(cfg =>cfg.AddProfile<TAFLRowProfile>());
 #endregion
 
-//builder.Services.AddHostedService<RunAtStart>();
+builder.Services.AddHostedService<RunAtStart>();
 
 await builder.Build().RunAsync();

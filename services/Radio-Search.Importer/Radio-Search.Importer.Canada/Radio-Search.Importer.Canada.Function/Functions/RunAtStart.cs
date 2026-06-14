@@ -1,76 +1,41 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Radio_Search.Importer.Canada.Services.Configuration;
-using Radio_Search.Utils.MessageBroker.Implementations;
-using Radio_Search.Utils.MessageBroker.Interfaces;
+using Radio_Search.Importer.Canada.Services.Interfaces.EnvironmentManagement;
 
 namespace Radio_Search.Importer.Canada.Services.Implementations
 {
     public class RunAtStart : IHostedService
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IFontManagement _fontManagement;
+        private readonly IServiceBusManagement _serviceBusManagement;
         private readonly ILogger<RunAtStart> _logger;
-        private readonly ServiceBusDefinitions _serviceBusDefinitions;
 
         public RunAtStart(
-            IServiceProvider serviceProvider,
-            ILogger<RunAtStart> logger,
-            IOptions<ServiceBusDefinitions> serviceBusDefinitions)
+            IFontManagement fontManagement,
+            IServiceBusManagement serviceBusManagement,
+            ILogger<RunAtStart> logger)
         {
-            _serviceProvider = serviceProvider;
+            _fontManagement = fontManagement;
+            _serviceBusManagement = serviceBusManagement;
             _logger = logger;
-            _serviceBusDefinitions = serviceBusDefinitions.Value;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
-                using var scope = _serviceProvider.CreateScope();
-                var messageBrokerClient = scope.ServiceProvider.GetRequiredService<IMessageBrokerClient>();
+                _logger.LogInformation("Beginning to run at start services");
+                _logger.LogInformation("Importing Fonts.");
+                _fontManagement.InitializaFonts();
+                _logger.LogInformation("Done importing Fonts.");
 
-                var filters = new[]
-                {
-                    (_serviceBusDefinitions.TopicName, new MessageFilter
-                    {
-                        FilterName = _serviceBusDefinitions.ImportStart_SubscriptionName,
-                        FilterOnName = _serviceBusDefinitions.ImportStart_SubscriptionName
-                    }),
-                    (_serviceBusDefinitions.TopicName, new MessageFilter
-                    {
-                        FilterName = _serviceBusDefinitions.DownloadComplete_SubscriptionName,
-                        FilterOnName = _serviceBusDefinitions.DownloadComplete_SubscriptionName
-                    }),
-                    (_serviceBusDefinitions.TopicName, new MessageFilter
-                    {
-                        FilterName = _serviceBusDefinitions.ChunkReady_SubscriptionName,
-                        FilterOnName = _serviceBusDefinitions.ChunkReady_SubscriptionName
-                    }),
-                    (_serviceBusDefinitions.TopicName, new MessageFilter
-                    {
-                        FilterName = _serviceBusDefinitions.ChunkProcessingComplete_SubscriptionName,
-                        FilterOnName = _serviceBusDefinitions.ChunkProcessingComplete_SubscriptionName
-                    })
-                };
-
-                foreach (var (topicName, filter) in filters)
-                {
-                    _logger.LogInformation("Creating subscription {SubscriptionName} with filter {FilterOnName}",
-                        filter.FilterName, filter.FilterOnName);
-
-                    await messageBrokerClient.AddMessageFilter(topicName, filter);
-
-                    _logger.LogInformation("Successfully created subscription {SubscriptionName}", filter.FilterName);
-                }
-
-                _logger.LogInformation("Service Bus initialization completed successfully");
+                _logger.LogInformation("Setting up servicebus");
+                await _serviceBusManagement.SetupFilters();
+                _logger.LogInformation("Done setting up servicebus");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to initialize Service Bus subscriptions");
-                throw;
+                _logger.LogError(ex, "An exception occured while setting up environment.");
             }
         }
 
