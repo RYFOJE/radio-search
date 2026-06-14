@@ -12,6 +12,7 @@ using Radio_Search.Importer.Canada.Services.Configuration;
 using Radio_Search.Importer.Canada.Services.Data;
 using Radio_Search.Importer.Canada.Services.Data.Enums;
 using Radio_Search.Importer.Canada.Services.Exceptions.TAFLDefinitionExceptions;
+using Radio_Search.Importer.Canada.Services.Interfaces.EnvironmentManagement;
 using Radio_Search.Importer.Canada.Services.Interfaces.TAFLDefinitionImport;
 using Radio_Search.Importer.Canada.Services.Responses;
 using Spire.Pdf;
@@ -31,6 +32,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
         private readonly IMapper _mapper;
         private readonly IPDFProcessingServices _pdfService;
         public readonly IValidator<TaflEntryRawRow> _taflRawRowValidator;
+        private readonly IFontManagement _fontManagement;
 
         public TaflDefinitionImportService(
                 ILogger<TaflDefinitionImportService> logger,
@@ -41,7 +43,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
                 IImportJobRepo historyRepo,
                 IMapper mapper,
                 IPDFProcessingServices pdfService,
-                IValidator<TaflEntryRawRow> taflRawRowValidator)
+                IValidator<TaflEntryRawRow> taflRawRowValidator,
+                IFontManagement fontManagement)
         {
             _logger = logger;
             _taflDefinitionOrder = taflDefinitionOrder.Value;
@@ -50,6 +53,7 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
             _mapper = mapper;
             _pdfService = pdfService;
             _taflRawRowValidator = taflRawRowValidator;
+            _fontManagement = fontManagement;
         }
 
         #region public
@@ -61,6 +65,10 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.TAFLDefinitionIm
 
             try
             {
+                // Ensure fonts are copied and registered with Spire before any extraction.
+                // Idempotent; guards against the startup hosted service not having run.
+                _fontManagement.InitializaFonts();
+
                 var singlePageStream = _pdfService.MergePDFToSinglePage(multiPageStream);
 
                 PdfDocument pdf = new();
