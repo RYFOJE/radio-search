@@ -7,9 +7,11 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.EnvironmentManag
     {
         private const string prefix = "Radio_Search.Importer.Canada.Services.Fonts.";
 
-        public void InitializaFonts()
+        public string InitializaFonts()
         {
-            var fontDir = Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "/home", ".fonts");
+            // Use a guaranteed-writable folder. Avoids relying on system font install
+            // or fontconfig, which are unavailable on a managed Azure Function.
+            var fontDir = Path.Combine(Path.GetTempPath(), "fonts");
             Directory.CreateDirectory(fontDir);
 
             var asm = Assembly.GetExecutingAssembly();
@@ -28,6 +30,8 @@ namespace Radio_Search.Importer.Canada.Services.Implementations.EnvironmentManag
                 using var file = File.Create(dst);
                 stream.CopyTo(file);
             }
+
+            return fontDir;
         }
     }
 }
