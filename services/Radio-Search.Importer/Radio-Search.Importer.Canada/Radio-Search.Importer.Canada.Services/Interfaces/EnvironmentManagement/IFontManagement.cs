@@ -6,9 +6,9 @@
     public interface IFontManagement
     {
         /// <summary>
-        /// Ensures all required fonts are installed and available to the application
+        /// Ensures all required fonts are written to a writable folder and available to the application.
         /// </summary>
-        /// <returns></returns>
-        void InitializaFonts();
+        /// <returns>The absolute path of the folder the fonts were written to.</returns>
+        string InitializaFonts();
     }
 }
