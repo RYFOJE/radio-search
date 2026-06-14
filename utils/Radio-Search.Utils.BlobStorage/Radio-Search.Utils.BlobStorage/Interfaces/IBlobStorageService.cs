@@ -1,4 +1,6 @@
-﻿namespace Radio_Search.Utils.BlobStorage.Interfaces
+﻿using Azure.Storage.Blobs.Specialized;
+
+namespace Radio_Search.Utils.BlobStorage.Interfaces
 {
     /// <summary>
     /// Provides an interface for asynchronous operations on blob storage, including uploading, downloading, checking
@@ -81,5 +83,13 @@
         /// <returns>A task that represents the asynchronous operation. The task result contains a list of blob names  found in
         /// the specified directory. If no blobs are found, the list will be empty.</returns>
         Task<List<string>> ListBlobsForDirectory(string blobDirectory);
+
+        /// <summary>
+        /// Gets a client for managing leases on the specified blob asynchronously.
+        /// </summary>
+        /// <param name="blobName">The name of the blob for which to obtain a lease client. Cannot be null or empty.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="BlobLeaseClient"/>
+        /// for managing leases on the specified blob.</returns>
+        IBlobLockClient GetBlobLeaseClient(string blobName);
     }
 }

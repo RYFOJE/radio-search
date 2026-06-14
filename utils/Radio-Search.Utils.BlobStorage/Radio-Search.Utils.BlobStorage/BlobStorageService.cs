@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 using Radio_Search.Utils.BlobStorage.Interfaces;
 
 namespace Radio_Search.Utils.BlobStorage
@@ -132,6 +133,11 @@ namespace Radio_Search.Utils.BlobStorage
             }
 
             return foundBlobs;
+        }
+
+        public IBlobLockClient GetBlobLeaseClient(string blobName)
+        {
+            return new BlobLockClient(_containerClient.GetBlobClient(blobName));
         }
     }
 }

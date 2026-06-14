@@ -31,5 +31,32 @@ namespace Radio_Search.Utils.BlobStorage
 
             return services;
         }
+
+        public static IServiceCollection AddBlobStorage(
+            this IServiceCollection services,
+            string blobConnectionString,
+            string containerName,
+            string keyedName)
+        {
+            services.AddKeyedSingleton<IBlobStorageService>(keyedName, (provider, key) =>
+            {
+                BlobServiceClient client;
+
+                if (string.Equals(blobConnectionString, AZURITE_CONN_STR, StringComparison.Ordinal))
+                {
+                    client = new BlobServiceClient(blobConnectionString);
+                }
+                else
+                {
+                    client = new BlobServiceClient(
+                        new Uri(blobConnectionString),
+                        new DefaultAzureCredential());
+                }
+
+                return new BlobStorageService(client, containerName);
+            });
+
+            return services;
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Radio_Search.Importer.Canada.Services.Responses
 {
-    public class DownloadFontsResponse
+    public class DownloadFontsResponse : ResponseBase
     {
         public List<string> DownloadedFontPaths { get; set; } = [];
         public List<string> DownloadedFonts { get; set; } = [];
