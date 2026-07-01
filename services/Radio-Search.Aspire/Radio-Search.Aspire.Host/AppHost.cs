@@ -1,5 +1,7 @@
+using Aspire.Hosting.Azure;
 using Azure.Provisioning.PostgreSql;
 using Azure.Provisioning.ServiceBus;
+using Radio_Search.Aspire.Host.Helpers;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -37,10 +39,9 @@ var postgres = builder.AddAzurePostgresFlexibleServer("rds-spatial-db")
     })
     .RunAsContainer(container =>
     {
-        container
-            .WithImage("postgis/postgis")
-            .WithDataVolume();
-
+        container.WithImage("postgis/postgis");
+        container.WithLifetime(ContainerLifetime.Persistent);
+        container.WithDataVolume();
         container.WithPgAdmin();
     });
 
@@ -72,15 +73,50 @@ var importerServiceBus = builder.AddAzureServiceBus("importer-servicebus")
 // The topic name must be "canada" to match the ServiceBusTrigger attributes in the Function app.
 var sbImporterCanadaTopic = importerServiceBus.AddServiceBusTopic("canada");
 
-sbImporterCanadaTopic.AddServiceBusSubscription("ChunkProcessingComplete");
-sbImporterCanadaTopic.AddServiceBusSubscription("ChunkReady");
-sbImporterCanadaTopic.AddServiceBusSubscription("DownloadComplete");
-sbImporterCanadaTopic.AddServiceBusSubscription("ImportStart");
+// Each subscription only receives messages whose "Target" application property matches its own
+// name (see AzureServiceBusWriter.cs), so publishing one message type doesn't fan out to every
+// Function trigger on the topic.
+AddFilteredSubscription(sbImporterCanadaTopic, "ChunkProcessingComplete");
+AddFilteredSubscription(sbImporterCanadaTopic, "ChunkReady");
+AddFilteredSubscription(sbImporterCanadaTopic, "DownloadComplete");
+AddFilteredSubscription(sbImporterCanadaTopic, "ImportStart");
+
+static void AddFilteredSubscription(IResourceBuilder<AzureServiceBusTopicResource> topic, string subscriptionName)
+{
+    topic.AddServiceBusSubscription(subscriptionName)
+        .WithProperties(subscription =>
+        {
+            subscription.Rules.Add(new AzureServiceBusRule(subscriptionName)
+            {
+                FilterType = AzureServiceBusFilterType.CorrelationFilter,
+                CorrelationFilter = new AzureServiceBusCorrelationFilter
+                {
+                    Properties = { ["Target"] = subscriptionName }
+                }
+            });
+        });
+}
+
+importerServiceBus.WithServiceBusDashboardCommands("canada",
+    "ImportStart", "ChunkReady", "DownloadComplete", "ChunkProcessingComplete");
 
 #endregion
 
-var storage = builder.AddAzureStorage("storage")
+#region Storage
+
+var functionStorage = builder.AddAzureStorage("functionStorage")
     .RunAsEmulator();
+
+var importStorage = builder.AddAzureStorage("importerStorage")
+    .RunAsEmulator(azurite =>
+    {
+        azurite.WithLifetime(ContainerLifetime.Persistent);
+        azurite.WithDataVolume();
+    })
+    .AddBlobContainer("canada");
+
+#endregion
+
 
 // WithReference() only feeds Aspire client integrations, not Functions triggers/bindings, so the
 // trigger's `Connection = "sb_importer"` setting is wired explicitly via WithEnvironment().
@@ -90,12 +126,15 @@ var storage = builder.AddAzureStorage("storage")
 var sbImporterConnectionEnvName = "sb_importer" + (builder.ExecutionContext.IsPublishMode ? "__fullyQualifiedNamespace" : "");
 
 builder.AddAzureFunctionsProject<Projects.Radio_Search_Importer_Canada_Function>("importer-canada-function")
-    .WithHostStorage(storage)
+    .WithHostStorage(functionStorage)
     .WaitFor(postgres)
-    .WaitFor(migrator)
+    .WaitForCompletion(migrator)
     .WithReference(importerCanadaDb)
     .WithReference(sbImporterCanadaTopic)
     .WaitFor(sbImporterCanadaTopic)
-    .WithEnvironment(sbImporterConnectionEnvName, importerServiceBus.Resource.ConnectionStringExpression);
+    .WithEnvironment(sbImporterConnectionEnvName, importerServiceBus.Resource.ConnectionStringExpression)
+    .WithReference(importStorage)
+    .WaitFor(importStorage)
+    .WithRoleAssignments(importStorage, AzureStorageRole.StorageBlobDataReader);
 
 builder.Build().Run();

@@ -12,15 +12,16 @@ public class Program
         var builder = Host.CreateApplicationBuilder(args);
         builder.AddServiceDefaults();
 
-        var connString = builder.Configuration.GetConnectionString("importer-canada")
-            ?? throw new InvalidOperationException("Connection string 'importer-canada-db' not found.");
-
-        builder.Services.AddDbContext<CanadaImporterContext>(options =>
-            options.UseNpgsql(connString, sql =>
+        builder.AddNpgsqlDbContext<CanadaImporterContext>(
+            "importer-canada",
+            configureDbContextOptions: options =>
             {
-                sql.UseNetTopologySuite();
-                sql.MigrationsHistoryTable("__EFMigrationsHistory", "canada_importer");
-            })
+                options.UseNpgsql(npgsql =>
+                {
+                    npgsql.UseNetTopologySuite();
+                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "canada_importer");
+                });
+            }
         );
 
         builder.Services.AddHostedService<ImporterCanada>();

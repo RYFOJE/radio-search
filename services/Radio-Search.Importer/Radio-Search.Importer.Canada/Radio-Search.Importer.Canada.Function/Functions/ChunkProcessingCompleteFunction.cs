@@ -39,9 +39,9 @@ public class ChunkProcessingCompleteFunction
         {
             _logger.LogError(ex, "Failed to process Chunk Ready message. Attempt: {AttemptNumber}", message.DeliveryCount);
             await messageActions.AbandonMessageAsync(message);
+            return;
         }
 
-        // Complete the message
         await messageActions.CompleteMessageAsync(message);
     }
 }

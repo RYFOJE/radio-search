@@ -53,49 +53,44 @@ var config = new ConfigurationBuilder()
 
 #region APP CONFIG
 
-// Skipped for local/Aspire-orchestrated runs: these require a real Azure App Configuration
-// endpoint and Entra ID auth, which the local Service Bus/Storage emulators don't provide.
-if (isProduction)
+// Common
+builder.Configuration.AddAzureAppConfiguration(options =>
 {
-    // Common
-    builder.Configuration.AddAzureAppConfiguration(options =>
+    var uri = config.GetValue<string>("AppConfig:Common:URL") ?? throw new ArgumentNullException("AppConfig:Common:URL is null");
+    var sentinelLabel = config.GetValue<string>("AppConfig:Common:Sentinel") ?? throw new ArgumentNullException("AppConfig:Common:Sentinel is null");
+    var refreshInterval = config.GetValue("AppConfig:Common:RefreshInterval", 5);
+
+    options.Connect(new Uri(uri), azureCreds);
+
+    options.Select(KeyFilter.Any, LabelFilter.Null);
+
+    options.ConfigureRefresh(refreshOptions =>
     {
-        var uri = config.GetValue<string>("AppConfig:Common:URL") ?? throw new ArgumentNullException("AppConfig:Common:URL is null");
-        var sentinelLabel = config.GetValue<string>("AppConfig:Common:Sentinel") ?? throw new ArgumentNullException("AppConfig:Common:Sentinel is null");
-        var refreshInterval = config.GetValue("AppConfig:Common:RefreshInterval", 5);
-
-        options.Connect(new Uri(uri), azureCreds);
-
-        options.Select(KeyFilter.Any, LabelFilter.Null);
-
-        options.ConfigureRefresh(refreshOptions =>
-        {
-            refreshOptions.Register(sentinelLabel, refreshAll: true);
-            refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
-        });
+        refreshOptions.Register(sentinelLabel, refreshAll: true);
+        refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
     });
+});
 
-    // Importers
+// Importers
 
-    builder.Configuration.AddAzureAppConfiguration(options =>
+builder.Configuration.AddAzureAppConfiguration(options =>
+{
+    var uri = config.GetValue<string>("AppConfig:Importer:URL") ?? throw new ArgumentNullException("AppConfig:Importer:URL is null");
+    var sentinelLabel = config.GetValue<string>("AppConfig:Importer:Sentinel") ?? throw new ArgumentNullException("AppConfig:Importer:Sentinel is null");
+    var keyPrefix = config.GetValue<string>("AppConfig:Importer:Prefix") ?? throw new ArgumentNullException("AppConfig:Importer:Prefix is null");
+    var refreshInterval = config.GetValue("AppConfig:Importer:RefreshInterval", 5);
+
+    options.Connect(new Uri(uri), azureCreds);
+
+    options.Select($"{keyPrefix}:*", LabelFilter.Null);
+    options.TrimKeyPrefix($"{keyPrefix}:");
+
+    options.ConfigureRefresh(refreshOptions =>
     {
-        var uri = config.GetValue<string>("AppConfig:Importer:URL") ?? throw new ArgumentNullException("AppConfig:Importer:URL is null");
-        var sentinelLabel = config.GetValue<string>("AppConfig:Importer:Sentinel") ?? throw new ArgumentNullException("AppConfig:Importer:Sentinel is null");
-        var keyPrefix = config.GetValue<string>("AppConfig:Importer:Prefix") ?? throw new ArgumentNullException("AppConfig:Importer:Prefix is null");
-        var refreshInterval = config.GetValue("AppConfig:Importer:RefreshInterval", 5);
-
-        options.Connect(new Uri(uri), azureCreds);
-
-        options.Select($"{keyPrefix}:*", LabelFilter.Null);
-        options.TrimKeyPrefix($"{keyPrefix}:");
-
-        options.ConfigureRefresh(refreshOptions =>
-        {
-            refreshOptions.Register(sentinelLabel, refreshAll: true);
-            refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
-        });
+        refreshOptions.Register(sentinelLabel, refreshAll: true);
+        refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
     });
-}
+});
 
 #endregion
 
@@ -179,33 +174,24 @@ builder.Services.Configure<ServiceBusDefinitions>(
 
 #region DB CONTEXTS
 
-var dbConnString = String.Format(
-    builder.Configuration.GetValue<string>("PostgresqlConnectionTemplate")
-        ?? throw new InvalidOperationException("PostgresqlConnectionTemplate is null"),
-    builder.Configuration.GetValue<string>("CanadaDbUrl")
-        ?? throw new InvalidOperationException("CanadaDbUrl is null"),
-    builder.Configuration.GetValue<string>("CanadaDbName")
-        ?? throw new InvalidOperationException("CanadaDbName is null"),
-    builder.Configuration.GetValue<string>("CanadaDbUsername")
-        ?? throw new InvalidOperationException("CanadaDbUsername is null"),
-    builder.Configuration.GetValue<string>("CanadaDbPassword")
-        ?? throw new InvalidOperationException("CanadaDbPassword is null")
-);
-
-builder.Services.AddDbContext<CanadaImporterContext>(options =>
-    options.UseNpgsql(
-        dbConnString,
-        sqlOptions =>
+// Connection resolved from ConnectionStrings:importer-canada in every environment:
+// locally/orchestrated this is injected by the Aspire AppHost's WithReference(importerCanadaDb);
+// in production it comes from Azure App Configuration / Key Vault (single connection string secret).
+builder.AddNpgsqlDbContext<CanadaImporterContext>(
+    "importer-canada",
+    configureDbContextOptions: options =>
+    {
+        options.UseNpgsql(npgsql =>
         {
-            sqlOptions.UseNetTopologySuite();
-            sqlOptions.MigrationsHistoryTable(
+            npgsql.UseNetTopologySuite();
+            npgsql.MigrationsHistoryTable(
                 tableName: "__EFMigrationsHistory",
                 schema: "canada_importer"
             );
-            sqlOptions.CommandTimeout(180);
-        }
-    )
-    .EnableSensitiveDataLogging(false)
+            npgsql.CommandTimeout(180);
+        })
+        .EnableSensitiveDataLogging(false);
+    }
 );
 
 #endregion

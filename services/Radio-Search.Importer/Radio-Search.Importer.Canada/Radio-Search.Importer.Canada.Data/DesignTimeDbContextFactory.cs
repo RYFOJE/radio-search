@@ -15,13 +15,9 @@ namespace Radio_Search.Importer.Canada.Data
         /// RAAAAGH
         public const string KV_URL = "https://rds-administration.vault.azure.net/";
         public const string APP_CONFIG_URL = "https://rds-config.azconfig.io";
-        public const string DATABASE_NAME = "importer_canada";
-
 
         public CanadaImporterContext CreateDbContext(string[] args)
         {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "production";
-
             // Build full configuration
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
@@ -37,13 +33,8 @@ namespace Radio_Search.Importer.Canada.Data
                 })
                 .Build();
 
-            var dbConnString = string.Format(
-                configuration.GetValue<string>("PostgresqlConnectionTemplate") ?? throw new InvalidOperationException("PostgresqlConnectionTemplate is null"),
-                configuration.GetValue<string>("PostgresqlDbUrl") ?? throw new InvalidOperationException("PostgresqlDbUrl is null"),
-                DATABASE_NAME,
-                configuration.GetValue<string>("PostgresqlAdminUsername") ?? throw new InvalidOperationException("PostgresqlAdminUsername is null"),
-                configuration.GetValue<string>("PostgresqlAdminPassword") ?? throw new InvalidOperationException("PostgresqlAdminPassword is null")
-            );
+            var dbConnString = configuration.GetConnectionString("importer-canada")
+                ?? throw new InvalidOperationException("ConnectionStrings:importer-canada is null");
 
             var optionsBuilder = new DbContextOptionsBuilder<CanadaImporterContext>();
             optionsBuilder.UseNpgsql(

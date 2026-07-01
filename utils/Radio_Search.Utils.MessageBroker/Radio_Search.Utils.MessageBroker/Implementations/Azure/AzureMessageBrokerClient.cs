@@ -12,8 +12,9 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
         private readonly AzureServiceBusClientConfig _config;
         private readonly ServiceBusClient _client;
         private readonly ServiceBusAdministrationClient _adminClient;
+        private readonly bool _isEmulator;
 
-        public AzureMessageBrokerClient(AzureServiceBusClientConfig config) 
+        public AzureMessageBrokerClient(AzureServiceBusClientConfig config)
         {
             _config = config;
 
@@ -23,9 +24,11 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
             else if (string.IsNullOrWhiteSpace(config.ServiceBusUrl))
                 throw new InvalidMessageBrokerClientException("Azure Service Bus Client Config Url cannot be null or whitespace.");
 
+            _isEmulator = IsConnectionString(config.ServiceBusUrl);
+
             try
             {
-                if (IsConnectionString(_config.ServiceBusUrl))
+                if (_isEmulator)
                 {
                     // Local/emulator use: SAS connection string, no Entra ID involved.
                     // The Service Bus emulator only supports the AMQP TCP transport, not AMQP Web Sockets,
@@ -70,6 +73,14 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
 
         public async Task<IMessageBrokerClient> AddMessageFilter(string destinationName, MessageFilter filter)
         {
+            // The emulator's admin/management API listens on a separate port (5300) from the
+            // AMQP data connection (5672), which isn't part of the connection string Aspire injects,
+            // so ServiceBusAdministrationClient can't reach it here. Not needed locally anyway:
+            // the Aspire AppHost already declares topics/subscriptions into the emulator's config.json
+            // at container start (see AddServiceBusTopic/AddServiceBusSubscription in AppHost.cs).
+            if (_isEmulator)
+                return this;
+
             if (!await _adminClient.SubscriptionExistsAsync(destinationName, filter.FilterName))
             {
                 var options = new CreateSubscriptionOptions(destinationName, filter.FilterName);
