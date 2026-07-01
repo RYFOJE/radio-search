@@ -53,52 +53,61 @@ var config = new ConfigurationBuilder()
 
 #region APP CONFIG
 
-// Common
-builder.Configuration.AddAzureAppConfiguration(options =>
+// Skipped for local/Aspire-orchestrated runs: these require a real Azure App Configuration
+// endpoint and Entra ID auth, which the local Service Bus/Storage emulators don't provide.
+if (isProduction)
 {
-    var uri = config.GetValue<string>("AppConfig:Common:URL") ?? throw new ArgumentNullException("AppConfig:Common:URL is null");
-    var sentinelLabel = config.GetValue<string>("AppConfig:Common:Sentinel") ?? throw new ArgumentNullException("AppConfig:Common:Sentinel is null");
-    var refreshInterval = config.GetValue("AppConfig:Common:RefreshInterval", 5);
-
-    options.Connect(new Uri(uri), azureCreds);
-
-    options.Select(KeyFilter.Any, LabelFilter.Null);
-
-    options.ConfigureRefresh(refreshOptions =>
+    // Common
+    builder.Configuration.AddAzureAppConfiguration(options =>
     {
-        refreshOptions.Register(sentinelLabel, refreshAll: true);
-        refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
+        var uri = config.GetValue<string>("AppConfig:Common:URL") ?? throw new ArgumentNullException("AppConfig:Common:URL is null");
+        var sentinelLabel = config.GetValue<string>("AppConfig:Common:Sentinel") ?? throw new ArgumentNullException("AppConfig:Common:Sentinel is null");
+        var refreshInterval = config.GetValue("AppConfig:Common:RefreshInterval", 5);
+
+        options.Connect(new Uri(uri), azureCreds);
+
+        options.Select(KeyFilter.Any, LabelFilter.Null);
+
+        options.ConfigureRefresh(refreshOptions =>
+        {
+            refreshOptions.Register(sentinelLabel, refreshAll: true);
+            refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
+        });
     });
-});
 
-// Importers
+    // Importers
 
-builder.Configuration.AddAzureAppConfiguration(options =>
-{
-    var uri = config.GetValue<string>("AppConfig:Importer:URL") ?? throw new ArgumentNullException("AppConfig:Importer:URL is null");
-    var sentinelLabel = config.GetValue<string>("AppConfig:Importer:Sentinel") ?? throw new ArgumentNullException("AppConfig:Importer:Sentinel is null");
-    var keyPrefix = config.GetValue<string>("AppConfig:Importer:Prefix") ?? throw new ArgumentNullException("AppConfig:Importer:Prefix is null");
-    var refreshInterval = config.GetValue("AppConfig:Importer:RefreshInterval", 5);
-
-    options.Connect(new Uri(uri), azureCreds);
-
-    options.Select($"{keyPrefix}:*", LabelFilter.Null);
-    options.TrimKeyPrefix($"{keyPrefix}:");
-
-    options.ConfigureRefresh(refreshOptions =>
+    builder.Configuration.AddAzureAppConfiguration(options =>
     {
-        refreshOptions.Register(sentinelLabel, refreshAll: true);
-        refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
+        var uri = config.GetValue<string>("AppConfig:Importer:URL") ?? throw new ArgumentNullException("AppConfig:Importer:URL is null");
+        var sentinelLabel = config.GetValue<string>("AppConfig:Importer:Sentinel") ?? throw new ArgumentNullException("AppConfig:Importer:Sentinel is null");
+        var keyPrefix = config.GetValue<string>("AppConfig:Importer:Prefix") ?? throw new ArgumentNullException("AppConfig:Importer:Prefix is null");
+        var refreshInterval = config.GetValue("AppConfig:Importer:RefreshInterval", 5);
+
+        options.Connect(new Uri(uri), azureCreds);
+
+        options.Select($"{keyPrefix}:*", LabelFilter.Null);
+        options.TrimKeyPrefix($"{keyPrefix}:");
+
+        options.ConfigureRefresh(refreshOptions =>
+        {
+            refreshOptions.Register(sentinelLabel, refreshAll: true);
+            refreshOptions.SetRefreshInterval(TimeSpan.FromMinutes(refreshInterval));
+        });
     });
-});
+}
 
 #endregion
 
 #region KEYVAULT
 
-builder.Configuration.AddAzureKeyVault(
-    new Uri(config.GetValue<string>("Keyvault-Importer") ?? throw new ArgumentNullException("Keyvault-Importer is null")),
-    azureCreds);
+// Skipped for local/Aspire-orchestrated runs: same Entra ID/real-resource constraint as App Config above.
+if (isProduction)
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(config.GetValue<string>("Keyvault-Importer") ?? throw new ArgumentNullException("Keyvault-Importer is null")),
+        azureCreds);
+}
 
 #endregion
 
@@ -122,8 +131,20 @@ builder.Services.AddSingleton<IFontManagement, FontManagement>();
 
 
 
-builder.Services.AddAzureServiceBusClient(new() { 
-    ServiceBusUrl = config.GetConnectionString("CanadaImporterServiceBus") ?? throw new ArgumentNullException()
+// Aspire (AppHost.cs) wires the connection via WithEnvironment():
+//  - "sb_importer" -> emulator SAS connection string, when running locally/orchestrated
+//  - "sb_importer__fullyQualifiedNamespace" -> namespace URI for DefaultAzureCredential, when published
+// ConnectionStrings:CanadaImporterServiceBus remains as a fallback for running the Function standalone.
+var serviceBusConnection =
+    config.GetValue<string>("sb_importer")
+    ?? config.GetValue<string>("sb_importer:fullyQualifiedNamespace")
+    ?? config.GetConnectionString("CanadaImporterServiceBus")
+    ?? throw new ArgumentNullException(
+        "sb_importer",
+        "No Service Bus connection configured (sb_importer / sb_importer__fullyQualifiedNamespace / ConnectionStrings:CanadaImporterServiceBus)");
+
+builder.Services.AddAzureServiceBusClient(new() {
+    ServiceBusUrl = serviceBusConnection
 });
 builder.Services.AddAzureWriterFactory();
 

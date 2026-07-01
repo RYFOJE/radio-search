@@ -25,18 +25,42 @@ namespace Radio_Search.Utils.MessageBroker.Implementations.Azure
 
             try
             {
-                _client = new ServiceBusClient(
-                    _config.ServiceBusUrl,
-                    new DefaultAzureCredential(),
-                    _config.ClientOptions);
+                if (IsConnectionString(_config.ServiceBusUrl))
+                {
+                    // Local/emulator use: SAS connection string, no Entra ID involved.
+                    // The Service Bus emulator only supports the AMQP TCP transport, not AMQP Web Sockets,
+                    // so the transport is forced regardless of the caller-supplied ClientOptions.
+                    var emulatorOptions = _config.ClientOptions ?? new ServiceBusClientOptions();
+                    emulatorOptions.TransportType = ServiceBusTransportType.AmqpTcp;
 
-                _adminClient = new ServiceBusAdministrationClient(_config.ServiceBusUrl, new DefaultAzureCredential());
+                    _client = new ServiceBusClient(_config.ServiceBusUrl, emulatorOptions);
+                    _adminClient = new ServiceBusAdministrationClient(_config.ServiceBusUrl);
+                }
+                else
+                {
+                    // Real Azure use: fully qualified namespace + managed identity / developer credential.
+                    _client = new ServiceBusClient(
+                        _config.ServiceBusUrl,
+                        new DefaultAzureCredential(),
+                        _config.ClientOptions);
+
+                    _adminClient = new ServiceBusAdministrationClient(_config.ServiceBusUrl, new DefaultAzureCredential());
+                }
             }
             catch (Exception ex)
             {
                 throw new InvalidMessageBrokerClientException("Exception thrown while creating Service Bus Client.", ex);
             }
         }
+
+        /// <summary>
+        /// The Service Bus emulator is only reachable via a SAS connection string
+        /// (e.g. "Endpoint=sb://localhost;...;UseDevelopmentEmulator=true;"), since it doesn't
+        /// support Microsoft Entra ID. A real namespace value is a bare URI/hostname with no SAS key.
+        /// </summary>
+        private static bool IsConnectionString(string serviceBusUrl) =>
+            serviceBusUrl.Contains("Endpoint=sb://", StringComparison.OrdinalIgnoreCase) &&
+            serviceBusUrl.Contains("SharedAccessKey", StringComparison.OrdinalIgnoreCase);
 
         /// <inheritdoc/>
         public IMessageBrokerWriter GetMessageWriter(string destinationName)

@@ -1,4 +1,5 @@
 using Azure.Provisioning.PostgreSql;
+using Azure.Provisioning.ServiceBus;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -53,17 +54,48 @@ var migrator = builder.AddProject<Projects.Radio_Search_Aspire_DbMigrator>("db-m
 
 #region Servicebus
 
+var importerServiceBus = builder.AddAzureServiceBus("importer-servicebus")
+    .ConfigureInfrastructure(infra =>
+    {
+        var serviceBusNamespace = infra.GetProvisionableResources()
+                                        .OfType<ServiceBusNamespace>()
+                                        .Single();
 
+        serviceBusNamespace.Sku = new ServiceBusSku
+        {
+            Name = ServiceBusSkuName.Standard
+        };
+        serviceBusNamespace.Name = "rds-importers";
+    })
+    .RunAsEmulator();
+
+// The topic name must be "canada" to match the ServiceBusTrigger attributes in the Function app.
+var sbImporterCanadaTopic = importerServiceBus.AddServiceBusTopic("canada");
+
+sbImporterCanadaTopic.AddServiceBusSubscription("ChunkProcessingComplete");
+sbImporterCanadaTopic.AddServiceBusSubscription("ChunkReady");
+sbImporterCanadaTopic.AddServiceBusSubscription("DownloadComplete");
+sbImporterCanadaTopic.AddServiceBusSubscription("ImportStart");
 
 #endregion
 
 var storage = builder.AddAzureStorage("storage")
     .RunAsEmulator();
 
+// WithReference() only feeds Aspire client integrations, not Functions triggers/bindings, so the
+// trigger's `Connection = "sb_importer"` setting is wired explicitly via WithEnvironment().
+// Locally (emulator) this resolves to a full connection string on "sb_importer".
+// When published to Azure this resolves to the namespace URI on "sb_importer__fullyQualifiedNamespace"
+// for identity-based (DefaultAzureCredential) auth.
+var sbImporterConnectionEnvName = "sb_importer" + (builder.ExecutionContext.IsPublishMode ? "__fullyQualifiedNamespace" : "");
+
 builder.AddAzureFunctionsProject<Projects.Radio_Search_Importer_Canada_Function>("importer-canada-function")
     .WithHostStorage(storage)
     .WaitFor(postgres)
     .WaitFor(migrator)
-    .WithReference(importerCanadaDb);
+    .WithReference(importerCanadaDb)
+    .WithReference(sbImporterCanadaTopic)
+    .WaitFor(sbImporterCanadaTopic)
+    .WithEnvironment(sbImporterConnectionEnvName, importerServiceBus.Resource.ConnectionStringExpression);
 
 builder.Build().Run();
