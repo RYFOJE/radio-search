@@ -1,0 +1,22 @@
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>73115e81-e0a0-48c0-951b-51636b12c453</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.4.6" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="13.4.6" />
+    <PackageReference Include="Aspire.Hosting.Azure.PostgreSQL" Version="13.4.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Radio-Search.Importer\Radio-Search.Importer.Canada\Radio-Search.Importer.Canada.Function\Radio-Search.Importer.Canada.Function.csproj" />
+    <ProjectReference Include="..\Radio-Search.Aspire.DbMigrator\Radio-Search.Aspire.DbMigrator.csproj" />
+  </ItemGroup>
+
+</Project>

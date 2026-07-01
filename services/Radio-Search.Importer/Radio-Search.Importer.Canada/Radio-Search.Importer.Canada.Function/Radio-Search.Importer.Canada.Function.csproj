@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\utils\Radio_Search.Utils.MessageBroker\Radio_Search.Utils.MessageBroker\Radio_Search.Utils.MessageBroker.csproj" />
+    <ProjectReference Include="..\..\..\Radio-Search.Aspire\Radio-Search.Aspire.ServiceDefaults\Radio-Search.Aspire.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Radio-Search.Importer.Canada.Data-Contracts\Radio-Search.Importer.Canada.Data-Contracts.csproj" />
     <ProjectReference Include="..\Radio-Search.Importer.Canada.Data\Radio-Search.Importer.Canada.Data.csproj" />
     <ProjectReference Include="..\Radio-Search.Importer.Canada.Services\Radio-Search.Importer.Canada.Services.csproj" />

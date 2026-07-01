@@ -26,6 +26,8 @@ using Radio_Search.Utils.MessageBroker.ConfigurationSetupExtensions;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 builder.ConfigureFunctionsWebApplication();
 
 # region Azure Credentials

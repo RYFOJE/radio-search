@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Aspire/">
+    <Project Path="Radio-Search.Aspire.DbMigrator/Radio-Search.Aspire.DbMigrator.csproj" />
+    <Project Path="Radio-Search.Aspire.Host/Radio-Search.Aspire.Host.csproj" />
+    <Project Path="Radio-Search.Aspire.ServiceDefaults/Radio-Search.Aspire.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Importers/" />
+  <Folder Name="/Importers/Canada/">
+    <Project Path="../Radio-Search.Importer/Radio-Search.Importer.Canada/Radio-Search.Importer.Canada.Data-Contracts/Radio-Search.Importer.Canada.Data-Contracts.csproj" />
+    <Project Path="../Radio-Search.Importer/Radio-Search.Importer.Canada/Radio-Search.Importer.Canada.Data/Radio-Search.Importer.Canada.Data.csproj" />
+    <Project Path="../Radio-Search.Importer/Radio-Search.Importer.Canada/Radio-Search.Importer.Canada.Function/Radio-Search.Importer.Canada.Function.csproj" />
+    <Project Path="../Radio-Search.Importer/Radio-Search.Importer.Canada/Radio-Search.Importer.Canada.Services/Radio-Search.Importer.Canada.Services.csproj" />
+  </Folder>
+</Solution>
